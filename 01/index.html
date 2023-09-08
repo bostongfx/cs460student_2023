@@ -34,6 +34,13 @@
         width: 100%;
       }
 
+      .viewer {
+        border: 0px;
+        width: 200px;
+        height: 200px;
+        padding: 10px;
+      }
+
     </style>
   </head>
   <body>
@@ -45,17 +52,25 @@
     <div class='demo'>
 
       <!-- TODO: REPLACE WITH A SCREENSHOT OF RO.ME -->
-      <img id='screenshot' src='https://placehold.co/300x300'>
+      <img id='screenshot' src='rome.png'>
       <p id='description'>
       <!-- TODO: FILL IN YOUR DESCRIPTION -->
-      RO.ME is a... TODO!
+      RO.ME is an interactive experience film built in WebGL. Users are able to move around steer themselves 
+      throughout the film; this means that the user moves their cursor they're able to see various visual effects and 
+      filters/effects are added in the place where the cursor was. It is a music video made for the web browser - it 
+      has both 2D and 3D visuals. Although this project was done more than a decade ago it is very interesting to you see how far 
+      browser-based visuals have advanced. Now we have 360 interactive videos and images in youtube and google.
       </p>
       <p id='technology'>
-      Technology: TODO! <!-- TODO: FILL IN THE TECHNOLOGIES USED -->
+      Technology: 
+      WebGL, WebGL Inspector, JavaScript, HTML5, Three.js 3D library, Google Chrome Experiments
       </p>
     
       <div id='bonus'>
         <!-- TODO: BONUS TASK GOES HERE -->
+        <iframe class="viewer" src="viewer.html?models/life_soup/fishA.gltf"></iframe>
+        <iframe class="viewer" src="viewer.html?models/black_soup/birds_raven.gltf"></iframe>
+        <iframe class="viewer" src="viewer.html?models/black_soup/goat.gltf"></iframe>
       </div>
 
     </div>
