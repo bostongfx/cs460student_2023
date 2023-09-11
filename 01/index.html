@@ -12,11 +12,11 @@
 
       .demo {
         margin: auto;
-        width:50%;
+        width: 50%;
       }
 
       #screenshot {
-        float:left;
+        float: left;
         margin-right: 20px;
         margin-bottom: 20px;
         max-width: 300px;
@@ -33,32 +33,49 @@
       #bonus {
         width: 100%;
       }
-
     </style>
   </head>
   <body>
-
-    <img id='cube' src='https://cs460.org/gfx/cube.png'>
+    <img id="cube" src="https://cs460.org/gfx/cube.png" />
 
     <h1>RO.ME "3 DREAMS OF BLACK"</h1>
 
-    <div class='demo'>
-
+    <div class="demo">
       <!-- TODO: REPLACE WITH A SCREENSHOT OF RO.ME -->
-      <img id='screenshot' src='https://placehold.co/300x300'>
-      <p id='description'>
-      <!-- TODO: FILL IN YOUR DESCRIPTION -->
-      RO.ME is a... TODO!
+      <img id="screenshot" src="Screenshot.png" />
+      <p id="description">
+        <!-- TODO: FILL IN YOUR DESCRIPTION -->
+        RO.ME is an innovative and immersive interactive film with great music.
+        It uses creative and colorful models in the film. It also embraces
+        collabration as other people can create models and add it to the dream
+        for others to enjoy.
       </p>
-      <p id='technology'>
-      Technology: TODO! <!-- TODO: FILL IN THE TECHNOLOGIES USED -->
+      <p id="technology">
+        Technology: The main component used is WebGL which is a JavaScript API
+        for hardware accelerated rendering on a browser. The experience was made
+        possible by using simple but powerful tools like HTML5, JavaScript and
+        WebGL.
       </p>
-    
-      <div id='bonus'>
+      <div id="bonus">
         <!-- TODO: BONUS TASK GOES HERE -->
+        <!-- Code for models from https://github.com/mrdoob/rome-gltf -->
+        BONUS<br />
+        <iframe
+          class="viewer"
+          src="viewer.html?files/models/black_soup/alligator.gltf"
+          style="border: none"
+        ></iframe>
+        <iframe
+          class="viewer"
+          src="viewer.html?files/models/life_soup/birdsA_parrot.gltf"
+          style="border: none"
+        ></iframe>
+        <iframe
+          class="viewer"
+          src="viewer.html?files/models/life_soup/quadruped_fox.gltf"
+          style="border: none"
+        ></iframe>
       </div>
-
     </div>
-
   </body>
 </html>
