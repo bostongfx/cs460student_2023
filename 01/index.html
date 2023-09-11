@@ -32,11 +32,17 @@
 
       #bonus {
         width: 100%;
+        margin-top: 10%;
       }
-      #bonus {
+      #content {
         display: inline-block;
-        width: 800px;
       }
+      .viewer {
+				border: 0px;
+				width: 200px;
+				height: 200px;
+				padding: 10px;
+			}
 
     </style>
   </head>
@@ -52,17 +58,24 @@
       <img id='screenshot' src='./Screenshot.png'>
       <p id='description'>
       <!-- TODO: FILL IN YOUR DESCRIPTION -->
-      RO.ME is a... TODO!
+      Three dreams of Black is a interactive musical film from a album called RO.ME. 
+      You can explore 3 worlds(dreams) and interact with the story. 
+      Its a combination of videos, 2d graphics with different 3d sequences to make it interactive. 
+      Here the user can use mouse to guide point of view of the character and experience three wonderful world. 
+      My favorite part was flying vicariously through a flock of birds in the skies above Rome, going through rainbow and waterfall and enjoying it. 
+      It was made in June 2011 and was a big achievement in that time because of the power that webGL used to create this surreal environment through web browser. 
+      It's an example of how the webGL can be used for create interactive storytelling and art.
       </p>
       <p id='technology'>
-      Technology: WebGL <!-- TODO: FILL IN THE TECHNOLOGIES USED -->
+      Technology: WebGL, HTML, CSS, JavaScript, Three.js <!-- TODO: FILL IN THE TECHNOLOGIES USED -->
       </p>
     
       <div id='bonus'>
+        <div>Bonus</div>    
         <span id="content">
         <!-- TODO: BONUS TASK GOES HERE -->
         <iframe class="viewer" src="viewer.html?files/models/black_soup/quadruped_panther.gltf"></iframe>
-        <iframe class="viewer" src="viewer.html?files/models/black_soup/alligator.gltf"></iframe>
+        <iframe class="viewer" src="viewer.html?files/models/life_soup/quadruped_fox.gltf"></iframe>
         <iframe class="viewer" src="viewer.html?files/models/life_soup/quadruped_horse.gltf"></iframe>
         </span>
       </div>
