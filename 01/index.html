@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>CS460.org Assignment 1</title>
     <style>
       body {
-        background: black;
+        background: rgb(0, 0, 0);
         color: white;
         font-family: sans-serif;
         text-align: center;
@@ -12,11 +13,11 @@
 
       .demo {
         margin: auto;
-        width:50%;
+        width: 50%;
       }
 
       #screenshot {
-        float:left;
+        float: left;
         margin-right: 20px;
         margin-bottom: 20px;
         max-width: 300px;
@@ -33,32 +34,39 @@
       #bonus {
         width: 100%;
       }
-
     </style>
   </head>
   <body>
-
-    <img id='cube' src='https://cs460.org/gfx/cube.png'>
+    <img id="cube" src="https://cs460.org/gfx/cube.png" />
 
     <h1>RO.ME "3 DREAMS OF BLACK"</h1>
 
-    <div class='demo'>
-
+    <div class="demo">
       <!-- TODO: REPLACE WITH A SCREENSHOT OF RO.ME -->
-      <img id='screenshot' src='https://placehold.co/300x300'>
-      <p id='description'>
-      <!-- TODO: FILL IN YOUR DESCRIPTION -->
-      RO.ME is a... TODO!
+      <img id="screenshot" src="img.png" />
+      <p id="description">
+        <!-- TODO: FILL IN YOUR DESCRIPTION -->
+        RO.ME is a interactive music video in which the viewer can modify the
+        music video by moving around the mouse cursor to invoke different
+        events. In the beginning you "create" a path of animals via the cursor
+        and at the end you "fly" by moving as a flock of birds to explore the
+        generated world.
       </p>
-      <p id='technology'>
-      Technology: TODO! <!-- TODO: FILL IN THE TECHNOLOGIES USED -->
+      <p id="technology">
+        Technology: The RO.ME music video uses HTML and Javascript (Three.js
+        library) code with WebGL to render the 3D graphics. The assests were
+        created in Blender. WebGL uses hardware accleration which means that it
+        uses the GPU of the client to generate the graphics reducing potential
+        load on the server.<!-- TODO: FILL IN THE TECHNOLOGIES USED -->
       </p>
-    
-      <div id='bonus'>
+
+      <div id="bonus">
         <!-- TODO: BONUS TASK GOES HERE -->
+
+       <script type = "module" src = "/main.js"></script>
+        
+        
       </div>
-
     </div>
-
   </body>
 </html>
