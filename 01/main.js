@@ -30,4 +30,6 @@ function animate() {
     renderer.render(scene,camera);
 
 }
+// I followed the docs for THREE.js but I still could not get the gtlf file to render. :(
+
 animate();
