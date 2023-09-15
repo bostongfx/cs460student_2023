@@ -33,7 +33,7 @@
       r.add(c);
 
       r.render();
-      CAMERAS.push(r.camera.view);
+      //CAMERAS.push(r.camera.view);
     }
 
     function changeCamera() {
@@ -116,6 +116,8 @@
       //Bonus) Automatic camera movement
       else if (e.code == 'KeyC') {
         CAMERAS.push(r.camera.view);
+        console.log('pushed: ');
+        console.log(r.camera.view);
       }
       else if (e.code == 'KeyV') {
         if (!intervId) {
