@@ -14,6 +14,10 @@
       type="text/javascript"
       src="https://get.goXTK.com/xtk_edge.js"
     ></script>
+    <script
+      type="text/javascript"
+      src="./loader.js"
+    ></script>
     <script>
       window.onload = function () {
         console.log("Here I am!!");
@@ -77,6 +81,12 @@
           else if (e.code == "Digit0") {
             c.color = [0, 0, 0];
           }
+          else if (e.code == "KeyO") {
+            download();
+          }
+          else if (e.code == "KeyU") {
+            upload("scene.json");
+          }
           else if (e.code == "Space") {
             new_cube = new X.cube();
             new_cube.color = c.color;
@@ -84,6 +94,7 @@
             new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = 20;
             r.add(new_cube);
           }
+
       }
     </script>
   </head>
