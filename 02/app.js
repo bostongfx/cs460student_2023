@@ -6,7 +6,7 @@ window.onload = function() {
     r = new X.renderer3D();
     r.init();
     c = new X.cube();
-    c.lengthX = c.lengthY = c.lengthZ = CUBE_SIDELENGTH;
+    c.lengthX = c.lengthY = c.lengthZ = CUBE_SIDELENGTH + 0.01;
     r.add(c);
     r.render();
 
@@ -56,6 +56,12 @@ window.onload = function() {
                 break;
             case "Digit7":
                 c.color = [0, 1, 1];
+                break;
+            case "Digit8":
+                c.color = [1, 0.65, 0]; // orange
+                break;
+            case "Digit9":
+                c.color = [0.66, 0.3, 0.26]; // brick
                 break;
 
             // Create a new cube.
