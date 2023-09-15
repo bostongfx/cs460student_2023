@@ -41,7 +41,11 @@
         cameraIndex = 0;
       }
       r.camera.view = CAMERAS[cameraIndex];
+      console.log('camera view is now at index');
+      console.log(cameraIndex);
       cameraIndex++;
+      console.log('camera index has been incremented to');
+      console.log(cameraIndex);
     }
 
     window.onkeypress = function(e) {
