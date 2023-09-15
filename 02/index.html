@@ -36,6 +36,14 @@
       CAMERAS.append(r.camera.view);
     }
 
+    function changeCamera() {
+      if (cameraIndex >= CAMERAS.length) {
+        cameraIndex = 0;
+      }
+      r.camera.view = CAMERAS[cameraIndex];
+      cameraIndex++;
+    }
+
     window.onkeypress = function(e) {
       //2) Handle keyboard events to move the cube
       if (e.code == 'KeyD') {
@@ -114,14 +122,6 @@
           intervId = null;
         }
       }
-    }
-
-    function changeCamera() {
-      if (cameraIndex >= CAMERAS.length) {
-        cameraIndex = 0;
-      }
-      r.camera.view = CAMERAS[cameraIndex];
-      cameraIndex++;
     }
   </script>
   <body>
