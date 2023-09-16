@@ -119,9 +119,9 @@
       else if (e.code == 'KeyC') {
         // var view = r.camera.view;
         // CAMERAS.push(view);
-        CAMERAS.splice(CAMERAS.length, 0, r.camera.view);
+        CAMERAS.splice(CAMERAS.length, 0, r.camera.position);
         console.log('pushed: ');
-        console.log(r.camera.view);
+        console.log(r.camera.position);
       }
       else if (e.code == 'KeyV') {
         if (!intervId) {
