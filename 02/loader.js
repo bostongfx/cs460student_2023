@@ -16,7 +16,8 @@ function download() {
   // create JSON object
   var out = {};
   out['cubes'] = ALL_CUBES;
-  out['camera'] = r.camera.view;
+  out['camera'] = CAMERAS
+
 
   // from https://stackoverflow.com/a/30800715
   var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(out));
@@ -56,9 +57,11 @@ function upload(scene) {
     }
 
     // restore camera
-    r.camera.view = new Float32Array(Object.values(loaded['camera']));
-
-
+    r.camera.view = new Float32Array(Object.values(loaded['camera'][0]));
+    CAMERAS = [];
+    for (var i = 0; i<Object.values(loaded['camera']).length ; i++) {
+      CAMERAS.push(new Float32Array(Object.values(loaded['camera'][i])))
+    }
   };
   req.send(null);
   
