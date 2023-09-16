@@ -20,7 +20,7 @@
     var CAMERAS = [];
     var intervId;
     var cameraIndex = 0;
-    var cameraLength = 0;
+    //var cameraLength = 0;
 
     //1) Getting ready for XTK
     window.onload = function() {
@@ -42,13 +42,13 @@
         cameraIndex = 0;
       }
       r.camera.view = CAMERAS[cameraIndex];
-      console.log('camera view is now at index');
-      console.log(cameraIndex);
-      console.log('and position:');
-      console.log(CAMERAS[cameraIndex]);
+      //console.log('camera view is now at index');
+      //console.log(cameraIndex);
+      //console.log('and position:');
+      //console.log(CAMERAS[cameraIndex]);
       cameraIndex++;
-      console.log('camera index has been incremented to');
-      console.log(cameraIndex);
+      //console.log('camera index has been incremented to');
+      //console.log(cameraIndex);
     }
 
     window.onkeypress = function(e) {
@@ -123,8 +123,8 @@
         //CAMERAS.push(view);
         CAMERAS.push(new Float32Array(r.camera.view));
         //cameraLength++;
-        console.log('pushed: ');
-        console.log(view);
+        //console.log('pushed: ');
+        //console.log(view);
       }
       else if (e.code == 'KeyV') {
         if (!intervId) {
