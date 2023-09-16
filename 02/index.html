@@ -33,7 +33,7 @@
       r.add(c);
 
       r.render();
-      CAMERAS.push(r.camera.view);
+      //CAMERAS.push(r.camera.view);
     }
 
     function changeCamera() {
@@ -119,7 +119,7 @@
       else if (e.code == 'KeyC') {
         var view = r.camera.view;
         // CAMERAS.push(view);
-        CAMERAS.splice(CAMERAS.length, 0, view);
+        CAMERAS.push(view);
         console.log('pushed: ');
         console.log(view);
       }
