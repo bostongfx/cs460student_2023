@@ -117,7 +117,8 @@
 
       //Bonus) Automatic camera movement
       else if (e.code == 'KeyC') {
-        CAMERAS.push(r.camera.view);
+        var view = r.camera.view;
+        CAMERAS.push(view);
         console.log('pushed: ');
         console.log(r.camera.view);
       }
