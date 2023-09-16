@@ -53,6 +53,7 @@ function upload(scene) {
       loaded_cube.lengthX = loaded_cube.lengthY = loaded_cube.lengthZ = CUBE_SIDELENGTH;
 
       r.add(loaded_cube);
+      loaded['camera'][0] = r.camera.view;
 
     }
 
