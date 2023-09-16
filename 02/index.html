@@ -117,8 +117,9 @@
 
       //Bonus) Automatic camera movement
       else if (e.code == 'KeyC') {
-        var view = r.camera.view;
-        CAMERAS.push(view);
+        // var view = r.camera.view;
+        // CAMERAS.push(view);
+        CAMERAS.splice(CAMERAS.length, 0, r.camera.view);
         console.log('pushed: ');
         console.log(r.camera.view);
       }
