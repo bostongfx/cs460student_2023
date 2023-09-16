@@ -117,11 +117,11 @@
 
       //Bonus) Automatic camera movement
       else if (e.code == 'KeyC') {
-        // var view = r.camera.view;
+        var view = r.camera.view;
         // CAMERAS.push(view);
-        CAMERAS.splice(CAMERAS.length, 0, r.camera.position);
+        CAMERAS.splice(CAMERAS.length, 0, view);
         console.log('pushed: ');
-        console.log(r.camera.position);
+        console.log(view);
       }
       else if (e.code == 'KeyV') {
         if (!intervId) {
