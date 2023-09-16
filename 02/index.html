@@ -10,6 +10,91 @@
         overflow: hidden !important; 
       }
     </style>
+	 <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+   <script type="text/javascript" src="loader.js"></script>
+
+    <script type="text/javascript">
+
+      window.onload = function() {
+        console.log('loaded.');
+
+        r = new X.renderer3D();
+        r.init();
+        c = new X.cube();
+        c.lengthX = 10;
+        c.lengthY = 10;
+        c.lengthZ = 10;
+        r.add(c);
+        r.render();
+      };
+      
+      
+      window.onkeypress = function(e) {
+        const GAP = 2;
+        CUBE_SIDELENGTH = c.lengthX;
+        // Cube Movement
+        if (e.code == 'KeyD') {
+          c.transform.translateX(-CUBE_SIDELENGTH-GAP);
+        }
+        if (e.code == 'KeyA') {
+          c.transform.translateX(CUBE_SIDELENGTH+GAP);
+        }
+        if (e.code == 'KeyW') {
+          c.transform.translateZ(CUBE_SIDELENGTH+GAP);
+        }
+        if (e.code == 'KeyS') {
+          c.transform.translateZ(-CUBE_SIDELENGTH-GAP);
+        }
+        if (e.code == 'KeyQ') {
+          c.transform.translateY(CUBE_SIDELENGTH+GAP);
+        }
+        if (e.code == 'KeyE') {
+          c.transform.translateY(-CUBE_SIDELENGTH-GAP);
+        }
+        // Colors
+        if (e.code == 'Digit1') {
+          c.color = [1,1,1];
+        }
+        if (e.code == 'Digit2') {
+          c.color = [1,0,0];
+        }
+        if (e.code == 'Digit3') {
+          c.color = [0,1,0];
+        }
+        if (e.code == 'Digit4') {
+          c.color = [0,0,1];
+        }
+        if (e.code == 'Digit5') {
+          c.color = [1,1,0];
+        }
+        if (e.code == 'Digit6') {
+          c.color = [1,0,1];
+        }
+        if (e.code == 'Digit7') {
+          c.color = [0,1,1];
+        }
+        if (e.code == 'Digit0') {
+          c.color = [0,0,0];
+        }
+        // Place new cube
+        if (e.code == 'Space') {
+          new_cube = new X.cube();
+          new_cube.color = c.color;
+          new_cube.transform.matrix = new Float32Array(c.transform.matrix);
+          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH-.5;
+          r.add(new_cube);
+        }
+        // Download/ Upload
+        if (e.code == 'KeyO') {
+          download();
+        }
+        if (e.code == 'KeyL') {
+          upload(scene.json);
+        }
+        
+      }
+      
+    </script>script>
   </head>
   <body>
   </body>
