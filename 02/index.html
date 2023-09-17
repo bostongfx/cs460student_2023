@@ -3,7 +3,7 @@
     <title>CS460.org Assignment 2</title>
     <style>
       body {
-        background-color:rgb(255, 255, 255);
+        background-color:rgb(1, 1, 1);
         margin: 0;
         padding: 0;
         height: 100%;
@@ -26,6 +26,51 @@
       // r.camera.zoomIn();
       r.render();
     }
+
+    window.onkeypress = function(e) {
+      
+      if (e.code == 'KeyD') { // ADD TO THE RIGHT
+        c.transform.translateX(-22);
+        //(-CUBE_SIDELENGTH - GAP);
+      } else if (e.code == 'KeyA') { //ADD TO THE LEFT
+        c.transform.translateX(22);
+        //(CUBE_SIDEELENGTH + GAP);
+      } else if (e.code == 'KeyW') { //MOVE UP
+        c.transform.translateZ(22);
+        //(CUBE_SIDELENGTH + GAP);
+      } else if (e.code == 'KeyS') { //MOVE DOWN
+        c.transform.translateZ(-22);
+        //(-CUBE_SIDELENGTH - GAP);
+      } else if (e.code == 'KeyQ') { //MOVE FORWARD
+        c.transform.translateY(22);
+        //(CUBE_SIDELENGTH + GAP);
+      } else if (e.code == 'KeyE') { //MOVE BACKWARD
+        c.transform.translateY(-22);
+        //(-CUBE_SIDELENGTH - GAP);
+      } else if (e.code == 'Digit1') {
+        //white
+        c.color = [255, 255, 255];
+      } else if (e.code == 'Digit2') {
+        //red
+        c.color = [255, 0, 0];
+      } else if (e.code == 'Digit3') {
+        //green
+        c.color = [0, 255, 0];
+      } else if (e.code == 'Digit4') {
+        //blue
+        c.color = [0, 0, 255];
+      } else if (e.code == 'Digit5') {
+        //yellow
+        c.color = [255, 255, 0];
+      } else if (e.code == 'Digit6') {
+        //pink
+        c.color = [255, 102, 178];
+      } else if (e.code == 'Digit7') {
+        //cyan
+        c.color = [0, 255, 255];
+      }
+    }
+
   </script>
 
 
