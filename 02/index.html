@@ -67,6 +67,13 @@
       } else if (e.code == 'Digit7') {
         //cyan
         c.color = [0, 255, 255];
+      } else if (e.code == 'Space') {
+        new_cube = new X.cube();
+        new_cube.color = c.color;
+        new_cube.transform.matrix = new Float32Array(c.transform.matrix);
+        new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = 20;
+
+        r.add(new_cube);
       }
     }
 
