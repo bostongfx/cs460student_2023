@@ -97,6 +97,7 @@ function cameraShow(cam){
         console.log(loaded);
         // loop= setInterval(displayHello(view), 1500);
       }
+      req.send(null);
     }else{
       loop= setInterval(displayHello(cameraList), 1500);
     }
