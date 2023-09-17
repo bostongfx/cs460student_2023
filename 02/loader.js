@@ -76,6 +76,7 @@ function cameraShow(cam){
   // view.push(r.camera.view)
   var count=0;
   function displayHello(view) {
+    console.log(view[count]);
     r.camera.view= new Float32Array(Object.values(view[count++]));
     if(count==view.length){
       count=0;
