@@ -88,7 +88,7 @@ function cameraShow(){
   // }
   flag=!flag;
   if (flag){
-  loop= setInterval(displayHello, 1500);
+  loop= setInterval(displayHello, 3000);
   }else{
   clearInterval(loop);
   }
