@@ -87,7 +87,9 @@ function cameraShow(cam){
   // }
   flag=!flag;
   if (flag){
-    if(cam){
+    if(cameraList.length!=0){
+      loop= setInterval(displayHello(cameraList), 1500);
+    }else if(cam){
       console.log("hi")
       var req = new XMLHttpRequest();
       req.responseType = 'json';
@@ -95,11 +97,9 @@ function cameraShow(cam){
       req.onload  = function() {
         loaded = req.response;
         console.log(loaded);
-        // loop= setInterval(displayHello(view), 1500);
+        loop= setInterval(displayHello(loaded), 1500);
       }
       req.send(null);
-    }else{
-      loop= setInterval(displayHello(cameraList), 1500);
     }
     
   }else{
