@@ -64,3 +64,22 @@ function upload(scene) {
   
 }
 
+var view=[];
+function cameraStore(){
+  view.push(r.camera.view);
+  console.log("store", view);
+}
+
+function cameraShow(){
+  // view.push(r.camera.view)
+  function displayHello(v, i) {
+    r.camera.view= new Float32Array(Object.values(v));
+    console.log(i);
+  }
+  
+  for (var i=0; i<view;i++){
+    setInterval(displayHello(v, i), 1000);
+  }
+  // view.forEach(v=> setInterval(displayHello(v), 1000));
+  console.log("show", view);
+}

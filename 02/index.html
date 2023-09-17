@@ -29,7 +29,7 @@
       }
       window.onkeypress = function(e) {
         var CUBE_SIDELENGTH = 20;
-        var GAP = 0;
+        var GAP = 5;
         if (e.code == 'KeyD') {
           c.transform.translateX(-CUBE_SIDELENGTH - GAP);
         }
@@ -82,8 +82,14 @@
           new_cube = new X.cube();
           new_cube.color = c.color;
           new_cube.transform.matrix = new Float32Array(c.transform.matrix);
-          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH + GAP;
+          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
           r.add(new_cube);
+        }
+        if(e.code == 'KeyC'){
+          cameraStore();
+        }
+        if(e.code == 'KeyV'){
+          cameraShow();
         }
       }
     </script>
