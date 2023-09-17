@@ -64,20 +64,19 @@ function upload(scene) {
   
 }
 
-var view=[];
+var cameraList=[];
+var _q;
 function cameraStore(){
-  view.push(r.camera.view);
-  console.log("store", view);
+  cameraList.push(Array.from(r.camera.view));
   
 }
 
 var flag=false;
-function cameraShow(){
+function cameraShow(cam){
   // view.push(r.camera.view)
   var count=0;
-  function displayHello() {
+  function displayHello(view) {
     r.camera.view= new Float32Array(Object.values(view[count++]));
-    console.log(count);
     if(count==view.length){
       count=0;
     }
@@ -88,10 +87,33 @@ function cameraShow(){
   // }
   flag=!flag;
   if (flag){
-  loop= setInterval(displayHello, 3000);
+    if(cam){
+      console.log("hi")
+      var req = new XMLHttpRequest();
+      req.responseType = 'json';
+      req.open('GET', cam, true);
+      req.onload  = function() {
+        loaded = req.response;
+        console.log(loaded);
+        // loop= setInterval(displayHello(view), 1500);
+      }
+    }else{
+      loop= setInterval(displayHello(cameraList), 1500);
+    }
+    
   }else{
   clearInterval(loop);
   }
   // view.forEach(v=> setInterval(displayHello(v), 1000));
-  console.log("show", view);
+  // console.log("show", view);
+}
+
+function cameraSave(){
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cameraList));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", "cam.json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }
