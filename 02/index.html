@@ -10,6 +10,85 @@
         overflow: hidden !important; 
       }
     </style>
+
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script type="text/javascript" src="loader.js"></script>
+    
+    
+    <script type="text/javascript">
+      
+      window.onload = function()
+      {
+        console.log("Loaded");
+        
+        r = new X.renderer3D();
+        r.init();
+
+        c = new X.cube();
+        c.lengthX += 0.1;
+        c.lengthY += 0.1;
+        c.lengthZ += 0.1;
+        r.add(c);
+        r.render();
+      }
+
+      CUBE_SIDELENGTH = 20;
+      GAP = 2;
+      window.onkeypress = function(e)
+      {
+        // Cube Movement---------------------------------
+        if (e.code == 'KeyD') // Move right
+          c.transform.translateX(-CUBE_SIDELENGTH - GAP);
+        else if (e.code == 'KeyA') //Move left 
+          c.transform.translateX(CUBE_SIDELENGTH + GAP);
+        else if (e.code == 'KeyW') //Move up
+          c.transform.translateZ(CUBE_SIDELENGTH + GAP);
+        else if (e.code == 'KeyS') //Move down
+          c.transform.translateZ(-CUBE_SIDELENGTH - GAP);
+        else if (e.code == 'KeyQ') //Move foreward
+          c.transform.translateY(CUBE_SIDELENGTH + GAP);
+        else if (e.code == 'KeyE') //Move backward
+          c.transform.translateY(-CUBE_SIDELENGTH - GAP);
+        // Cube Movement Done----------------------------
+
+        // Cube Color------------------------------------
+        if (e.code == 'Digit1')
+          c.color = [1,1,1]; // white
+        else if (e.code == 'Digit2')
+          c.color = [1,0,0]; // red
+        else if (e.code == 'Digit3')
+          c.color = [0,1,0]; // green
+        else if (e.code == 'Digit4')
+          c.color = [0,0,1]; // blue
+        else if (e.code == 'Digit5')
+          c.color = [1,1,0]; // yellow
+        else if (e.code == 'Digit6')
+          c.color = [1,0,1]; // pink
+        else if (e.code == 'Digit7')
+          c.color = [0,1,1]; // cyan
+        else if (e.code == 'Digit0')
+          c.color = [0,0,0]; // black
+        // Cube Color Done--------------------------------
+
+        // Cube Placement---------------------------------
+        if (e.code == 'Space')
+        {
+          new_cube = new X.cube();
+          new_cube.color = c.color;
+          new_cube.transform.matrix = new Float32Array(c.transform.matrix);
+          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
+          r.add(new_cube);
+        }
+        // Cube Placement Done-----------------------------
+
+        // Save and Load Scene-----------------------------
+        if (e.code == 'KeyO')
+            download();
+        else if (e.code == "KeyL")
+            upload("scene.json");    
+        // Save and Load Scene Done------------------------
+      }
+    </script>
   </head>
   <body>
   </body>
