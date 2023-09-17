@@ -68,17 +68,29 @@ var view=[];
 function cameraStore(){
   view.push(r.camera.view);
   console.log("store", view);
+  
 }
 
+var flag=false;
 function cameraShow(){
   // view.push(r.camera.view)
-  function displayHello(v, i) {
-    r.camera.view= new Float32Array(Object.values(v));
-    console.log(i);
+  var count=0;
+  function displayHello() {
+    r.camera.view= new Float32Array(Object.values(view[count++]));
+    console.log(count);
+    if(count==view.length){
+      count=0;
+    }
   }
   
-  for (var i=0; i<view;i++){
-    setInterval(displayHello(v, i), 1000);
+  // for (var i=0; i<view;i++){
+  //   setInterval(displayHello(v, i), 1000);
+  // }
+  flag=!flag;
+  if (flag){
+  loop= setInterval(displayHello, 1500);
+  }else{
+  clearInterval(loop);
   }
   // view.forEach(v=> setInterval(displayHello(v), 1000));
   console.log("show", view);
