@@ -75,10 +75,10 @@ var flag=false;
 function cameraShow(cam){
   // view.push(r.camera.view)
   var count=0;
-  function displayHello(view) {
-    console.log(view[count]);
-    r.camera.view= new Float32Array(Object.values(view[count++]));
-    if(count==view.length){
+  function displayHello() {
+    // console.log(view);
+    r.camera.view= new Float32Array(Object.values(cameraList[count++]));
+    if(count==cameraList.length){
       count=0;
     }
   }
@@ -88,8 +88,9 @@ function cameraShow(cam){
   // }
   flag=!flag;
   if (flag){
+    // loop= setInterval(displayHello, 1500);
     if(cameraList.length!=0){
-      loop= setInterval(displayHello(cameraList), 1500);
+      loop= setInterval(displayHello, 1500);
     }else if(cam){
       console.log("hi")
       var req = new XMLHttpRequest();
@@ -98,7 +99,8 @@ function cameraShow(cam){
       req.onload  = function() {
         loaded = req.response;
         console.log(loaded);
-        loop= setInterval(displayHello(loaded), 1500);
+        cameraList=loaded;
+        loop= setInterval(displayHello, 1500);
       }
       req.send(null);
     }
