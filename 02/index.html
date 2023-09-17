@@ -1,4 +1,10 @@
-  <head>
+  <!-- Sources Used 
+    https://cantwell-tom.medium.com/making-an-undo-button-part-1-834d0cfd4185
+    https://stackoverflow.com/questions/60050943/restarting-array-after-reaching-last-element
+
+   -->
+  
+   <head>
     <title>CS460.org Assignment 2</title>
     <style>
       body {
@@ -12,11 +18,15 @@
 
     <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
     <script type ="text/javascript" src="loader.js"></script>
+
     
     <script type="text/javascript">
-        let grid = [];
         let CUBE_SIDELENGTH = 10;
         let GAP = 2;
+        let undoStack = [];
+        let redoStack = [];
+        let CAMERAS = [];
+    
 
         window.onload = function() {
           console.log('loaded.');
@@ -27,8 +37,6 @@
           c = new X.cube();
           c.color = [0,0,0];
           c.lengthX = c.lengthY = c.lengthZ = CUBE_SIDELENGTH;
-
-   
 
           r.add(c);
           r.render();
@@ -64,7 +72,7 @@
           else if (e.code == "KeyQ"){
             c.transform.translateY(CUBE_SIDELENGTH - GAP);
           }
-          else if (e.code == "Space") { // 'P' key to place a new cube
+          else if (e.code == "Space") {
             placeDown();
             console.log(r.position);
           }
@@ -73,6 +81,13 @@
           }
           else if (e.code == "KeyL"){
             upload("scene.json");
+          }
+          else if (e.code == "KeyC"){
+            CAMERAS.push(new Float32Array(r.camera.view));
+
+          }
+          else if (e.code == "KeyV"){
+            switchCamera()
           }
           else if (e.code == "Digit1"){
             c.color = [1,1,1];
@@ -119,6 +134,23 @@
             new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
             r.add(new_cube);
         }
+
+       // function getTopCube(){
+       //   return undoStack[undoStack.length - 1];
+       // }
+
+       // function handleUndo(){
+       //   if (undoStack.length > 1){
+       //     undo();
+       //   }
+       // }
+
+       // function undo(){
+       //   redoStack.push(undoStack.pop);
+       //   
+       // }
+
+
 
       
 
