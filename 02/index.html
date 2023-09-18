@@ -3,7 +3,7 @@
     <title>CS460.org Assignment 2</title>
     <style>
       body {
-        background-color:#000;
+        background: color #000;
         margin: 0;
         padding: 0;
         height: 100%;
@@ -15,6 +15,16 @@
     <script type="text/javascript">
       window.onload = function() {
         
+        console.log('loaded')
+
+        r = new X.renderer3D();
+        r.init();
+
+        c = new X.cube();
+
+        r.add(c);
+
+        r.render();
     };
     </script>
   </head>
