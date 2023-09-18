@@ -30,7 +30,7 @@
       
       
       window.onkeypress = function(e) {
-        const GAP = 2;
+        const GAP = 1;
         CUBE_SIDELENGTH = c.lengthX;
         // Cube Movement
         if (e.code == 'KeyD') {
@@ -89,7 +89,7 @@
           download();
         }
         if (e.code == 'KeyL') {
-          upload(scene.json);
+          upload("https://dannypyle.github.io/cs460student/02/scene.json");
         }
         
       }
