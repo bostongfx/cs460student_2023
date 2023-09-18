@@ -1,16 +1,162 @@
 <html>
-  <head>
+
+<head>
     <title>CS460.org Assignment 2</title>
+
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+
+    <script src="loader.js"></script>
+
+    <script>
+        const CUBE_SIDELENGTH = 20; // the cube size
+
+        const CAMERAS = [];
+        let cameraInterval;
+        let cameraIndex = 0;
+
+
+        window.onload = function() {
+
+            console.log('loaded.');
+
+            r = new X.renderer3D();
+            r.init();
+
+            c = new X.cube();
+            c.color = [255, 255, 255]; // r g b
+            c.lengthX = c.lengthY = c.lengthZ = CUBE_SIDELENGTH + 0.1;
+
+            r.add(c);
+            r.render();
+
+            document.addEventListener('keydown', function(e) {
+                var newColor;
+
+                switch (e.code) {
+                    case 'Digit1':
+                        newColor = [1, 1, 1]; // White
+                        break;
+                    case 'Digit2':
+                        newColor = [1, 0, 0]; // Red
+                        break;
+                    case 'Digit3':
+                        newColor = [0, 1, 0]; // Green
+                        break;
+                    case 'Digit4':
+                        newColor = [0, 0, 1]; // Blue
+                        break;
+                    case 'Digit5':
+                        newColor = [1, 1, 0]; // Yellow
+                        break;
+                    case 'Digit6':
+                        newColor = [1, 0, 1]; // pink
+                        break;
+                    case 'Digit7':
+                        newColor = [0, 1, 1]; // Cyan
+                        break;
+                    case 'Digit8':
+                        newColor = [0.8, 0.4, 0.0]; // dark orange
+                        break;
+                    case 'Digit0':
+                        newColor = [0, 0, 0]; // Black
+                        break;
+                    default:
+                        return;
+                }
+
+                c.color = newColor;
+                r.render();
+            });
+
+
+            //change positions based on key press
+            window.onkeypress = function(e) {
+                if (e.code == 'KeyD') {
+                    c.transform.translateX(-10); //right
+                } else if (e.code == 'KeyA') {
+                    c.transform.translateX(10); //left
+                } else if (e.code == 'KeyQ') {
+                    c.transform.translateY(10); //forward
+                } else if (e.code == 'KeyE') {
+                    c.transform.translateY(-10); //backward
+                } else if (e.code == 'KeyW') {
+                    c.transform.translateZ(10); //up
+                } else if (e.code == 'KeyS') {
+                    c.transform.translateZ(-10); //down
+                } else if (e.code == 'KeyO') {
+                    download();
+                } else if (e.code == 'KeyL') {
+                    upload("scene.json");
+                }
+            }
+
+
+            document.addEventListener('keydown', function(e) {
+
+                // Create a new cube when SPACE is pressed
+                if (e.code === 'Space') {
+                    let new_Cube = new X.cube();
+                    new_Cube.color = c.color;
+                    new_Cube.transform.matrix = new Float32Array(c.transform.matrix);
+                    new_Cube.lengthX = new_Cube.lengthY = new_Cube.lengthZ = CUBE_SIDELENGTH;
+                    new_Cube.lineWidth = 2;
+                    new_Cube.lineColor = [0, 0, 0];
+                    r.add(new_Cube);
+                    r.render();
+                } else if (e.code === 'KeyC') {
+                    CAMERAS.push(r.camera.view);
+                } else if (e.code === 'KeyV') {
+                    if (cameraInterval) {
+                        clearInterval(cameraInterval);
+                        cameraInterval = null;
+                    } else {
+                        cameraInterval = setInterval(switchCamera, 1000);
+                    }
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+
+                if (e.code === 'KeyC') {
+                    // Append the current camera view to CAMERAS array
+                    CAMERAS.push(r.camera.view);
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+
+                if (e.code === 'KeyV') {
+                    if (cameraInterval) {
+                        clearInterval(cameraInterval);
+                        cameraInterval = null;
+                    } else {
+                        cameraInterval = setInterval(switchCamera, 1000);
+                    }
+                }
+            });
+
+            function switchCamera() {
+                if (CAMERAS.length > 0) {
+                    cameraIndex = (cameraIndex + 1) % CAMERAS.length;
+                    r.camera.view = CAMERAS[cameraIndex];
+                    r.render();
+                }
+            }
+        };
+    </script>
+
     <style>
-      body {
-        background-color:#000;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden !important; 
-      }
+        body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden !important;
+        }
     </style>
-  </head>
-  <body>
-  </body>
+</head>
+
+<body>
+</body>
+
 </html>
