@@ -3,14 +3,171 @@
     <title>CS460.org Assignment 2</title>
     <style>
       body {
-        background-color:#000;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden !important; 
+        background-color: #000; /* RGB  */
+        margin: 0; /* defines space around block */
+        padding: 0; /* defines space within block */
+        height: 100%; /* defines height of block (for XTK) */
+        overflow: hidden !important; /* hides scrollbars (for XTK) */
       }
     </style>
+
+    <!-- import XTK library -->
+    <script
+      type="text/javascript"
+      src="https://get.goXTK.com/xtk_edge.js"
+    ></script>
+
+    <!-- inline JS -->
+    <script type="text/javascript">
+      // Global variables
+      var CUBE_SIDELENGTH = 10;
+      var GAP = 2;
+
+      var WHITE = [0.7, 0.7, 0.7]; // Easier on the eyes than pure white
+      var GRAY2 = [0.6, 0.6, 0.6]; // Omiting 1 becasue its easier to match with keys this way
+      var GRAY3 = [0.5, 0.5, 0.5];
+      var GRAY4 = [0.4, 0.4, 0.4];
+      var GRAY5 = [0.3, 0.3, 0.3];
+      var GRAY6 = [0.2, 0.2, 0.2];
+      var GRAY7 = [0.1, 0.1, 0.1];
+      var BLACK = [0.0, 0.0, 0.0];
+
+      // * * * INITIALIZE * * *
+
+      window.onload = function () {
+        console.log("loaded");
+
+        // create a new renderer
+        r = new X.renderer3D();
+        r.init();
+
+        // create a new cube
+        cube = new X.cube();
+        cube.color = WHITE;
+        cube.lengthX = cube.lengthY = cube.lengthZ = CUBE_SIDELENGTH + 0.01;
+        r.add(cube);
+
+        // render the scene
+        r.render();
+      };
+
+      // * * * KEY HANDLERS * * *
+
+      window.onkeypress = function (e) {
+
+        // * MOVEMENT CONTROLS *
+
+        // W: move up
+        if (e.code == "KeyW") {
+          console.log("pressed W");
+          cube.transform.translateZ(CUBE_SIDELENGTH + GAP);   // +z
+        }
+
+        // A: move dowm
+        if (e.code == "KeyA") {
+          console.log("pressed A");
+          cube.transform.translateX(CUBE_SIDELENGTH + GAP);   // +x
+        }
+
+        // S: move left
+        if (e.code == "KeyS") {
+          console.log("pressed S");
+          cube.transform.translateZ(-CUBE_SIDELENGTH - GAP);  // -z
+        }
+
+        // D: move right
+        if (e.code == "KeyD") {
+          console.log("pressed D");
+          cube.transform.translateX(-CUBE_SIDELENGTH - GAP);  // -x
+        }
+
+        // Q: move close
+        if (e.code == "KeyQ") {
+          console.log("pressed Q");
+          cube.transform.translateY(CUBE_SIDELENGTH + GAP);   // +y
+        }
+
+        // E: move away
+        if (e.code == "KeyE") {
+          console.log("pressed E");
+          cube.transform.translateY(-CUBE_SIDELENGTH - GAP);  // -y
+        }
+
+        // * COLOR PICKER (Grayscale) *
+
+        // 1: White (Default)
+        if (e.code == "Digit1") {
+          console.log("pressed 1");
+          cube.color = WHITE;
+        }
+        // 2: Lightest gray
+        if (e.code == "Digit2") {
+          console.log("pressed 2");
+          cube.color = GRAY2;
+        }
+        // 3: Lighter gray
+        if (e.code == "Digit3") {
+          console.log("pressed 3");
+          cube.color = GRAY3;
+        }
+        // 4: Gray
+        if (e.code == "Digit4") {
+          console.log("pressed 4");
+          cube.color = GRAY4;
+        }
+        // 5: Darker gray
+        if (e.code == "Digit5") {
+          console.log("pressed 5");
+          cube.color = GRAY5;
+        }
+        // 6: Even darker gray
+        if (e.code == "Digit6") {
+          console.log("pressed 6");
+          cube.color = GRAY6;
+        }
+        // 7: Darkest gray
+        if (e.code == "Digit7") {
+          console.log("pressed 7");
+          cube.color = GRAY7;
+        }
+        // 0: Black
+        if (e.code == "Digit0") {
+          console.log("pressed 3");
+          cube.color = BLACK;
+        }
+
+        // * CUBE PLACEMENT *
+        if (e.code == "Space") {
+          console.log("pressed Space");
+
+          new_cube = new X.cube();
+          new_cube.color = cube.color;
+          new_cube.transform.matrix = new Float32Array(cube.transform.matrix);
+          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
+          r.add(new_cube);
+        }
+
+        // * Save States *
+
+        // Download save state
+        if (e.code == "KeyO") {
+          console.log("pressed O")
+          download()
+        }
+
+        // Load save state
+        if (e.code == "KeyL") {
+          console.log("pressed L")
+          upload("scene.json")
+        }
+      };
+    </script>
+
+  <script
+    type="text/javascript"
+    src="./loader.js"
+  ></script>
+
   </head>
-  <body>
-  </body>
+  <body></body>
 </html>
