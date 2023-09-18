@@ -138,14 +138,36 @@
 
         // * CUBE PLACEMENT *
         if (e.code == "Space") {
+          console.log("pressed Space");
+
           new_cube = new X.cube();
           new_cube.color = cube.color;
           new_cube.transform.matrix = new Float32Array(cube.transform.matrix);
           new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
           renderer.add(new_cube);
         }
+
+        // * Save States *
+
+        // Download save state
+        if (e.code == "KeyO") {
+          console.log("pressed O")
+          download()
+        }
+
+        // Load save state
+        if (e.code == "KeyL") {
+          console.log("pressed L")
+          upload("scene.json")
+        }
       };
     </script>
+
+  <script
+    type:"text/javascript"
+    src="./loader.js"
+  ></script>
+
   </head>
   <body></body>
 </html>
