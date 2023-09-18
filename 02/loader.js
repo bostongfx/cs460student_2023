@@ -1,3 +1,6 @@
+var cameraList=[];
+var _q;
+
 function download() {
 
   // get all cubes
@@ -16,7 +19,8 @@ function download() {
   // create JSON object
   var out = {};
   out['cubes'] = ALL_CUBES;
-  out['camera'] = r.camera.view;
+  // out['camera'] = r.camera.view;
+  out['camera'] = cameraList;
 
   // from https://stackoverflow.com/a/30800715
   var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(out));
@@ -56,7 +60,9 @@ function upload(scene) {
     }
 
     // restore camera
-    r.camera.view = new Float32Array(Object.values(loaded['camera']));
+    r.camera.view = new Float32Array(Object.values(loaded['camera'][0]));
+    cameraList=Object.values(loaded['camera']);
+    // console.log(loaded['camera'])
 
 
   };
@@ -64,15 +70,13 @@ function upload(scene) {
   
 }
 
-var cameraList=[];
-var _q;
 function cameraStore(){
   cameraList.push(Array.from(r.camera.view));
   
 }
 
 var flag=false;
-function cameraShow(cam){
+function cameraShow(scene){
   // view.push(r.camera.view)
   var count=0;
   function displayHello() {
@@ -89,22 +93,9 @@ function cameraShow(cam){
   flag=!flag;
   if (flag){
     // loop= setInterval(displayHello, 1500);
-    if(cameraList.length!=0){
-      loop= setInterval(displayHello, 1500);
-    }else if(cam){
-      console.log("hi")
-      var req = new XMLHttpRequest();
-      req.responseType = 'json';
-      req.open('GET', cam, true);
-      req.onload  = function() {
-        loaded = req.response;
-        console.log(loaded);
-        cameraList=loaded;
-        loop= setInterval(displayHello, 1500);
-      }
-      req.send(null);
-    }
-    
+    // if(cameraList.length!=0){
+    loop= setInterval(displayHello, 1500);
+    // }
   }else{
   clearInterval(loop);
   }
@@ -112,12 +103,3 @@ function cameraShow(cam){
   // console.log("show", view);
 }
 
-function cameraSave(){
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cameraList));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href",     dataStr);
-  downloadAnchorNode.setAttribute("download", "cam.json");
-  document.body.appendChild(downloadAnchorNode); // required for firefox
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-}
