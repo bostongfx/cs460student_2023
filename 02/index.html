@@ -11,7 +11,7 @@
       }
     </style>
     <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
-    <script type="text/javascript" src="02/loader.js"></script>
+    <script src="loader.js"></script>
     <script type="text/javascript">
 
       window.onload = function(){
@@ -20,6 +20,7 @@
         r.init();
 
         c = new X.cube();
+        c.lengthX = c.lengthY = c.lengthZ = 10.01
 
         r.add(c);
 
@@ -70,6 +71,15 @@
         }
         else if (e.code =='Digit7'){
             c.color=[0,1,1];
+        }
+        else if (e.code =='Digit8'){
+            c.color=[0.5,0.5,0.5];
+        }
+        else if (e.code =='Digit9'){
+            c.color=[0.6,0.4,0.2];
+        }
+        else if (e.code =='Digit0'){
+            c.color=[0,0,0];
         }
         else if (e.code == 'Space'){
           new_cube = new X.cube();

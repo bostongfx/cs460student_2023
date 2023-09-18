@@ -5,7 +5,6 @@ function download() {
 
   for (var i = 0; i<r.Ha.length; i++) {
     // note: r.Ha are all objects in the scene
-
     var color = r.Ha[i].color;
     var matrix = r.Ha[i].transform.matrix;
     ALL_CUBES.push([color, matrix]);
