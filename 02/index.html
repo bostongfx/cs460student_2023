@@ -14,11 +14,10 @@
       type="text/javascript"
       src="https://get.goXTK.com/xtk_edge.js"
     ></script>
-    <script
-      type="text/javascript"
-      src="./loader.js"
-    ></script>
+    <script type="text/javascript" src="./loader.js"></script>
     <script>
+      var CAMERAS = [];
+      intVar = null;
       window.onload = function () {
         console.log("Here I am!!");
          r = new X.renderer3D();
@@ -27,7 +26,7 @@
         // create a new 3d renderer
         c = new X.cube();
 
-        
+
 
         // add the object
         r.add(c);
@@ -40,22 +39,22 @@
 
       window.onkeypress = function (e) {
           if (e.code == "KeyD") {
-            c.transform.translateX(-10);
+            c.transform.translateX(-10 - 2);
           }
           else if (e.code == "KeyA") {
-            c.transform.translateX(10);
+            c.transform.translateX(10 + 2);
           }
           else if (e.code == "KeyQ") {
-            c.transform.translateY(-10);
+            c.transform.translateY(10 + 2);
           }
           else if (e.code == "KeyE") {
-            c.transform.translateY(10);
+            c.transform.translateY(-10 - 2);
           }
           else if (e.code == "KeyS") {
-            c.transform.translateZ(-10);
+            c.transform.translateZ(-10 - 2);
           }
           else if (e.code == "KeyW") {
-            c.transform.translateZ(10);
+            c.transform.translateZ(10 + 2);
           }
           else if (e.code == "Digit1") {
             c.color = [1, 1, 1];
@@ -94,7 +93,26 @@
             new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = 20;
             r.add(new_cube);
           }
+          if (e.code == "KeyC") {
+            console.log(r.camera.view);
+          CAMERAS.push(Float32Array.from(r.camera.view));
+          console.log(CAMERAS);
+        }
+         if (e.code == "KeyV") {
+          if(!intVar){
+            CameraNum = 0;
+            intVar = setInterval(cameraLoop, 1000);
+          }
+          else{
+            clearInterval(intVar);
+            intVar = null;
+          }
+        }
+      };
 
+      function cameraLoop(){
+        CameraNum = (CameraNum + 1)%CAMERAS.length;
+        r.camera.view = Float32Array.from(CAMERAS[CameraNum]);
       }
     </script>
   </head>
