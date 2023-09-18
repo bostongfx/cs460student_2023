@@ -76,7 +76,7 @@ function cameraStore(){
 }
 
 var flag=false;
-function cameraShow(scene){
+function cameraShow(){
   // view.push(r.camera.view)
   var count=0;
   function displayHello() {
