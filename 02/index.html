@@ -76,17 +76,16 @@
             r.add(new_cube);
 
         }
+        else if (e.code == 'KeyL') {
+                upload();
+              }
+        else if (e.code == 'KeyO') {
+                download();
+              }
         }
 
 
-      window.onkeypress = function(e) {
-        if (e.code == 'KeyO') {
-                download();
-              }
-        window.onkeypress = function(e) {
-        if (e.code == 'KeyL') {
-                upload();
-              }
+      
         
 
     }
@@ -99,6 +98,6 @@
   </head>
   <body>
     <h1>CS460 Assignment 2</h1>
-    <div id="logo"><img style="height:60px" src="02/guts.png"></div>
+    <div id="logo"><img style="height:60px" src="guts.png"></div>
   </body>
 </html>
