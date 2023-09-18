@@ -49,7 +49,7 @@ function upload(scene) {
       loaded_cube = new X.cube();
       loaded_cube.color = color;
       loaded_cube.transform.matrix = new Float32Array(Object.values(matrix));
-      loaded_cube.lengthX = loaded_cube.lengthY = loaded_cube.lengthZ = 20;
+      loaded_cube.lengthX = loaded_cube.lengthY = loaded_cube.lengthZ = 10;
 
       r.add(loaded_cube);
 
