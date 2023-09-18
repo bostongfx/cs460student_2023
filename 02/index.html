@@ -10,9 +10,9 @@
     <script>
         const CUBE_SIDELENGTH = 20; // the cube size
 
-        const CAMERAS = [];
-        let cameraInterval;
-        let cameraIndex = 0;
+        // const CAMERAS = [];
+        // let cameraInterval;
+        // let cameraIndex = 0;
 
 
         window.onload = function() {
@@ -115,33 +115,33 @@
                 }
             });
 
-            document.addEventListener('keydown', function(e) {
+            // document.addEventListener('keydown', function(e) {
 
-                if (e.code === 'KeyC') {
-                    // Append the current camera view to CAMERAS array
-                    CAMERAS.push(r.camera.view);
-                }
-            });
+            //     if (e.code === 'KeyC') {
+            //         // Append the current camera view to CAMERAS array
+            //         CAMERAS.push(r.camera.view);
+            //     }
+            // });
 
-            document.addEventListener('keydown', function(e) {
+            // document.addEventListener('keydown', function(e) {
 
-                if (e.code === 'KeyV') {
-                    if (cameraInterval) {
-                        clearInterval(cameraInterval);
-                        cameraInterval = null;
-                    } else {
-                        cameraInterval = setInterval(switchCamera, 1000);
-                    }
-                }
-            });
+            //     if (e.code === 'KeyV') {
+            //         if (cameraInterval) {
+            //             clearInterval(cameraInterval);
+            //             cameraInterval = null;
+            //         } else {
+            //             cameraInterval = setInterval(switchCamera, 1000);
+            //         }
+            //     }
+            // });
 
-            function switchCamera() {
-                if (CAMERAS.length > 0) {
-                    cameraIndex = (cameraIndex + 1) % CAMERAS.length;
-                    r.camera.view = CAMERAS[cameraIndex];
-                    r.render();
-                }
-            }
+            // function switchCamera() {
+            //     if (CAMERAS.length > 0) {
+            //         cameraIndex = (cameraIndex + 1) % CAMERAS.length;
+            //         r.camera.view = CAMERAS[cameraIndex];
+            //         r.render();
+            //     }
+            // }
         };
     </script>
 
