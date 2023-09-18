@@ -38,17 +38,17 @@
         console.log("loaded");
 
         // create a new renderer
-        renderer = new X.renderer3D();
-        renderer.init();
+        r = new X.r3D();
+        r.init();
 
         // create a new cube
         cube = new X.cube();
         cube.color = WHITE;
         cube.lengthX = cube.lengthY = cube.lengthZ = CUBE_SIDELENGTH + 0.01;
-        renderer.add(cube);
+        r.add(cube);
 
         // render the scene
-        renderer.render();
+        r.render();
       };
 
       // * * * KEY HANDLERS * * *
@@ -144,7 +144,7 @@
           new_cube.color = cube.color;
           new_cube.transform.matrix = new Float32Array(cube.transform.matrix);
           new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
-          renderer.add(new_cube);
+          r.add(new_cube);
         }
 
         // * Save States *
