@@ -12,6 +12,8 @@ const loader = new GLTFLoader();
 
 loader.load(
   "birdsA_eagle.gltf",
+  "quadruped_bear.gltf",
+  "birds_raven.gltf",
   function (gltf) {
     scene.add(gltf.scene);
     
@@ -31,5 +33,6 @@ function animate() {
 
 }
 // I followed the docs for THREE.js but I still could not get the gtlf file to render. :(
-
+window.onload = function() {
 animate();
+}
