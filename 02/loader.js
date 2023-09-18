@@ -86,7 +86,6 @@ function cameraShow(scene){
       count=0;
     }
   }
-  
   // for (var i=0; i<view;i++){
   //   setInterval(displayHello(v, i), 1000);
   // }
