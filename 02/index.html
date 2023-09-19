@@ -10,6 +10,119 @@
         overflow: hidden !important; 
       }
     </style>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script type="text/javascript" src="loader.js"></script>
+    <script type="text/javascript">
+      window.onload = function() {
+        r = new X.renderer3D();
+        r.init();
+        cube = new X.cube();
+        r.add(cube);
+        r.render();
+      };
+      window.onkeypress = function(e) {
+        CUBE_SIDELENGTH= 10;
+        GAP = 2;
+        if (e.code == 'KeyD') {
+          cube.transform.translateX(-CUBE_SIDELENGTH - GAP);
+          r.render();
+        }
+        else if (e.code == 'KeyA') {
+          cube.transform.translateX(CUBE_SIDELENGTH + GAP);
+          r.render();
+        }
+        else if (e.code == 'KeyW') {
+          cube.transform.translateZ(CUBE_SIDELENGTH + GAP);
+        }
+        else if (e.code == 'KeyS') {
+          cube.transform.translateZ(-CUBE_SIDELENGTH - GAP);
+        }
+        else if (e.code == 'KeyE') {
+          cube.transform.translateY(-CUBE_SIDELENGTH - GAP);
+        }
+        else if (e.code == 'KeyQ') {
+          cube.transform.translateY(CUBE_SIDELENGTH + GAP);
+        }
+        else  if (e.code >= 'Digit0' && e.code <= 'Digit7') {
+            setColorBasedOnKeyPress(e.code);
+        }
+        else if (e.code == 'Space') {
+          newCube();
+        }
+        else if (e.code == 'KeyO') {
+                download();
+            } else if (e.code == 'KeyL') {
+                console.log('Uploading scene');
+                upload('scene.json'); 
+            }
+            else if (e.code == 'KeyC') {
+                CAMERAS.push(r.camera.view.slice()); 
+            } else if (e.code == 'KeyV') {
+      if (cameraInterval) {
+        clearInterval(cameraInterval);
+        cameraInterval = null;  
+      } else {
+        startCameraSwitching();
+      }
+    }
+         
+            r.render();
+        // Helper function(s)
+        function setColorBasedOnKeyPress(key) {
+          switch (key) {
+            case 'Digit1':
+              cube.color = [1, 1, 1]; // White
+              break;
+            case 'Digit2':
+              cube.color = [1, 0, 0]; // Red
+              break;
+            case 'Digit3':
+              cube.color = [0, 1, 0]; // Green
+              break;
+            case 'Digit4':
+              cube.color = [0, 0, 1]; // Blue
+              break;
+            case 'Digit5':
+              cube.color = [1, 1, 0]; // Yellow
+              break;
+            case 'Digit6':
+              cube.color = [1, 0.5, 0.5]; // Pink
+              break;
+            case 'Digit7':
+              cube.color = [0, 1, 1]; // Cyan
+              break;
+            case 'Digit8':
+              cube.color = [0, 0, 0]; 
+              break;
+            case 'Digit0':
+              cube.color = [1, 1, 0]; //Yellow (default)
+              break;
+            default:
+              break;
+          }
+       }
+       function newCube() {
+          var new_cube = new X.cube();
+          new_cube.color = cube.color;
+          new_cube.transform.matrix = new Float32Array(cube.transform.matrix);
+          new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
+          r.add(new_cube);
+          cubes.push(new_cube); 
+        }
+        
+        //BONUS
+        function startCameraSwitching() {
+            if (CAMERAS.length > 0) {
+                cameraInterval = setInterval(function () {
+                    currentCameraIndex = (currentCameraIndex + 1) % CAMERAS.length;
+                    r.camera.view = new Float32Array(CAMERAS[currentCameraIndex]);
+                    r.render();
+                }, 1000); // Switch every second
+            }
+        }
+        
+      }      
+    </script>
   </head>
   <body>
   </body>
