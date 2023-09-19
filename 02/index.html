@@ -101,14 +101,14 @@
             new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = 10;
             r.add(new_cube);
           }
-          if (e.code == "KeyC") {
+          else if (e.code == "KeyC") {
           console.log(r.camera.view);
           CAMERAS.push(Float32Array.from(r.camera.view));
           console.log(CAMERAS);
         }
-         if (e.code == "KeyV") {
+         else if (e.code == "KeyV") {
           if(!intVar){
-            CameraNum = 0;
+            CameraNumber = 0;
             intVar = setInterval(loopingCamera, 1000);
           }
           else{
@@ -120,10 +120,12 @@
 
       function loopingCamera(){
         // console.log(CAMERAS);
-        CameraNum = (CameraNum + 1)%CAMERAS.length;
-        // console.log(CameraNum);
-        // console.log(CAMERAS[CameraNum]);
-        r.camera.view = Float32Array.from(Object.values(CAMERAS[CameraNum]));
+        CameraNumber = CameraNumber + 1;
+        console.log(CameraNumber);
+        // console.log(CAMERAS[CameraNumber]);
+        // console.log(CameraNumber);
+        CameraNumber = (CameraNumber == CAMERAS.length) ? 0 : CameraNumber;
+        r.camera.view = Float32Array.from(Object.values(CAMERAS[CameraNumber]));
       }
     </script>
   </head>
