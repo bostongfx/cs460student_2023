@@ -14,10 +14,13 @@
    <script type="text/javascript" src="loader.js"></script>
 
     <script type="text/javascript">
+      // global variables
+      let CAMERAS = [];
+      let cam = 0;
+      let s = false;  // tracker of if the slideshow is playing
 
       window.onload = function() {
         console.log('loaded.');
-
         r = new X.renderer3D();
         r.init();
         c = new X.cube();
@@ -27,8 +30,24 @@
         r.add(c);
         r.render();
       };
+      // slideshow functions/ variable
+      var interval = null;  
+      function slideShow() {
+          r.camera.view = CAMERAS[cam];
+            if (cam < CAMERAS.length - 1) {
+              cam++;
+            } else { 
+              cam = 0;
+            } 
+        }
+      function playSlides() {
+        interval = setInterval(slideShow, 250);
+      }
+      function stopSlides() {
+        clearInterval(interval);
+      }
       
-      
+      // key press return values
       window.onkeypress = function(e) {
         const GAP = 1;
         CUBE_SIDELENGTH = c.lengthX;
@@ -52,37 +71,56 @@
           c.transform.translateY(-CUBE_SIDELENGTH-GAP);
         }
         // Colors
+            // white
         if (e.code == 'Digit1') {
           c.color = [1,1,1];
-        }
+          c.opacity = 1;
+        }   // red
         if (e.code == 'Digit2') {
           c.color = [1,0,0];
-        }
+        }   // green
         if (e.code == 'Digit3') {
           c.color = [0,1,0];
-        }
+        }   // blue
         if (e.code == 'Digit4') {
           c.color = [0,0,1];
-        }
+        }   // yellow
         if (e.code == 'Digit5') {
           c.color = [1,1,0];
-        }
+        }   // pink
         if (e.code == 'Digit6') {
           c.color = [1,0,1];
-        }
+        }   // cyan
         if (e.code == 'Digit7') {
           c.color = [0,1,1];
-        }
+        }   // black
         if (e.code == 'Digit0') {
           c.color = [0,0,0];
         }
+        // **This doesn't work, it just makes an invisible cube which means the original cube still shows, but i figured i'd leave it
+        // The grey cube is the deletion cube
+        // This is a workaround for deleting cubes by making opacity clear
+        // if (e.code == 'Digit9') {
+        //   c.color = [0.5,0.5,0.5];
+        //   c.opacity = 0;
+        // }
+
         // Place new cube
         if (e.code == 'Space') {
           new_cube = new X.cube();
           new_cube.color = c.color;
+          // **ignore, used for deleting cubes... not working yet
+          // If color selection is grey, place an invisible cube (delete cube) else procede with placing block
+          // if (JSON.stringify(new_cube.color) === JSON.stringify([0.5,0.5,0.5])) {
+          //   new_cube.transform.matrix = new Float32Array(c.transform.matrix);
+          //   new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH-.5;
+          //   r.add(new_cube);
+          //   // new_cube.opacity = 0;
+          // } else {
           new_cube.transform.matrix = new Float32Array(c.transform.matrix);
           new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH-.5;
           r.add(new_cube);
+          //}
         }
         // Download/ Upload
         if (e.code == 'KeyO') {
@@ -90,6 +128,23 @@
         }
         if (e.code == 'KeyL') {
           upload("https://dannypyle.github.io/cs460student/02/scene.json");
+        }
+        // Camera Movement
+        if (e.code == 'KeyC') {
+          // store camera
+          CAMERAS.push(new Float32Array(Object.values(r.camera.view)));
+        }
+        if (e.code == 'KeyV') {
+          // if slideshow is playing, stop the slideshow
+          if(s==true) {
+              stopSlides();//stopSlideShow();
+            s = false;
+            console.log(s);
+          } else {  // else play the slideshow
+              playSlides();
+            s = true;
+            console.log(s);
+          }
         }
         
       }
