@@ -10,6 +10,83 @@
         overflow: hidden !important; 
       }
     </style>
+    
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script src="loader.js"></script>
+    <script type="text/javascript">
+      window.onload = function() {
+        CUBE_SIDELENGTH = 10;
+        GAP = 2;
+        console.log('loaded.');
+        
+        c = new X.cube();
+        c.lengthX = c.lengthY = c.lengthZ = CUBE_SIDELENGTH;
+
+        r = new X.renderer3D();
+        r.init();
+        r.add(c);
+        r.render();
+
+        window.onkeypress = function(e) {
+          if (e.code == 'KeyD') {
+            c.transform.translateX(-CUBE_SIDELENGTH - GAP);
+          }
+          else if (e.code == 'KeyA') {
+            c.transform.translateX(CUBE_SIDELENGTH + GAP);
+          }
+          else if (e.code == 'KeyS') {
+            c.transform.translateZ(-CUBE_SIDELENGTH - GAP);
+          }
+          else if (e.code == 'KeyW') {
+            c.transform.translateZ(CUBE_SIDELENGTH + GAP);
+          }
+          else if (e.code == 'KeyE') {
+            c.transform.translateY(-CUBE_SIDELENGTH - GAP);
+          }
+          else if (e.code == 'KeyQ') {
+            c.transform.translateY(CUBE_SIDELENGTH + GAP);
+          }
+          else if (e.code == 'Digit1') {
+            c.color = [255,255,255]; //w
+          }
+          else if (e.code == 'Digit2') {
+            c.color = [255,0,0]; //R
+          }
+          else if (e.code == 'Digit3') {
+            c.color = [0,128,0]; //g
+          }
+          else if (e.code == 'Digit4') {
+            c.color = [0,0,255]; //blue
+          }
+          else if (e.code == 'Digit5') {
+            c.color = [255,255,0]; //y
+          }
+          else if (e.code == 'Digit6') {
+            //c.color = [255,192,203]; //p
+            c.color = [63, 0, 169]; //p
+          }
+          else if (e.code == 'Digit7') {
+            c.color = [0,255,255]; //cyan
+          }
+          else if (e.code == 'Digit0') {
+            c.color = [0,0,0]; //black
+          }
+          else if (e.code == 'Space') {
+            new_cube = new X.cube();
+            new_cube.color = c.color;
+            new_cube.transform.matrix = new Float32Array(c.transform.matrix);
+            new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
+            r.add(new_cube);
+          } 
+          else if (e.code == 'KeyO') {
+            download()
+          }
+          else if (e.code == 'KeyL') {
+            upload("scene.json")
+          }
+        }
+      };
+    </script>
   </head>
   <body>
   </body>
