@@ -1,4 +1,6 @@
-function download() {
+function download(CAMERAS) {
+  // console.log(CAMERAS);
+  console.log("3");
 
   // get all cubes
   ALL_CUBES = [];
@@ -27,6 +29,7 @@ function download() {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+  // console.log(CAMERAS);
 
 }
 
@@ -58,8 +61,9 @@ function upload(scene) {
     // restore camera
     // r.camera.view = new Float32Array(Object.values(loaded['camera']));
     r.camera.view = new Float32Array(Object.values(loaded['camera'][0]));
-
-
+    CAMERAS= loaded['camera'];
+    // console.log(CAMERAS);
+    // console.log(loaded);
 
   };
   req.send(null);

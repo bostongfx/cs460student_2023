@@ -16,7 +16,7 @@
     ></script>
     <script type="text/javascript" src="./loader.js"></script>
     <script>
-      var CAMERAS = [];
+      CAMERAS = [];
       intVar = null;
       window.onload = function () {
         console.log("Here I am!!");
@@ -88,7 +88,8 @@
             c.opacity = 1
           }
           else if (e.code == "KeyO") {
-            download();
+            console.log("Hey!!");
+            download(CAMERAS);
           }
           else if (e.code == "KeyL") {
             upload("scene.json");
@@ -101,14 +102,14 @@
             r.add(new_cube);
           }
           if (e.code == "KeyC") {
-            console.log(r.camera.view);
+          console.log(r.camera.view);
           CAMERAS.push(Float32Array.from(r.camera.view));
           console.log(CAMERAS);
         }
          if (e.code == "KeyV") {
           if(!intVar){
             CameraNum = 0;
-            intVar = setInterval(cameraLoop, 1000);
+            intVar = setInterval(loopingCamera, 1000);
           }
           else{
             clearInterval(intVar);
@@ -117,9 +118,12 @@
         }
       };
 
-      function cameraLoop(){
+      function loopingCamera(){
+        // console.log(CAMERAS);
         CameraNum = (CameraNum + 1)%CAMERAS.length;
-        r.camera.view = Float32Array.from(CAMERAS[CameraNum]);
+        // console.log(CameraNum);
+        // console.log(CAMERAS[CameraNum]);
+        r.camera.view = Float32Array.from(Object.values(CAMERAS[CameraNum]));
       }
     </script>
   </head>
