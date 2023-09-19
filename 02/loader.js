@@ -57,9 +57,9 @@ function upload(scene) {
     }
 
     // restore camera
-    // r.camera.view = new Float32Array(Object.values(loaded['camera']));
-    r.camera.view = new Float32Array(Object.values(loaded['camera'][0]));
-    CAMERAS = loaded['camera'];
+    r.camera.view = new Float32Array(Object.values(loaded['camera']));
+    // r.camera.view = new Float32Array(Object.values(loaded['camera'][0]));
+    // CAMERAS = loaded['camera'];
 
 
   };
