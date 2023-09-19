@@ -36,10 +36,11 @@
        
        const CAMERAS = [];
        let autoCameraInterval = null;
-
+       let autoCameraIndex = 0
 
        window.onkeypress = function(e)
         {
+          console.log(e.code);
           if (e.code == 'KeyD') {
           c.transform.translateX(-10);
           r.render();
@@ -68,7 +69,22 @@
               upload("scene.json");//Upload function to load the saved picture
           }else if (e.code == 'KeyC') {
               CAMERAS.push(r.camera.view.slice()); // Clone the camera view matrix
-          }
+          }else if (e.code == 'KeyV') {
+              if (!autoCameraInterval) {
+                autoCameraIndex = 0; // Initialize back to first position
+                autoCameraInterval = setInterval(function ()
+                 {
+                if (CAMERAS.length > 0) {
+                    r.camera.view = new Float32Array(Object.values(CAMERAS[autoCameraIndex]));
+                    autoCameraIndex = (autoCameraIndex + 1) % CAMERAS.length; // Cycle through camera positions
+                    r.render();
+                  }
+              }, 1000); // Updating camera every second
+        } else {
+            clearInterval(autoCameraInterval);
+            autoCameraInterval = null;
+        }
+    }
         }
 
         function createNewCube()
