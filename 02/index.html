@@ -11,7 +11,7 @@
       }
     </style>
   <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
-
+  <script src="loader.js"> </script>
   <script type="text/javascript">
 
     window.onload = function() {
@@ -20,7 +20,7 @@
       r.init();
 
       c = new X.cube();
-      c.color = [0,1,0]; // r g b
+      c.color = [255,255,255]; // r g b
       r.add(c);
       // r.camera.zoomIn();
       r.render();
@@ -63,10 +63,16 @@
         c.color = [255, 255, 0];
       } else if (e.code == 'Digit6') {
         //pink
-        c.color = [255, 102, 178];
+        c.color = [255, 0, 255];
       } else if (e.code == 'Digit7') {
         //cyan
         c.color = [0, 255, 255];
+      } else if (e.code == 'Digit8') {
+        c.color = [255,82,45];
+      } else if (e.code == 'Digit0') {
+        //black
+        c.color = [0, 0, 0];
+        
       } else if (e.code == 'Space') {
         new_cube = new X.cube();
         new_cube.color = c.color;
@@ -74,6 +80,11 @@
         new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = 20;
 
         r.add(new_cube);
+      } else if (e.code == 'KeyO') {
+        download();
+      } else if (e.code == 'KeyL') {
+        var scenePath = 'scene.json';
+        upload(scenePath);
       }
     }
 
