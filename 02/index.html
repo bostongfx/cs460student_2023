@@ -33,62 +33,62 @@
         if (e.code == 'KeyD') {
           c.transform.translateX(-CUBE_SIDELENGTH - GAP);
         }
-        if (e.code == 'KeyA') {
+        else if (e.code == 'KeyA') {
           c.transform.translateX(CUBE_SIDELENGTH + GAP);
         }
-        if (e.code == 'KeyW') {
+        else if (e.code == 'KeyW') {
           c.transform.translateZ(CUBE_SIDELENGTH + GAP);
         }
-        if (e.code == 'KeyS') {
+        else if (e.code == 'KeyS') {
           c.transform.translateZ(-CUBE_SIDELENGTH - GAP);
         }
-        if (e.code == 'KeyQ') {
+        else if (e.code == 'KeyQ') {
           c.transform.translateY(CUBE_SIDELENGTH + GAP);
         }
-        if (e.code == 'KeyE') {
+        else if (e.code == 'KeyE') {
           c.transform.translateY(-CUBE_SIDELENGTH - GAP);
         }
-        if (e.code == 'KeyO') {
+        else if (e.code == 'KeyO') {
           download();
         }
-        if (e.code == 'KeyL') {
+        else if (e.code == 'KeyL') {
           upload("scene.json");
         }
-        if (e.code == "Digit1" || e.code == "Numpad1") {
+        else if (e.code == "Digit1" || e.code == "Numpad1") {
           c.color=[1,1,1];
         }
-        if (e.code == "Digit2" || e.code == "Numpad2") {
+        else if (e.code == "Digit2" || e.code == "Numpad2") {
           c.color=[1,0,0];
         }
-        if (e.code == "Digit3" || e.code == "Numpad3") {
+        else if (e.code == "Digit3" || e.code == "Numpad3") {
           c.color=[0,1,0];
         }
-        if (e.code == "Digit4" || e.code == "Numpad4") {
+        else if (e.code == "Digit4" || e.code == "Numpad4") {
           c.color=[0,0,1];
         }
-        if (e.code == "Digit5" || e.code == "Numpad5") {
+        else if (e.code == "Digit5" || e.code == "Numpad5") {
           c.color=[1,1,0];
         }
-        if (e.code == "Digit6" || e.code == "Numpad6") {
+        else if (e.code == "Digit6" || e.code == "Numpad6") {
           c.color=[1,0,1];
         }
-        if (e.code == "Digit7" || e.code == "Numpad7") {
+        else if (e.code == "Digit7" || e.code == "Numpad7") {
           c.color=[0,1,1];
         }
-        if (e.code == "Digit0" || e.code == "Numpad0") {
+        else if (e.code == "Digit0" || e.code == "Numpad0") {
           c.color=[0,0,0];
         }
-        if(e.code == "Space"){
+        else if(e.code == "Space"){
           new_cube = new X.cube();
           new_cube.color = c.color;
           new_cube.transform.matrix = new Float32Array(c.transform.matrix);
           new_cube.lengthX = new_cube.lengthY = new_cube.lengthZ = CUBE_SIDELENGTH;
           r.add(new_cube);
         }
-        if(e.code == 'KeyC'){
+        else if(e.code == 'KeyC'){
           cameraStore();
         }
-        if(e.code == 'KeyV'){
+        else if(e.code == 'KeyV'){
           cameraShow();
         }
       }
