@@ -31,8 +31,11 @@
       window.onload = function() {
 
         // Three.js code goes here
-
         scene = new THREE.scene();
+
+        // setup the camera
+        var fov =
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar)
  
         // call animation/rendering loop
         animate();
