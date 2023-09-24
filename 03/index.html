@@ -69,7 +69,7 @@
           raycaster.setFromCamera(vp_coords_near, camera);
 
           //calculate intersection with objects
-          varintersects = raycaster.intersectObject(invisible_plane);
+          var intersects = raycaster.intersectObject(invisible_plane);
           console.log('Ray to invisible plane', intersects[0],point);
 
           cube.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
