@@ -46,7 +46,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        render.domElement.onclick = function(e) {
+        renderer.domElement.onclick = function(e) {
           var pixel_coords = new THREE.Vectors(e.clienX, e.clienY);
 
           console.log('pixel_coords', pixel_coords);
