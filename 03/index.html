@@ -47,7 +47,8 @@
         document.body.appendChild(renderer.domElement);
 
         renderer.domElement.onclick = function(e) {
-          var pixel_coords = new THREE.Vectors(e.clienX, e.clienY);
+          console.log('Yay! We clicked!');
+          var pixel_coords = new THREE.Vector2(e.clienX, e.clienY);
 
           console.log('pixel_coords', pixel_coords);
           var vp_coords = new THREE.Vector2(
