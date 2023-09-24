@@ -70,7 +70,7 @@
 
           //calculate intersection with objects
           var intersects = raycaster.intersectObject(invisible_plane);
-          console.log('Ray to invisible plane', intersects[0],point);
+          console.log('Ray to invisible plane', intersects[0].point);
 
           cube.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
         };
