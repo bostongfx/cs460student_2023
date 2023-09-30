@@ -26,22 +26,123 @@
       import * as THREE from 'three';
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
-      var renderer, controls, scene, camera;
+      var renderer, controls, scene, camera, shiftFlag, torusColor = 0xff2d00;
 
       window.onload = function() {
 
         // Three.js code goes here
- 
+        // set up scene
+        scene = new THREE.Scene();
+
+        // set up camera and variables
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 0, 100);
+
+        // Create renderer and canvas
+        renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Set up lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add(ambientLight);
+        var light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light.position.set(10, 100, 10);
+        scene.add(light);
+
+        // invisible plane
+        var geometry_ip = new THREE.PlaneGeometry( 10000, 10000 );
+        var material_ip = new THREE.MeshBasicMaterial( {visible: false} );
+        var invisible_plane = new THREE.Mesh( geometry_ip, material_ip );
+        scene.add( invisible_plane ); 
+
+        // Interactions
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        // Configure torus
+        var geometry = new THREE.TorusKnotGeometry(10, 3, 64, 8);
+        var material = new THREE.MeshStandardMaterial({color:0xff2d00});
+        var torus = new THREE.Mesh(geometry, material);
+        scene.add(torus);
+
+
+        renderer.domElement.onmousedown = function (e)
+        {
+          if(e.shiftKey == true)
+          {
+            console.log('Yay! we clicked!');
+            console.log("Shifting");
+            shiftFlag = true;
+            controls.enabled = false;
+
+            var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+            console.log("Pixel Coords:", e.clientX, e.clientY);
+
+            var vp_coords = new THREE.Vector2((pixel_coords.x / window.innerWidth) * 2 - 1,   // X
+                                            -(pixel_coords.y / window.innerHeight) * 2 + 1); // Y
+            console.log("Viewport Coords", vp_coords);
+
+            var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+          
+
+            // Set up raycaster
+            var raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(vp_coords_near, camera);
+
+            var intersects = raycaster.intersectObject(invisible_plane);
+
+            console.log('Ray to intersect plane', intersects[0].point);
+
+            // make new torus
+            var geometry = new THREE.TorusKnotGeometry(10, 3, 64, 8);
+            var material = new THREE.MeshStandardMaterial({color:torusColor});
+            var torus2 = new THREE.Mesh(geometry, material);
+            torus2.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+            scene.add(torus2);
+            torus = torus2;
+          }
+        }
+
+        renderer.domElement.onmouseup = function(e)
+        {
+          shiftFlag = false;
+          controls.enabled = true;
+        }
+
+        renderer.domElement.onmousemove = function(e)
+        {
+          if (shiftFlag)
+          {
+            var DELTA = e.movementY;
+            torus.scale.set(torus.scale.x + DELTA,
+                            torus.scale.y + DELTA,
+                            torus.scale.z + DELTA);
+          }
+        }
+
         // call animation/rendering loop
         animate();
-        
       };
 
+      window.onkeypress = function(e)
+      {
+        if (e.code == 'Digit1')
+          torusColor = 0xff2d00; // red
+        else if (e.code == 'Digit2')
+          torusColor = 0x013025; // body color
+        else if (e.code == 'Digit3')
+          torusColor = 0xffff85; // yellow eye color
+        else if (e.code == 'Digit4')
+          torusColor = 0x000000; // black
+      }
       function animate() {
-
         requestAnimationFrame( animate );
-
-        // and here..
+        controls.update();
+        renderer.render(scene, camera);
         
       };
     </script>
