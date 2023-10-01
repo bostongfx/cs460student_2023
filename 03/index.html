@@ -79,8 +79,11 @@
 
             // Add new torus
 
-            geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-            material = new THREE.MeshStandardMaterial({ color: 0xff0000 , wireframe : wireFrame});
+            geometry = new THREE.TorusKnotGeometry(20, 3, 64, 8, 4, 14);
+            material = new THREE.MeshStandardMaterial({
+              color: 0xff0000,
+              wireframe: wireFrame,
+            });
             var torusKnot = new THREE.Mesh(geometry, material);
             torusKnot.position.set(
               intersects[0].point.x,
@@ -89,36 +92,37 @@
             );
             scene.add(torusKnot);
             lastPlacedTorus = torusKnot;
-            
           }
         };
 
-        renderer.domElement.onmousemove = function(e){
-          if(mouseStillPressed){
+        renderer.domElement.onmousemove = function (e) {
+          //Scale torus
+          if (mouseStillPressed) {
             lastPlacedTorus.scale.set(
               lastPlacedTorus.scale.x + e.movementY,
               lastPlacedTorus.scale.y + e.movementY,
               lastPlacedTorus.scale.z + e.movementY
-            )
+            );
           }
-        }
+        };
 
-        window.onkeypress = function(e) {
-          if(e.code == "KeyW"){
-            wireFrame = ! wireFrame
-            scene.traverse(function(child){
-              if (child.material != null){
+        window.onkeypress = function (e) {
+          //Toggle wireframe on all elements
+          if (e.code == "KeyW") {
+            wireFrame = !wireFrame;
+            scene.traverse(function (child) {
+              if (child.material != null) {
                 child.material.wireframe = wireFrame;
               }
-              
             });
           }
-        }
+        };
 
-        renderer.domElement.onmouseup = function(e){
+        //Enable orbit controls
+        renderer.domElement.onmouseup = function (e) {
           controls.enabled = true;
           mouseStillPressed = false;
-        }
+        };
 
         // setup lights
         var ambientLight = new THREE.AmbientLight();
@@ -130,8 +134,11 @@
 
         // configure Torus
 
-        var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-        var material = new THREE.MeshStandardMaterial({ color: 0xffff00 , wireframe : wireFrame});
+        var geometry = new THREE.TorusKnotGeometry(20, 3, 64, 8, 4, 14);
+        var material = new THREE.MeshStandardMaterial({
+          color: 0xffff00,
+          wireframe: wireFrame,
+        });
         var torusKnot = new THREE.Mesh(geometry, material);
         scene.add(torusKnot);
 
@@ -156,8 +163,6 @@
         // call animation/rendering loop
         animate();
       };
-
-      
 
       function animate() {
         requestAnimationFrame(animate);
