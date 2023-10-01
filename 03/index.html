@@ -115,7 +115,7 @@
 
         renderer.domElement.onmousemove = function(e){ // mouse moving/scale
           if(FLAG == true){
-            var DELTA = e.movementY * 0.01;
+            var DELTA = e.movementY; // *0.01 or *0.05 for calibration - didnt work on monitor 
             LASTOBJECT.scale.set( 
                                    LASTOBJECT.scale.x + DELTA,
                                    LASTOBJECT.scale.y + DELTA,
