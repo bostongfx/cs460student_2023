@@ -31,7 +31,153 @@
       window.onload = function() {
 
         // Three.js code goes here
- 
+        scene = new THREE.Scene();
+
+        var LASTOBJECT;
+        var Scaling = false;
+        var wireframeMode = false;
+        var torusnumber = 1;
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(0, 0, 100);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+
+
+        const radius = 8;
+        const tube = 3;
+        const tubularSegments = 100;
+        const radialSegments = 10;
+        const p = 2;
+        const q = 3;
+
+
+        renderer.domElement.onmousedown = function( e ){
+            if(e.shiftKey){
+              controls.enabled = false;
+              // Create a new hotpink torus
+              var geometry = new THREE.TorusKnotGeometry(8, 3, 100, 10);
+              var material = new THREE.MeshStandardMaterial({ color: 0xFF69B4 });
+              var torus = new THREE.Mesh(geometry, material);
+
+              // Calculate intersection point
+              var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+              var vp_coords = new THREE.Vector2(
+                  (pixel_coords.x / window.innerWidth) * 2 - 1,
+                  -(pixel_coords.y / window.innerHeight) * 2 + 1
+              );
+              var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+              var raycaster = new THREE.Raycaster();
+              raycaster.setFromCamera(vp_coords_near, camera);
+              var intersects = raycaster.intersectObject(invisible_plane);
+
+              if (intersects.length > 0) {
+                  torus.position.copy(intersects[0].point);
+                  scene.add(torus);
+                  LASTOBJECT = torus;
+                  Scaling = true;
+                  torusnumber = torusnumber+1;
+              }
+            }
+          };
+
+        
+        renderer.domElement.onmouseup = function (e) {
+          controls.enabled = true;
+          Scaling = false;
+        };
+
+        renderer.domElement.onmousemove = function (e){
+          if(Scaling && LASTOBJECT) {
+            var scalingfactor = e.movementY * 0.01;
+
+            LASTOBJECT.scale.set(
+              LASTOBJECT.scale.x + scalingfactor,
+              LASTOBJECT.scale.y + scalingfactor,
+              LASTOBJECT.scale.z + scalingfactor
+            );
+          }
+        };
+
+        document.onkeydown = function (e) {
+          if (e.key === "w" || e.key === "W") {
+              wireframeMode = !wireframeMode; // Toggle wireframe mode
+      
+              // Toggle wireframe mode for all toruses in the scene
+              scene.traverse(function (object) {
+                  if (object instanceof THREE.Mesh) {
+                      object.material.wireframe = wireframeMode;
+                  }
+              });
+                      // Calculate updated counts based on wireframe mode
+              const torusCounts = calculateTorusKnotCounts(radius, tube, tubularSegments, radialSegments, p, q);
+
+              console.log("Torus Knot Estimated Counts:");
+              console.log("Vertices:", torusCounts.vertices);
+              console.log("Faces:", torusCounts.faces);
+              console.log("Edges:", torusCounts.edges);
+          }
+      };
+
+      function calculateTorusKnotCounts(radius, tube, tubularSegments, radialSegments, p, q) {
+        const vertices = ((tubularSegments + 1) * (radialSegments + 1))*torusnumber;
+        const faces = (tubularSegments * radialSegments * 2)*torusnumber;
+        const edges = vertices + faces - (2*torusnumber);
+    
+        return { vertices, faces, edges };
+      }
+
+
+      // Calculate counts for the initial torus
+      var torusCounts = calculateTorusKnotCounts(radius, tube, tubularSegments, radialSegments, p, q);
+      
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        // configure torus
+        var geometry = new THREE.TorusKnotGeometry(8, 3, 100, 10);
+        var material = new THREE.MeshStandardMaterial({ color: 0xFF69B4, wireframe: false });
+
+        var torus = new THREE.Mesh( geometry, material );
+
+        scene.add( torus );
+      
+
+
+        //
+        // The invisible plane
+        //
+        geometry = new THREE.PlaneGeometry( 10000, 10000 );
+        material = new THREE.MeshBasicMaterial( {
+          visible: false
+        });
+
+        var invisible_plane = new THREE.Mesh( geometry, material );
+
+        scene.add( invisible_plane );
+        //
+        //
+        //
+
+
+
+        // interaction
+        controls = new OrbitControls( camera, renderer.domElement );
+
         // call animation/rendering loop
         animate();
         
@@ -42,10 +188,11 @@
         requestAnimationFrame( animate );
 
         // and here..
+        controls.update();
+        renderer.render( scene, camera );
         
       };
     </script>
   </head>
   <body></body>
 </html>
-
