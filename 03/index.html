@@ -26,26 +26,148 @@
       import * as THREE from 'three';
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
-      var renderer, controls, scene, camera;
+      var renderer, controls, scene, camera, lastObject;
 
       window.onload = function() {
 
+        // Camera initialization 
+        camera = new THREE.PerspectiveCamera(100, innerWidth/innerHeight, .1, 1000);
+        camera.position.z = 30;
+
+        //Renderer initialization
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Orbit Controls
+        controls = new OrbitControls(camera, renderer.domElement);
+
         // Three.js code goes here
- 
-        // call animation/rendering loop
-        animate();
+        scene = new THREE.Scene();
+        const geometry = new THREE.TorusKnotGeometry(10,3,100,16);
+        const material = new THREE.MeshBasicMaterial({color: 143242, wireframe: false});
+        const torusKnot = new THREE.Mesh(geometry,material); 
+    
+
+        scene.add(torusKnot);  
+
+        //Use let because we only want to use these variables inside the block where they are used. 
+        let mousePressed = false;
+          // Listen for keydown button, iterate through the children of the scene and toggle wireframe on and off.
+          document.addEventListener('keydown', keyPressed);
+          function keyPressed(e) {
+            if (e.code === "KeyW") {
+                scene.children.forEach(child => {
+                    if (child.material) {
+                        child.material.wireframe = !child.material.wireframe;
+                    }
+                });
+            }
+        } 
+          
+    
+
+
+        renderer.domElement.onmousedown = function(e) {
+          if (e.shiftKey) {
+              console.log("shift + mousedown");
+              mousePressed = true;
+              controls.enabled = false;
+
+              var new_torus = new THREE.Mesh(geometry, material);
+
+              // Get Mouse Position in Pixels:
+              var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+
+              //Conversion of pixel -> viewport
+              var vp_coords = new THREE.Vector2(
+                  (pixel_coords.x / window.innerWidth) * 2 - 1,
+                  -(pixel_coords.y / window.innerHeight) * 2 + 1
+              )
+      
+              var raycaster = new THREE.Raycaster();
+              raycaster.setFromCamera(vp_coords, camera);
+              var intersects = raycaster.intersectObjects(scene.children); // Intersect with all objects in the scene
+      
+              if (intersects.length > 0) {
+                // If there's an intersection, use the first intersection point
+                new_torus.position.copy(intersects[0].point);
+            } else {
+                // If there's no intersection, position the torus at a default distance along the ray
+                var defaultDistance = 100; 
+                var targetPosition = new THREE.Vector3();
+                raycaster.ray.at(defaultDistance, targetPosition);
+                new_torus.position.copy(targetPosition);
+            }
+            
+              lastObject = new_torus;
+              scene.add(new_torus);
+            
+          } 
+        };
+        
+              // re-enable the controls and set the flag to mousePressed = false
+            renderer.domElement.onmouseup = function(e) {
+                
+       
+                    console.log("mouseup");
+                    controls.enabled = true;
+
+                    mousePressed = false;
+                
+            };
+
+            // scaling the torus.
+            renderer.domElement.onmousemove = function(e) {
+              if (e.shiftKey && mousePressed) {
+                  // Adjust the scale using e.movementY
+                  lastObject.scale.set(
+                      lastObject.scale.x + e.movementY * 0.01,
+                      lastObject.scale.y + e.movementY * 0.01,
+                      lastObject.scale.z + e.movementY * 0.01
+                    );
+                 }
+              }
+        
+              // setup lights
+              var ambientLight = new THREE.AmbientLight();
+              scene.add( ambientLight );
+      
+              var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+              light.position.set( 10, 100, 10 );
+              scene.add( light );
+
+
+
+                // call animation/rendering loop
+                animate();
         
       };
+
+  
+
 
       function animate() {
 
         requestAnimationFrame( animate );
 
         // and here..
+        renderer.render(scene, camera);
+
         
       };
     </script>
   </head>
   <body></body>
 </html>
+<!-- Sources
+https://stackoverflow.com/questions/20290402/three-js-resizing-canvas
+https://www.youtube.com/watch?v=By9qRmcrTzs&ab_channel=WaelYasmina
+https://stackoverflow.com/questions/47682260/three-js-draw-where-mouse-clicks-but-entirely-parallel-to-camera-orientation
+https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/clientY
+https://stackoverflow.com/questions/3011418/onmousemove-get-mouse-position
+https://threejs.org/examples/?q=trans#misc_controls_transform
+https://threejs.org/docs/#api/en/core/Raycaster.intersectObject
+https://discourse.threejs.org/t/raycaster-not-working-or-triggering-properly/26281
 
+-->
