@@ -26,26 +26,145 @@
       import * as THREE from 'three';
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
-      var renderer, controls, scene, camera;
+      var renderer, controls, scene, camera, LASTOBJECT;
+      var HOTPINK = 0xFF69B4;
+      var WHITE = 0xFFFFFF;
+      var YELLOW = 0xFFFF00;
 
       window.onload = function() {
 
+        // Checks if mouse is held down or up.
+        var checkMouseEvt = false;
+
         // Three.js code goes here
- 
-        // call animation/rendering loop
-        animate();
+        scene = new THREE.Scene();
+
+        // Setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 0, 100);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Turn off the OrbitControls and place a new hotpink torus for every mouse click 
+        // when the SHIFT key is pressed.
+        renderer.domElement.onmousedown = function (e) {
+          // If SHIFT is pressed, turn off the OrbitControls using the
+          // enabled property and place a new hotpink torus for 
+          // every mouse click.
+          if (e.shiftKey) {
+              // Change the checkMouseEvt to true, as it is onmousedown.
+              checkMouseEvt = true;
+              
+              // Disable controls.
+              console.log("SHIFT is pressed");
+              controls.enabled = false;
+              
+              console.log("Yay! We clicked!");
+              var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+              console.log("Pixel coords: ", pixel_coords);
+
+              var vp_coords = new THREE.Vector2(
+                (pixel_coords.x / window.innerWidth) * 2 - 1, // X
+                -(pixel_coords.y / window.innerHeight) * 2 + 1); // Y;
+
+              console.log("Viewport coords: ", vp_coords);
+
+              var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+              console.log("Viewport coords zNear", vp_coords_near);
+              
+              // Raycaster
+              var raycaster = new THREE.Raycaster();
+              raycaster.setFromCamera(vp_coords_near, camera);
+
+              // Calculate intersection with objects
+              var intersects = raycaster.intersectObject(invisible_plane);
+              var p = intersects[0].point;
+              console.log("Ray to invisible plane", p);
+
+              // Create and add the hotpink torus knot.
+              geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+              var material = new THREE.MeshStandardMaterial( {color: HOTPINK} );
+              LASTOBJECT = new THREE.Mesh(geometry, material);
+              
+              // Add to scene the hotpink torus knot and set its pos 
+              // where the mouse is pointing to.
+              LASTOBJECT.position.set(p.x, p.y, p.z);
+              scene.add(LASTOBJECT);
+              console.log("Hotpink torus was added!");
+          }
+        };
+
+        // Re-enable the controls when mouse click is no longer being held down.
+        // Set checkMouseEvt to false, as it is onmouseup.
+        renderer.domElement.onmouseup = function(e) {
+          controls.enabled = true;
+          checkMouseEvt = false;
+        };
+
+        // Modify last added torus' size when the mouse is dragged up or 
+        // down along the Y-axis.
+        renderer.domElement.onmousemove = function(e) {
+          if (checkMouseEvt) {
+            // Get the difference in height from moving up/down with the mouse.
+            let DELTA = e.movementY;
+            
+            // Increase/decrease the size of the torus knot with DELTA.
+            LASTOBJECT.scale.set(LASTOBJECT.scale.x + DELTA,
+                                LASTOBJECT.scale.y + DELTA,
+                                LASTOBJECT.scale.z + DELTA);
+          }
+        };
         
+        // Setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add(ambientLight);
+
+        var light = new THREE.DirectionalLight(WHITE, 5.0);
+        light.position.set(10, 100, 10);
+        scene.add(light);
+
+        // configure torus knot.
+        // TorusKnotGeometry takes in:
+        //  - radius of the torus knot tube
+        //  - radius of the torus (overall)
+        //  - tubular segments - number of segments along the tube (more -> smoother)
+        //  - radial segments - number of segments around torus knot 
+        // (associated with resolution).
+        var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        var material = new THREE.MeshStandardMaterial({ color: YELLOW });
+        var torusKnot = new THREE.Mesh(geometry, material);
+        scene.add(torusKnot);
+      
+        // The invisible plane
+        geometry = new THREE.PlaneGeometry(10000, 10000);
+        material = new THREE.MeshBasicMaterial({ visible: false });
+        var invisible_plane = new THREE.Mesh(geometry, material);
+        scene.add(invisible_plane);
+
+        // interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        // call animation/rendering loop
+        animate();        
       };
 
       function animate() {
 
-        requestAnimationFrame( animate );
-
-        // and here..
+        requestAnimationFrame(animate); // knows and check if your GPU or computer is ready to get the animation.
+        // compared to just calling animate() again and again.
         
+        // and here..
+        controls.update();
+        renderer.render(scene, camera);
       };
     </script>
   </head>
   <body></body>
 </html>
-
