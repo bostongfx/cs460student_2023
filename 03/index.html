@@ -24,7 +24,16 @@
         }
       }
     </script>
-
+    <script id="vertexShader" type="x-shader/x-vertex">
+            void main() {
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x+10.0, position.y, position.z+5.0, 1.0);
+      }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+            void main() {
+        gl_FragColor = vec4(0.0, 0.58, 0.86, 1.0);
+      }
+    </script>
     <script type="module">
       import * as THREE from "three";
       import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -48,6 +57,8 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+
+// ---------------------------------------------------------------------
         renderer.domElement.onmousedown = function (e) {
           if (e.shiftKey) {
             // disable controls
@@ -76,10 +87,17 @@
             // update torus position
             // create new torus at mouse click
             var geometryTorus = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-            var materialTorus = new THREE.MeshBasicMaterial({
-              color: 0xffc0cb,
+            var materialTorus = new THREE.ShaderMaterial({
+            // attempt at shaders by following mozilla docs - didn't quite work
+              vertexShader: 
+                document.getElementById("vertexShader").textContent,
+              fragmentShader:
+                document.getElementById("fragmentShader").textContent,
+              color : 0xffc0cb
             });
+
             torusKnotPink = new THREE.Mesh(geometryTorus, materialTorus);
+
             var intersection =
               (intersects[0].point.x,
               intersects[0].point.y,
@@ -90,26 +108,64 @@
               intersects[0].point.z
             );
             scene.add(torusKnotPink);
+            renderer.domElement.onmousemove = function (e) {
+            // scale object, if i did raw movement the torus just dissapears
+            
+            const scaleAmountX = e.movementX * 0.01;
+            const scaleAmountY = e.movementY * 0.01;
+           // const scaleAmountZ = e.movementZ * 0.01;
+
+            // Apply the scaling
+            torusKnotPink.scale.x += scaleAmountX;
+            torusKnotPink.scale.y += scaleAmountY;
+            // for some reason movement Z outputs as undefined and ends up just deleting 
+            // the torus
+           //  torusKnotPink.scale.z += scaleAmountZ;
+            console.log(
+              `Movement X: ${e.movementX}, Movement Y: ${e.movementY}, Movement Z: ${e.movementZ}`
+            );
+          };
           }
+         /* renderer.domElement.onmousemove = function (e) {
+            // scale object, if i did raw movement the torus just dissapears
+            
+            const scaleAmountX = e.movementX * 0.01;
+            const scaleAmountY = e.movementY * 0.01;
+           // const scaleAmountZ = e.movementZ * 0.01;
+
+            // Apply the scaling
+            torusKnotPink.scale.x += scaleAmountX;
+            torusKnotPink.scale.y += scaleAmountY;
+            // for some reason movement Z outputs as undefined and ends up just deleting 
+            // the torus
+           //  torusKnotPink.scale.z += scaleAmountZ;
+            console.log(
+              `Movement X: ${e.movementX}, Movement Y: ${e.movementY}, Movement Z: ${e.movementZ}`
+            );
+          };
+
+
+
+          */
         };
         renderer.domElement.onmouseup = function (e) {
           // reenable controls
           controls.enabled = true;
         };
-        renderer.domElement.onmousemove = function (e) {
+        /*renderer.domElement.onmousemove = function (e) {
           // scale object
-         const scaleFactor = 0.01;  // You can adjust this value based on the desired scaling speed
-        const scaleAmountX = e.movementX * scaleFactor;
-        const scaleAmountY = e.movementY * scaleFactor;
-        const scaleAmountZ = e.movementZ * scaleFactor;
+          
+        const scaleAmountX = e.movementX ;
+        const scaleAmountY = e.movementY;
+        const scaleAmountZ = e.movementZ;
 
         // Apply the scaling
-        //torusKnotPink.scale.x += scaleAmountX;
+        torusKnotPink.scale.x += scaleAmountX;
         torusKnotPink.scale.y += scaleAmountY;
        // torusKnotPink.scale.z += scaleAmountZ;
           console.log(`Movement X: ${e.movementX}, Movement Y: ${e.movementY}, Movement Z: ${e.movementZ}`);
         };
-
+*/
         // setup lights
         var ambientLight = new THREE.AmbientLight();
         scene.add(ambientLight);
