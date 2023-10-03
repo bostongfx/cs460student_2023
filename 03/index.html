@@ -11,7 +11,7 @@
     </style>
     
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-
+ 
     <script type="importmap">
     {
       "imports": {
@@ -20,32 +20,176 @@
       }
     }
     </script>
-
+ 
     <script type="module">
-
+ 
       import * as THREE from 'three';
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
-
+ 
       var renderer, controls, scene, camera;
 
-      window.onload = function() {
-
-        // Three.js code goes here
+      // create var to store "last" torus
+      var LASTOBJECT;
+      // create var to flag mouse up or down
+      var mouseDown = 0;
  
+      window.onload = function() {
+ 
+        // Three.js code goes here
+        scene = new THREE.Scene();
+ 
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(0, 0, 100);
+ 
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+ 
+ 
+ 
+        renderer.domElement.onmousedown = function( e ){
+
+          // flag mouse as down
+            ++mouseDown;
+            console.log('MOUSE DOWN');
+ 
+            
+
+            /////////////////////////////////////
+            var pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+ 
+            // console.log('Pixel coords', pixel_coords);
+ 
+            var vp_coords = new THREE.Vector2( 
+                        ( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+                        -( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+ 
+            // console.log('Viewport coords', vp_coords);
+ 
+            var vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+            var raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(vp_coords_near, camera);
+            var intersects = raycaster.intersectObject(invisible_plane);
+            // console.log('Ray to Invisible Plane', intersects[0].point);
+            // update cube position
+            // torusKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+
+            /////////////////////////////////////
+            
+            if (e.shiftKey) {
+              // console.log('SHIFT KEY PRESSED');
+              controls.enabled = false;
+              var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+              var material = new THREE.MeshStandardMaterial({ color: 0xFF69B4, wireframe: false });
+              var pink_torusKnot = new THREE.Mesh( geometry, material );
+              pink_torusKnot.name = "pinkKnot";
+              scene.add( pink_torusKnot );
+              LASTOBJECT = pink_torusKnot;
+              pink_torusKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+
+            
+
+              // Check to see if both shift key and mouse is down before scale torusKnot
+          
+                  renderer.domElement.addEventListener('mousemove', function (e) {
+                if(e.shiftKey && mouseDown) {
+                  
+                    LASTOBJECT.scale.set(LASTOBJECT.scale.x + e.movementY,
+                                    LASTOBJECT.scale.y + e.movementY,
+                                    LASTOBJECT.scale.z + e.movementY);
+                }
+              }
+              )
+
+            }
+            
+          };
+
+
+          // When mouse is released, enable orbit and turn off scaling torus
+          renderer.domElement.onmouseup = function( e ){
+            --mouseDown;
+            console.log('MOUSE UP');
+            controls.enabled = true;
+           
+          }
+ 
+ 
+          
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+ 
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+ 
+        // configure torusKnot
+        var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+        var material = new THREE.MeshStandardMaterial({ color: 0xFFFF00, wireframe: false });
+        var torusKnot = new THREE.Mesh( geometry, material );
+        scene.add( torusKnot );
+ 
+ 
+ 
+        //
+        // The invisible plane
+        //
+        geometry = new THREE.PlaneGeometry( 10000, 10000 );
+        material = new THREE.MeshBasicMaterial( {
+          visible: false
+        });
+ 
+        var invisible_plane = new THREE.Mesh( geometry, material );
+ 
+        scene.add( invisible_plane );
+        //
+        //
+        //
+        
+
+        // when press Key W, turn on wirefram for all pinkKnot.
+        var new_material = new THREE.MeshStandardMaterial({ color: 0xFF69B4, wireframe: true });
+        window.addEventListener('keypress', function (e) {
+          if (e.key === "w") {
+            console.log('W is Pressed');
+            scene.traverse(function(child) {
+              if (child.name === "pinkKnot") {
+                child.material = new_material;
+              }
+            
+          });
+          }
+        }
+        )
+
+ 
+ 
+        // interaction
+        controls = new OrbitControls( camera, renderer.domElement );
+        
         // call animation/rendering loop
         animate();
         
       };
-
+ 
       function animate() {
-
+ 
         requestAnimationFrame( animate );
-
+ 
         // and here..
+        controls.update();
+        
+        renderer.render( scene, camera );
         
       };
     </script>
   </head>
   <body></body>
 </html>
-
