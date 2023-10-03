@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <style>
@@ -29,23 +30,113 @@
       var renderer, controls, scene, camera;
 
       window.onload = function() {
+        scene = new THREE.Scene();
 
-        // Three.js code goes here
- 
-        // call animation/rendering loop
+        var a; 
+        var x = 0; 
+        var y = 0; 
+        var tList = [];
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(0, 0, 100);
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        // Setup lights        	
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        //  torus Configuration
+        var torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(60, 20, 100, 10), new THREE.MeshStandardMaterial({ color: 0xffff00 }));
+        scene.add(torusKnot);
+
+        // Create an invisible plane
+        var invisiblePlane = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshBasicMaterial({ visible: false }));
+        scene.add(invisiblePlane);
+      
+        // Interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+        renderer.domElement.onmousedown = function( e ){
+            x = 1;
+            var count = 0;
+
+            if (e.shiftKey && x == 1) {
+                controls.enabled = false;
+                y = 1;
+
+                var pc = new THREE.Vector2( e.clientX, e.clientY );
+                var vc = new THREE.Vector2( 
+                            ( pc.x / window.innerWidth ) * 2 - 1,  //X
+                            -( pc.y / window.innerHeight ) * 2 + 1) // Y
+                var vcc = new THREE.Vector3( vc.x, vc.y, 0);
+
+                // Create a raycaster
+                var raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(vcc, camera);
+                var intersects = raycaster.intersectObject(invisiblePlane);
+
+                // Create a new torus
+                var newGeometry = new THREE.TorusKnotGeometry(50, 15, 100, 16);
+                var newTorusMaterial = new THREE.MeshStandardMaterial({ color: 0xFF69B4 }); // Hot pink material
+                var newTorusKnot = new THREE.Mesh(newGeometry, newTorusMaterial);
+                newTorusKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+                scene.add(newTorusKnot);
+                tList.push(newTorusKnot);
+                count ++;
+
+                a = newTorusKnot;
+            } else {
+              y = 0;
+            }
+        };
+        
+        renderer.domElement.onmouseup = function ( e ) {
+            controls.enabled = true;
+            x = 0;
+        };
+
+        // Scale the last torus
+        renderer.domElement.onmousemove = function ( e ) {
+            var delta = e.movementY * 0.02; // Your custom scale factor
+            if (x == 1 && y == 1) {
+                a.scale.set(
+                  a.scale.x + delta,
+                  a.scale.y + delta,
+                  a.scale.z + delta
+                );
+            }
+        };
+
+        // Visualize all toruses as wireframes
+        window.onkeypress = function ( e ) {
+            if (e.code == "KeyW") {
+              tList.forEach((t) => {
+                  var newMaterialWire = new THREE.MeshStandardMaterial({color: 0xFF69B4, wireframe: true }); // Hot color retained in  wireframe
+                  t.material = newMaterialWire;
+              });
+            }
+        };
+
+        // Call animation/rendering loop
         animate();
         
       };
 
       function animate() {
-
         requestAnimationFrame( animate );
-
-        // and here..
-        
+        controls.update();
+        renderer.render( scene, camera );
       };
     </script>
   </head>
   <body></body>
 </html>
-
