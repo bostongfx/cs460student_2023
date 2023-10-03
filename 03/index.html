@@ -27,6 +27,7 @@
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
       var renderer, controls, scene, camera;
+      var torusMaterials = []; // Array to store torus materials
 
       window.onload = function() {
 
@@ -86,6 +87,8 @@
               var material = new THREE.MeshStandardMaterial( { color: 0x00FFFF } ); 
 
               var torusKnot = new THREE.Mesh( geometry, material ); 
+              // Push the material into the torusMaterials array
+              torusMaterials.push(material); // Added for bonus
               
               var p = intersects[0].point;
 
@@ -126,7 +129,11 @@
           var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
           var material = new THREE.MeshStandardMaterial( { color: 0x00FFFF } ); 
           var torusKnot = new THREE.Mesh( geometry, material ); 
+          // Push the material into the torusMaterials array
+          torusMaterials.push(material); //added for bonus
+
           scene.add(torusKnot);
+          
 
           // invisible plane
           var geometry_ip = new THREE.PlaneGeometry( 10000, 10000 );
@@ -142,11 +149,27 @@
           // interaction
           controls = new OrbitControls(camera, renderer.domElement);
           
-          
+          //Bonus
+          window.addEventListener('keydown', function (event) {
+            // Check if w key is pressed
+            if (event.key === 'w') {
+              console.log('w pressed');
+              toggleWireframe();
+            }
+          });
+          //Bonus
+          function toggleWireframe() {
+            // Iterate through all torus materials and toggle the wireframe property
+            torusMaterials.forEach(material => {
+              material.wireframe = !material.wireframe;
+            });
+          }
+
           // call animation/rendering loop
           animate();
 
         };
+          
         
       
 
