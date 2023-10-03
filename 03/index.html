@@ -28,6 +28,8 @@
 
       var renderer, controls, scene, camera, flag;
       var LASTOBJECT = null;
+      var toruses = [];
+
 
       window.onload = function() {
 
@@ -61,6 +63,7 @@
             var torusKnot = new THREE.Mesh( geometry, material ); scene.add( torusKnot );
             scene.add( torusKnot );
             LASTOBJECT=torusKnot;
+            toruses.push(torusKnot);
 
           }
 
@@ -112,6 +115,7 @@
           OrbitControls.enabled = true;
         };
 
+        
         // setup lights
         var ambientLight = new THREE.AmbientLight();
         scene.add( ambientLight );
@@ -131,6 +135,7 @@
         var material = new THREE.MeshStandardMaterial( { color: 0x75E6DA } ); 
         var torusKnot = new THREE.Mesh( geometry, material ); scene.add( torusKnot );
         scene.add( torusKnot );
+        
 
 
         //
@@ -157,6 +162,21 @@
         animate();
         
       };
+
+      window.onkeypress = function(e) {
+        // console.log("key pressed")
+        if(e.code == 'KeyW'){
+
+          for (var i = 0; i < toruses.length; i++) {
+            var torus = toruses[i];
+            console.log(torus);
+            torus.material.wireframe = true;
+          }
+          
+        }
+      }
+
+
 
       function animate() {
 
