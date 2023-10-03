@@ -57,7 +57,7 @@
         scene.add( light );
 
         var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
-        var material = new THREE.MeshBasicMaterial( { color: 0xffff00, wireframe: wireframeON } ); // YELLOW
+        var material = new THREE.MeshStandardMaterial( { color: 0xffff00, wireframe: wireframeON } ); // YELLOW
         //var material = new THREE.MeshBasicMaterial( { color: 0xfffafa , wireframe: wireframeON } ); // WHITE
         var torusKnot = new THREE.Mesh( geometry, material ); 
         
@@ -90,7 +90,7 @@
               flag = true; 
               geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
              // material = new THREE.MeshBasicMaterial( { color: 0xff69b4, wireframe: wireframeON } ); // PINK
-                material = new THREE.MeshBasicMaterial( { color: 0Xff2400, wireframe: wireframeON } ); // RED
+                material = new THREE.MeshStandardMaterial( { color: 0Xff2400, wireframe: wireframeON } ); // RED
              // material = new THREE.MeshBasicMaterial( { color: 0xfffafa , wireframe: wireframeON } ); // WHITE
             //   material = new THREE.MeshBasicMaterial( { color: 0x228b22 , wireframe: wireframeON } );  
               LASTOBJECT = new THREE.Mesh( geometry, material ); 
@@ -137,7 +137,7 @@
         // The invisible plane
         //
         geometry = new THREE.PlaneGeometry( 10000, 10000 );
-        material = new THREE.MeshBasicMaterial( {
+        material = new THREE.MeshStandardMaterial( {
           visible: false
         });
 
@@ -167,7 +167,12 @@
         renderer.render( scene, camera );
         
       };
+      //The THREE.TorusKnotGeometry consists of 4 parameters. They are called radius, tube, tubularSegments, and radicalSegements. The radius is a float which is the radius of the torus from the center of it to the center of the tube, tube is a float and is the radius of the tube, tubularSegments is an integer and it is the number of segments that make up the tube, and radialSegments has an integer p, where this value determines, how many times the geometry winds around its axis of rotational symmetry, while integer q, value determines how many times the geometry winds around a circle in the interior of the torus.
+
     </script>
   </head>
   <body></body>
 </html>
+
+
+
