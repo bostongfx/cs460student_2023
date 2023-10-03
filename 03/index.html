@@ -72,7 +72,7 @@
             console.log('Ray to Invisible Plane', intersects[0].point);
 
             // Create a new hot pink torus
-            var hotPinkMaterial = new THREE.MeshBasicMaterial({ color: 0xff69b4, wireframe: false });
+            var hotPinkMaterial = new THREE.MeshStandardMaterial({ color: 0xff69b4, wireframe: false });
             var hotPinkGeometry = new THREE.TorusKnotGeometry(10, 3, 100, 16)
             var hotPinkTorus = new THREE.Mesh(hotPinkGeometry, hotPinkMaterial);
             hotPinkTorus.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
@@ -114,7 +114,7 @@
 
         // configure torus knot
         var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
-        var material = new THREE.MeshBasicMaterial( { color: 0x0000ff, wireframe: false } ); 
+        var material = new THREE.MeshStandardMaterial( { color: 0x0000ff, wireframe: false } ); 
         var torusKnot = new THREE.Mesh( geometry, material ); 
         
         scene.add( torusKnot );
