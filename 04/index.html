@@ -24,6 +24,8 @@
     attribute vec3 position;
 
     void main(void) {
+
+      //gl_PointSize=10.;
     
       gl_Position = vec4( position, 1.);
     
@@ -50,7 +52,12 @@
       //************************************************************//
       //
       // INITIALIZE WEBGL
-      //
+      c = document.getElementById( 'c' ); // setup canvas
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+
+      gl = c.getContext( 'webgl' ); // setup GL context
+      gl.viewport(0, 0, c.width, c.height );
 
 
 
@@ -58,8 +65,36 @@
       //************************************************************//
       //
       // SHADERS
-      //
-    
+      v_shader = gl.createShader( gl.VERTEX_SHADER );
+      f_shader = gl.createShader( gl.FRAGMENT_SHADER );
+
+      // compile vertex shader
+      gl.shaderSource( v_shader, document.getElementById( 'vertexshader' ).innerText );
+      gl.compileShader( v_shader );
+
+      if (!gl.getShaderParameter( v_shader, gl.COMPILE_STATUS)) {
+        console.log(gl.getShaderInfoLog( v_shader ));
+      }
+
+      //fragment
+      // compile fragment shader
+      gl.shaderSource( f_shader, document.getElementById( 'fragmentshader' ).innerText );
+      gl.compileShader( f_shader );
+
+      if (!gl.getShaderParameter( f_shader, gl.COMPILE_STATUS)) {
+        console.log(gl.getShaderInfoLog( f_shader ));
+      }
+
+      // attach and link the shaders
+      shaderprogram = gl.createProgram();
+      gl.attachShader( shaderprogram, v_shader );
+      gl.attachShader( shaderprogram, f_shader );
+
+      gl.linkProgram( shaderprogram );
+
+      gl.useProgram( shaderprogram );
+
+
 
 
 
@@ -67,22 +102,48 @@
       //
       // CREATE GEOMETRY
       //
-      vertices = new Float32Array( [
-                                     -0.5,  0.5, 0.0, // V0
-                                     -0.5, -0.5, 0.0, // V1
-                                      0.5,  0.5, 0.0, // V2
+      // vertices = new Float32Array( [
+      //                                -0.5,  0.5, 0.0, // V0
+      //                                -0.5, -0.5, 0.0, // V1
+      //                                 0.5,  0.5, 0.0, // V2
 
-                                      0.5,  0.5, 0.0, // V3
-                                     -0.5, -0.5, 0.0, // V4
-                                      0.5, -0.5, 0.0  // V5
+      //                                 0.5,  0.5, 0.0, // V3
+      //                                -0.5, -0.5, 0.0, // V4
+      //                                 0.5, -0.5, 0.0  // V5
+      //                               ] );
+      vertices = new Float32Array( [
+                                     -0.5,  0.5, 0.0, // V0      // 0
+                                     -0.5, -0.5, 0.0, // V1, V4  // 1
+                                      0.5,  0.5, 0.0, // V2, V3  // 2
+                                      0.5, -0.5, 0.0  // V5      // 3
                                     ] );
 
+      var indices = new Uint8Array( [ 0, 1, 2,     // Triangle 1 
+                                      2, 1, 3 ] ); // Triangle 2
 
+      v_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
+      gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
+
+      i_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ELEMENT_BUFFER, v_buffer ); // bind
+      gl.bufferData( gl.ELEMENT_BUFFER, indices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ELEMENT_BUFFER, null ); // unbind
 
       //************************************************************//
       //
       // CONNECT SHADER WITH GEOMETRY
       //
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer );
+      gl.bindBuffer( gl.ELEMENT_BUFFER, i_buffer );
+
+      // find the attribute in the shader source
+      var a_position = gl.getAttribLocation( shaderprogram, 'position' );
+
+      gl.vertexAttribPointer( a_position, 3, gl.FLOAT, false, 0, 0 );
+
+      gl.enableVertexAttribArray ( a_position );
       
 
 
@@ -91,6 +152,12 @@
       //
       // DRAW!
       //
+      gl.clearColor( 0., 0., 0., 0.)
+      gl.clear( gl.COLOR_BUFFER_BIT );
+
+      // gl.lineWidth(10.);
+      // gl.drawArrays( gl.LINES, 0, 6 ); //gl.POINTS  
+      gl.drawElements( gl.TRIANGLES, 0, gl.UNSIGNED_BYTE, 0); //gl.POINTS  
 
 
     };
