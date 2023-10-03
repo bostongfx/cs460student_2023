@@ -1,51 +1,122 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      html, body { 
-        background-color:#000;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden !important;  
-      }
-    </style>
-    
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-
-    <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@latest/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
-      }
+<head>
+  <style>
+    html, body { 
+      background-color:#000;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden !important;  
     }
-    </script>
+  </style>
+  
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
-    <script type="module">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@latest/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+    }
+  }
+  </script>
 
-      import * as THREE from 'three';
-      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
+  <script type="module">
 
-      var renderer, controls, scene, camera;
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
-      window.onload = function() {
+    var renderer, controls, scene, camera;
+    var LASTOBJECT = null;
+    var isScaling = false;
+    var DELTA = 0.1;
 
-        // Three.js code goes here
- 
-        // call animation/rendering loop
-        animate();
-        
+    window.onload = function() {
+      scene = new THREE.Scene();
+
+      // setup the camera
+      var fov = 75;
+      var ratio = window.innerWidth / window.innerHeight;
+      var zNear = 1;
+      var zFar = 10000;
+      camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+      camera.position.set(0, 0, 100);
+
+      // create renderer and setup the canvas
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      // Event listeners for scaling
+      renderer.domElement.onmousedown = function( e ) {
+        if (e.shiftKey) {
+          // Calculate mouse position in normalized device coordinates
+          var mouse = new THREE.Vector2();
+          mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+          mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+          // Unproject mouse position to 3D space
+          var raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(mouse, camera);
+
+          var intersectionPoint = new THREE.Vector3();
+          raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), intersectionPoint);
+
+          // Create a torus knot geometry (hotpink color)
+          var torusKnotGeometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+          var torusKnotMaterial = new THREE.MeshStandardMaterial({ color: 0xFF69B4 });
+          var torusKnotMesh = new THREE.Mesh(torusKnotGeometry, torusKnotMaterial);
+          torusKnotMesh.position.copy(intersectionPoint);
+
+          scene.add(torusKnotMesh);
+
+          // Set the last placed torus knot and enable scaling
+          LASTOBJECT = torusKnotMesh;
+          isScaling = true;
+        }
       };
 
-      function animate() {
+          document.addEventListener('mousemove', function (e) {
+            if (isScaling && LASTOBJECT) {
+            // Get the vertical movement of the mouse
+              var deltaY = e.movementY || 0;
 
-        requestAnimationFrame( animate );
+            // Apply scaling logic to the last placed torus knot
+             LASTOBJECT.scale.set(LASTOBJECT.scale.x + deltaY * DELTA, 
+                                  LASTOBJECT.scale.y + deltaY * DELTA, 
+                                  LASTOBJECT.scale.z + deltaY * DELTA);
+        }
+      });
 
-        // and here..
-        
-      };
-    </script>
-  </head>
-  <body></body>
+          document.addEventListener('mouseup', function () {
+        // SETS A FLAG for torus that have not let the mousebutton let go
+           LASTOBJECT = null;
+           isScaling = false;
+      });
+
+      // setup lights and other configurations
+      var ambientLight = new THREE.AmbientLight();
+      scene.add(ambientLight);
+
+      var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+      light.position.set( 10, 100, 10 );
+      scene.add( light );
+
+      // interaction
+      controls = new OrbitControls( camera, renderer.domElement );
+
+      // call animation/rendering loop
+      animate();
+    };
+
+    function animate() {
+      requestAnimationFrame( animate );
+      controls.update();
+      renderer.render( scene, camera );
+    };
+
+  </script>
+</head>
+<body></body>
 </html>
-
