@@ -27,6 +27,8 @@
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
       var renderer, controls, scene, camera;
+      var LASTOBJECT = null; // flag
+      var isDragging = false;
 
       window.onload = function() {
 
@@ -40,40 +42,120 @@
         var zFar = 10000;
         camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
         camera.position.set(0, 0, 100);
+        
+        //////////////
+        // Define a variable to track whether the SHIFT key is pressed
+        let isShiftPressed = false;
+
+        // Event listener to detect SHIFT key press
+        window.addEventListener('keydown', (event) => {
+          if (event.key === 'Shift') {
+            isShiftPressed = true;
+            // Disable OrbitControls when SHIFT is pressed
+            controls.enabled = false;
+          }
+        });
+
+        // Event listener to detect SHIFT key release
+        window.addEventListener('keyup', (event) => {
+          if (event.key === 'Shift') {
+            isShiftPressed = false;
+            // Enable OrbitControls when SHIFT is released
+            controls.enabled = true;
+          }
+        });
+        /////////////////
 
         //create renderer and canvas
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        renderer.domElement.onclick = function(e) {
-          console.log('Yay! We clicked!');
-          var pixel_coords = new THREE.Vector2(e.clienX, e.clienY);
+        renderer.domElement.addEventListener('mousedown', (e) => {
+          ////////////
+          // Check if the SHIFT key is pressed
+          if (isShiftPressed) {
+            // Create a new hotpink torus at the mouse click position
+            const torusGeometry = new THREE.TorusGeometry(8, 2, 100, 16, 6, 3);
+            const torusMaterial = new THREE.MeshBasicMaterial({ color: 0xFF69B4 });
+            const torus = new THREE.Mesh(torusGeometry, torusMaterial);
 
-          console.log('pixel_coords', pixel_coords);
-          var vp_coords = new THREE.Vector2(
-            (pixel_coords.x/window.innerWidth) * 2-1, //X
+            console.log('Yay! We clicked!');
+            var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+            console.log('pixel_coords', pixel_coords);
+            // Convert mouse coordinates to 3D space
+            const vp_coords = new THREE.Vector2(
+              (pixel_coords.x / window.innerWidth) * 2 - 1, //x
+              -(pixel_coords.y / window.innerHeight) * 2 + 1 //y
+            );
+            console.log('Viewport coords', vp_coords);
 
-            -(pixel_coords.y/window.innerHeight) * 2+1 //Y
-          );
+            var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+            console.log('Viewport coords zNear', vp_coords_near);
 
-          console.log('Viewport coords', vp_coords);
+            // Use a raycaster to find the intersection point with the invisible_plane
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(vp_coords_near, camera);
+            const intersects = raycaster.intersectObject(invisible_plane);
+            console.log('Ray to invisible plane', intersects[0].point);
 
-          var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+            torus.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
 
-          console.log('Viewport coords zNear', vp_coords_near);
+            // Place the torus at the intersection point
+            if (intersects.length > 0) {
+              const intersectionPoint = intersects[0].point;
+              torus.position.copy(intersectionPoint);
+              scene.add(torus);
+              LASTOBJECT = torus; // store it as the last object
+              isDragging = true; // dragging actived.
+            }
+          } else if (!isShiftPressed) {
+            controls.enabled = true;
+          }
+          ////////////
+          // console.log('Yay! We clicked!');
+          // var pixel_coords = new THREE.Vector2(e.clienX, e.clienY);
+
+          // console.log('pixel_coords', pixel_coords);
+          // var vp_coords = new THREE.Vector2(
+          //   (pixel_coords.x/window.innerWidth) * 2-1, //X
+
+          //   -(pixel_coords.y/window.innerHeight) * 2+1 //Y
+          // );
+
+          // console.log('Viewport coords', vp_coords);
+
+          // var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+
+          // console.log('Viewport coords zNear', vp_coords_near);
 
           // Raycaster
 
-          var raycaster = new THREE.Raycaster();
-          raycaster.setFromCamera(vp_coords_near, camera);
+          // var raycaster = new THREE.Raycaster();
+          // raycaster.setFromCamera(vp_coords_near, camera);
 
           //calculate intersection with objects
-          var intersects = raycaster.intersectObject(invisible_plane);
-          console.log('Ray to invisible plane', intersects[0].point);
+          // var intersects = raycaster.intersectObject(invisible_plane);
+          // console.log('Ray to invisible plane', intersects[0].point);
 
-          cube.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
-        };
+          //torus.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (e) => {
+          if (isDragging && LASTOBJECT) {
+            const deltaY = e.movementY;
+            const DELTA = deltaY * 0.01; // Adjust the scaling factor as needed
+            LASTOBJECT.scale.set(
+              LASTOBJECT.scale.x + DELTA,
+              LASTOBJECT.scale.y + DELTA,
+              LASTOBJECT.scale.z + DELTA
+            ); 
+          }
+        });
+
+        renderer.domElement.addEventListener('mouseup', () => {
+          isDragging = false; // Disable dragging when the mouse button is released
+        });
 
         //configure Light
         var ambientLight = new THREE.AmbientLight();
@@ -83,19 +165,18 @@
         light.position.set(10, 100, 10);
         scene.add(light);
 
+        ////////
+        //configure TorusKnotGeometry
+        const geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
+        const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+        const torus = new THREE.Mesh( geometry, material ); 
+        scene.add( torus );
+        ///////////////
 
-        //configure cube
-        var geometry = new THREE.BoxGeometry(20,20,20);
-        var material = new THREE.MeshStandardMaterial({color: 0xffffff});
-
-        var cube = new THREE.Mesh(geometry, material);
-
-        scene.add(cube);
-
-        var geometery_ip = new THREE.PlaneGeometry(1000, 1000);
+        var geometry_ip = new THREE.PlaneGeometry(1000, 1000);
         var material_ip = new THREE.MeshBasicMaterial( {visible: false});
 
-        var invisible_plane = new THREE.Mesh(geometry, material);
+        var invisible_plane = new THREE.Mesh(geometry_ip, material_ip);
 
         scene.add(invisible_plane);
 
