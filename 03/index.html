@@ -29,23 +29,125 @@
       var renderer, controls, scene, camera;
 
       window.onload = function() {
+        scene = new THREE.Scene();
 
-        // Three.js code goes here
- 
-        // call animation/rendering loop
+        // Setup the camera
+        var fov = 50;
+        var aspectRatio = window.innerWidth / window.innerHeight;
+        var near = 1;
+        var far = 5000;
+        camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        camera.position.set(0, 0, 300);
+
+        // Create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setup lights
+        var ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); 
+        directionalLight.position.set(10, 200, 10);
+        scene.add(directionalLight);
+
+        //set up torus
+        var torusGeometry = new THREE.TorusKnotGeometry(50, 15, 100, 16);
+        var defaultTorusMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00 }); 
+        var hotPinkTorusMaterial = new THREE.MeshStandardMaterial({ color: 0xFF69B4 }); 
+
+        var torusKnot = new THREE.Mesh(torusGeometry, defaultTorusMaterial);
+
+        scene.add(torusKnot);
+
+        // Create an invisible plane
+        var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
+        var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
+        var invisiblePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        scene.add(invisiblePlane);
+      
+        // Interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        var lastObject; 
+        var flag = 0; 
+        var flag2 = 0; 
+        var allToruses = [];
+        var mesh;
+        
+        renderer.domElement.onmousedown = function( e ){
+            flag = 1;
+            var count = 0;
+
+            if (e.shiftKey && flag == 1) {
+                controls.enabled = false;
+                flag2 = 1;
+
+                var pixelCoords = new THREE.Vector2( e.clientX, e.clientY );
+                var vpCoords = new THREE.Vector2( 
+                            ( pixelCoords.x / window.innerWidth ) * 2 - 1,  //X
+                            -( pixelCoords.y / window.innerHeight ) * 2 + 1) // Y
+                var vpCoordsNear = new THREE.Vector3( vpCoords.x, vpCoords.y, 0);
+
+                // Create a raycaster
+                var raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(vpCoordsNear, camera);
+                var intersects = raycaster.intersectObject(invisiblePlane);
+
+                // Create a new torus
+                var newGeometry = new THREE.TorusKnotGeometry(50, 15, 100, 16);
+                var newTorusMaterial = hotPinkTorusMaterial; 
+                var newTorusKnot = new THREE.Mesh(newGeometry, newTorusMaterial);
+                newTorusKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+                scene.add(newTorusKnot);
+                allToruses.push(newTorusKnot);
+                count ++;
+
+                lastObject = newTorusKnot;
+            } else {
+              flag2 = 0;
+            }
+        };
+        
+        renderer.domElement.onmouseup = function ( e ) {
+            controls.enabled = true;
+            flag = 0;
+        };
+
+        // Scale the last torus
+        renderer.domElement.onmousemove = function ( e ) {
+            var delta = e.movementY * 0.05; // Your custom scale factor
+            if (flag == 1 && flag2 == 1) {
+                lastObject.scale.set(
+                  lastObject.scale.x + delta,
+                  lastObject.scale.y + delta,
+                  lastObject.scale.z + delta
+                );
+            }
+        };
+
+        
+        window.onkeypress = function ( e ) {
+            if (e.code == "KeyW") {
+              allToruses.forEach((t) => {
+                  var newMaterialWire = new THREE.MeshStandardMaterial({color: 0xFF69B4, wireframe: true });
+                  t.material = newMaterialWire;
+              });
+            }
+        };
+
+        // Call animation/rendering loop
         animate();
         
       };
 
       function animate() {
-
         requestAnimationFrame( animate );
-
-        // and here..
-        
+        controls.update();
+        renderer.render( scene, camera );
       };
     </script>
   </head>
   <body></body>
 </html>
-
