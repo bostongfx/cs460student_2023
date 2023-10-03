@@ -1,51 +1,220 @@
 <html>
   <head>
     <style>
-      html, body { 
-        background-color:#000;
+      html,
+      body {
+        background-color: #000;
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
+        overflow: hidden !important;
       }
     </style>
-    
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
+    ></script>
 
     <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@latest/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@latest/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+        }
       }
-    }
     </script>
 
     <script type="module">
-
-      import * as THREE from 'three';
-      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
       var renderer, controls, scene, camera;
 
-      window.onload = function() {
-
+      window.onload = function () {
         // Three.js code goes here
- 
+        scene = new THREE.Scene();
+
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 0, 100);
+
+        var LASTOBJECT;
+        var flag = 0;
+        var arr = [];
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        renderer.domElement.onmousedown = function (e) {
+          // if (event.keyCode === 16) {
+          console.log("Yay! We clicked!");
+
+          var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+
+          console.log("Pixel coords", pixel_coords);
+
+          var vp_coords = new THREE.Vector2(
+            (pixel_coords.x / window.innerWidth) * 2 - 1, //X
+            -(pixel_coords.y / window.innerHeight) * 2 + 1
+          ); // Y
+
+          console.log("Viewport coords", vp_coords);
+
+          var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+
+          var raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          var intersects = raycaster.intersectObject(invisible_plane);
+
+          console.log("Ray to Invisible Plane", intersects[0].point);
+
+          var geometry1 = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+          var material1 = new THREE.MeshStandardMaterial({ color: 0xffc0cb });
+          // var material1 = new THREE.MeshStandardMaterial({ color: 0xffffff });
+          LASTOBJECT = new THREE.Mesh(geometry1, material1);
+          arr.push(LASTOBJECT);
+
+          console.log(arr);
+
+          if (e.shiftKey) {
+            // The shift key is being pressed
+            LASTOBJECT.position.set(
+              intersects[0].point.x,
+              intersects[0].point.y,
+              intersects[0].point.z
+            );
+            scene.add(LASTOBJECT);
+            controls.enabled = false;
+            flag = 1;
+          }
+          // update torusKnot position
+        };
+
+        renderer.domElement.onmouseup = function (e) {
+          controls.enabled = true;
+          flag = 0;
+        };
+
+        // renderer.domElement.onkeypress = function( e ){
+        // renderer.domElement.addEventListener('keydown', function(e) {
+        //   console.log("Here!!")
+        //   if (e.key === 'w' || e.key === 'W') {
+
+        //   arr.forEach(i => i.material.wireframe = true);
+        //   }
+        // });
+
+        // renderer.domElement.onkeydown = function(e) {
+        //   console.log("Key pressed: ");
+        //   console.log("Key pressed: " + e.key);
+        //   // Rest of your code
+        // }
+
+        window.addEventListener("keydown", function (e) {
+          if (e.key === "w" || e.key === "W") {
+              arr.forEach((i) => (i.material.wireframe = true));
+            }
+        });
+
+        // document.addEventListener("DOMContentLoaded", function () {
+        //   renderer.domElement.addEventListener("keydown", function (e) {
+        //     console.log("Here!!");
+        //     if (e.key === "w" || e.key === "W") {
+        //       arr.forEach((i) => (i.material.wireframe = true));
+        //     }
+        //   });
+        // });
+
+        renderer.domElement.onmousemove = function (e) {
+          if (e.movementY < 0 && flag == 1) {
+            LASTOBJECT.scale.set(
+              LASTOBJECT.scale.x + 10,
+              LASTOBJECT.scale.y + 10,
+              LASTOBJECT.scale.z + 10
+            );
+          } else if (e.movementY > 0 && flag == 1) {
+            console.log(e);
+            LASTOBJECT.scale.set(
+              LASTOBJECT.scale.x - 10,
+              LASTOBJECT.scale.y - 10,
+              LASTOBJECT.scale.z - 10
+            );
+          }
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+          renderer.domElement.addEventListener("keydown", function (e) {
+            console.log("Key pressed: " + e.key);
+            if (e.key === "w" || e.key === "W") {
+              console.log("W key pressed!");
+              // Check if the 'arr' variable is defined and contains the expected objects
+              arr.forEach((i) => (i.material.wireframe = true));
+            }
+          });
+        });
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add(ambientLight);
+
+        var light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light.position.set(10, 100, 10);
+        scene.add(light);
+
+        // configure cube
+        // var geometry = new THREE.BoxGeometry( 20, 20, 20 );
+        // var material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: true });
+
+        // var cube = new THREE.Mesh( geometry, material );
+
+        // scene.add( cube );
+
+        var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        // var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        var material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        var torusKnot = new THREE.Mesh(geometry, material);
+        arr.push(torusKnot);
+        console.log(arr);
+
+        scene.add(arr[0]);
+
+        //
+        // The invisible plane
+        //
+        geometry = new THREE.PlaneGeometry(10000, 10000);
+        material = new THREE.MeshBasicMaterial({
+          visible: false,
+        });
+
+        var invisible_plane = new THREE.Mesh(geometry, material);
+
+        scene.add(invisible_plane);
+        //
+        //
+        //
+
+        // interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+
         // call animation/rendering loop
         animate();
-        
       };
 
       function animate() {
-
-        requestAnimationFrame( animate );
+        requestAnimationFrame(animate);
 
         // and here..
-        
-      };
+        controls.update();
+        renderer.render(scene, camera);
+      }
     </script>
   </head>
   <body></body>
 </html>
-
