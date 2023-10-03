@@ -32,12 +32,14 @@
 
         // Three.js code goes here
         scene = new THREE.Scene();
-
+        var newTorus = false;
+        var lastObject = null;
         // setup the camera
         var fov = 75;
         var ratio = window.innerWidth / window.innerHeight;
         var zNear = 1;
         var zFar = 10000;
+        
         camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
         camera.position.set(0, 0, 100);
 
@@ -47,8 +49,7 @@
         document.body.appendChild( renderer.domElement );
 
 
-
-        renderer.domElement.onclick = function( e ){
+        renderer.domElement.onmousedown = function( e ){
           
             console.log('Yay! We clicked!');
 
@@ -71,11 +72,33 @@
 
             console.log('Ray to Invisible Plane', intersects[0].point);
 
-            // update cube position
-            cube.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
-
+            if (e.shiftKey) {
+              controls.enabled = false;
+              // update cube position
+              // torusKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+              var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
+              var material = new THREE.MeshBasicMaterial( { color: 0x69B4FF } ); 
+              var newKnot = new THREE.Mesh( geometry, material );
+              newKnot.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+              lastObject = newKnot;
+              scene.add( newKnot );
+              newTorus = true;
+            }
           };
 
+          renderer.domElement.onmousemove = function( e ){
+            if(newTorus){
+              var delta=e.movementY;
+              lastObject.scale.set(lastObject.scale.x + delta,
+              lastObject.scale.y + delta,
+              lastObject.scale.z + delta);
+            }
+          }
+
+          renderer.domElement.onmouseup = function( e ){
+            controls.enabled = true;
+            newTorus = false;
+          }
 
         // setup lights
         var ambientLight = new THREE.AmbientLight();
@@ -86,14 +109,18 @@
         scene.add( light );
 
         // configure cube
-        var geometry = new THREE.BoxGeometry( 20, 20, 20 );
-        var material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: true });
+        // var geometry = new THREE.BoxGeometry( 20, 20, 20 );
+        // var material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: true });
 
-        var cube = new THREE.Mesh( geometry, material );
+        // var cube = new THREE.Mesh( geometry, material );
 
-        scene.add( cube );
+        // scene.add( cube );
 
-
+        //
+        var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
+        var material = new THREE.MeshBasicMaterial( { color: 0xFFFF00 } ); 
+        var torusKnot = new THREE.Mesh( geometry, material );
+        scene.add( torusKnot );
 
         //
         // The invisible plane
