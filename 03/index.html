@@ -83,7 +83,7 @@
 
               // configure torusKnot
               var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
-              var material = new THREE.MeshBasicMaterial( { color: 0x00FFFF } ); 
+              var material = new THREE.MeshStandardMaterial( { color: 0x00FFFF } ); 
 
               var torusKnot = new THREE.Mesh( geometry, material ); 
               
@@ -95,6 +95,7 @@
               LASTOBJECT = torusKnot;
               
               console.log('torus added');
+
             }
           }
           renderer.domElement.onmousemove = function(e) {
@@ -120,15 +121,16 @@
           light.position.set(10, 100, 10);
           scene.add(light);
           
+          
           // configure torusKnot
           var geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); 
-          var material = new THREE.MeshBasicMaterial( { color: 0x00FFFF } ); 
+          var material = new THREE.MeshStandardMaterial( { color: 0x00FFFF } ); 
           var torusKnot = new THREE.Mesh( geometry, material ); 
           scene.add(torusKnot);
 
           // invisible plane
           var geometry_ip = new THREE.PlaneGeometry( 10000, 10000 );
-          var material_ip = new THREE.MeshBasicMaterial( {
+          var material_ip = new THREE.MeshStandardMaterial( {
             visible: false
           });
 
