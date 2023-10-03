@@ -27,15 +27,129 @@
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';      
 
       var renderer, controls, scene, camera;
+      
+      var LASTOBJECT, placed;
+      
+      // var torusArray = [];
 
       window.onload = function() {
 
         // Three.js code goes here
-        scene = new THREE.scene();
+        scene = new THREE.Scene();
 
         // setup the camera
-        var fov =
-        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar)
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0,0,100);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({antialias: true}); // add anti aliasing you can add more settings here aswell
+        renderer.setSize( window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        renderer.domElement.onmousedown = function(e) {
+
+          if (e.shiftKey) {
+            var torus = new THREE.Mesh(geometry, material);
+            scene.add(torus);
+            controls.enabled = false;
+            LASTOBJECT = torus;
+            placed = true;
+            // torusArray.push(LASTOBJECT);
+            renderer.domElement.onmousemove = function(event) {
+              if (placed) {
+                LASTOBJECT.scale.set(LASTOBJECT.scale.x + event.movementY,
+                                    LASTOBJECT.scale.y + event.movementY, 
+                                    LASTOBJECT.scale.z + event.movementY )
+              }
+            }
+          }
+
+
+
+
+          
+          var pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+
+          // console.log('Pixel coords', pixel_coords);
+
+          var vp_coords = new THREE.Vector2(
+            (pixel_coords.x / window.innerWidth ) * 2 - 1, // x
+
+            -(pixel_coords.y / window.innerHeight) * 2 + 1 // Y
+
+          );
+
+          // console.log('Viewport_coords', vp_coords);
+
+          var vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+
+          // console.log('Viewport coods zNear', vp_coords_near);
+
+          //
+          // Raycaster
+          //
+
+          var raycaster = new THREE.Raycaster();
+
+          raycaster.setFromCamera(
+            vp_coords_near, camera);
+
+          // calculate intersection with objects
+          var intersects = raycaster.intersectObject(invisible_plane);
+          // console.log('Ray to invisible plane', intersects[0].point)
+
+          var p = intersects[0].point;
+
+          torus.position.set(p.x, p.y, p.z);
+
+        }
+
+        renderer.domElement.onmouseup = function(e) {
+          controls.enabled = true;
+          placed = false;
+        }
+        // renderer.domElement.onkeypress = function(e) {
+        //   if (e.code == 'KeyW') {
+        //     for (var i = 0; i < torusArray.length; i++) {
+        //       torusArray[i].material.wireframe = !torusArray[i].material.wireframe;
+        //     }
+        //   }
+        // }
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add(ambientLight);
+
+        var light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light.position.set(10, 100, 10);
+        scene.add(light)
+
+        // configure the torus
+        var geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        var material = new THREE.MeshStandardMaterial({color:0xFF69B4})// wireframe: true
+
+        // var cube = new THREE.Mesh(geometry, material);
+        var torus = new THREE.Mesh(geometry, material);
+
+        scene.add(torus);
+
+        // invisible plane
+        var geometry_ip = new THREE.PlaneGeometry( 10000, 10000 );
+        var material_ip = new THREE.MeshBasicMaterial( {
+        visible: false
+        });
+
+        var invisible_plane = new THREE.Mesh( geometry_ip, material_ip );
+
+        scene.add( invisible_plane );
+
+        //interaction
+        //..
+        controls = new OrbitControls(camera, renderer.domElement);
  
         // call animation/rendering loop
         animate();
@@ -43,8 +157,13 @@
       };
 
       function animate() {
+        // low level function that understands the calls on your computer
+        // it optimizes with the hardware of the computer to get the optimal call
 
         requestAnimationFrame( animate );
+
+        controls.update();
+        renderer.render(scene, camera);
 
         // and here..
         
