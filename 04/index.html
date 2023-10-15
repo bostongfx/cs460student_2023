@@ -483,7 +483,16 @@
             }
             
             // TODO Part 3
-            
+            if (e.key == 'ArrowLeft') {
+                // Update Keens Paddle
+                if(OBJECTS[0][3][0] > -0.85)
+                    OBJECTS[0][3][0] -= STEP * 0.5;
+            }
+            if (e.key == 'ArrowRight') {
+                // Update Keens Paddle
+                if(OBJECTS[0][3][0] < 0.85)
+                    OBJECTS[0][3][0] += STEP * 0.5;
+            }
         }
         
     </script>
