@@ -345,7 +345,8 @@
 
 
     function score(who) {
-
+      var munks = new Audio('munks.mp3');
+      var yay = new Audio('yay.mp3');
       // console.log(who, 'scored!')
 
       var old_score = document.getElementById(who).innerText;
@@ -358,8 +359,10 @@
         document.getElementById('overlay').style.display = 'block';
 
         if (who == 'keen') {
+          yay.play();
           document.getElementById('won').style.display = 'block';
         } else if (who == 'comp') {
+          munks.play();
           document.getElementById('lost').style.display = 'block';
         }
 
@@ -400,7 +403,10 @@
 
 
     function updateBall() {
-
+      var beep = new Audio('bep.mp3');
+      var hit1 = new Audio ('hit1.mov');
+      var hit2 = new Audio ('hit2.mov');
+      var start = new Audio('start.mp3');
       BALL_X = OBJECTS[2][3][0];
       BALL_Y = OBJECTS[2][3][1];
 
@@ -432,14 +438,15 @@
 
         // LET'S CHECK IF A PADDLE IS THERE
         if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_RIGHT) {
-
+          hit1.play();
            console.log('top bounce')
 
           // YES, REFLECT
           BALLDIRECTION = -BALLDIRECTION;
 
         } else {
-
+          
+          start.play();
           // SCORE!
           score('keen');
 
@@ -457,14 +464,15 @@
 
         // LET'S CHECK IF A PADDLE IS THERE
         if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
-
+          hit2.play();
            console.log('bottom bounce')
 
           // YES, REFLECT
           BALLDIRECTION = -BALLDIRECTION;
 
         } else {
-
+          // var start = new Audio('start.mp3');
+          start.play();
           // SCORE!
           score('comp');
 
