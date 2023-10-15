@@ -84,7 +84,7 @@
             gl_Position = final_position;
             
             // TODO Part 2
-            
+            gl_PointSize = 8.;
         }
     </script>
     
@@ -213,7 +213,7 @@
             gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
             
             // TODO Part 2
-            return [v_buffer, i_buffer, color, offset, 6];
+            return [v_buffer, i_buffer, color, offset, 6, gl.TRIANGLES];
             
         }
         
@@ -223,7 +223,25 @@
             //
             // TODO Part 2
             //
+            vertices = new Float32Array( [0, 0, 0] );
             
+            indices = new Uint8Array( [0] ); // Point
+            
+            
+            v_buffer = gl.createBuffer(); // create
+            gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
+            gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
+            gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
+            
+            
+            i_buffer = gl.createBuffer(); // create
+            gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
+            gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
+            gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
+            
+            // TODO Part 2
+            return [v_buffer, i_buffer, color, offset, 1, gl.POINTS];
+
         }
         
         
@@ -253,7 +271,7 @@
                 var VERTEXCOUNT = current[4];
                 
                 // TODO Part 2
-                
+                var PRIMITIVE = current[5];
                 
                 
                 
@@ -298,7 +316,7 @@
                 // gl.drawArrays( gl.LINES, 0, 6 );
                 
                 // TODO Part 2
-                gl.drawElements( gl.TRIANGLES, VERTEXCOUNT, gl.UNSIGNED_BYTE, 0);
+                gl.drawElements( PRIMITIVE, VERTEXCOUNT, gl.UNSIGNED_BYTE, 0);
                 
                 
             }
