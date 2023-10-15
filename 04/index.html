@@ -259,7 +259,9 @@
             gl.clear( gl.COLOR_BUFFER_BIT );
             
             // TODO Part 4 and 5
-            
+            updateBall()
+            updateComputer()
+
             for(var o=0; o<OBJECTS.length; o++) {
                 
                 var current = OBJECTS[o];
@@ -485,13 +487,13 @@
             // TODO Part 3
             if (e.key == 'ArrowLeft') {
                 // Update Keens Paddle
-                if(OBJECTS[0][3][0] > -0.85)
-                    OBJECTS[0][3][0] -= STEP * 0.5;
+                if(OBJECTS[1][3][0] > -0.85)
+                    OBJECTS[1][3][0] -= STEP * 0.5;
             }
             if (e.key == 'ArrowRight') {
                 // Update Keens Paddle
-                if(OBJECTS[0][3][0] < 0.85)
-                    OBJECTS[0][3][0] += STEP * 0.5;
+                if(OBJECTS[1][3][0] < 0.85)
+                    OBJECTS[1][3][0] += STEP * 0.5;
             }
         }
         
