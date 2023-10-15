@@ -116,6 +116,9 @@
         bounce_sound = new Audio("bounce.wav");
         wallbounce_sound = new Audio("bounce_2.wav");
         score_sound = new Audio("score.wav");
+
+        SCALE_COMPUTER_PADDLE = 1;
+        SCALE_KEEN_PADDLE = 1;
         //************************************************************//
         //
         // INITIALIZE WEBGL
@@ -301,18 +304,24 @@
 
           var u_transform = gl.getUniformLocation(shaderprogram, "transform");
 
+          if(o == 0){
+            SCALE = SCALE_COMPUTER_PADDLE;
+          } else if(o == 1){
+            SCALE = SCALE_KEEN_PADDLE;
+          }
+
           current_transform = new Float32Array([
             SCALE,
             0,
             0,
             0,
             0,
-            SCALE,
+            1,
             0,
             0,
             0,
             0,
-            SCALE,
+            1,
             0,
             OFFSET[0],
             OFFSET[1],
@@ -362,11 +371,17 @@
           }
         }
 
+        //SCALE UP THE PADLE OF LOSING PLAYER
+        //SCALE DOWN PADDLE OF WINNING PLAYER
         if (who == "keen") {
           resetBall(1);
+          SCALE_COMPUTER_PADDLE = 2;
+          SCALE_KEEN_PADDLE = 0.5;
           score_sound.play();
         } else if (who == "comp") {
           resetBall(-1);
+          SCALE_COMPUTER_PADDLE = 0.5;
+          SCALE_KEEN_PADDLE = 2;
           score_sound.play();
         }
       }
@@ -391,11 +406,11 @@
 
         TOP_PADDLE_X = OBJECTS[0][3][0];
         TOP_PADDLE_Y = OBJECTS[0][3][1];
-        TOP_PADDLE_WIDTH = 0.2;
+        TOP_PADDLE_WIDTH = 0.2 * SCALE_COMPUTER_PADDLE;
 
         BOTTOM_PADDLE_X = OBJECTS[1][3][0];
         BOTTOM_PADDLE_Y = OBJECTS[1][3][1];
-        BOTTOM_PADDLE_WIDTH = 0.2;
+        BOTTOM_PADDLE_WIDTH = 0.2 * SCALE_KEEN_PADDLE;
 
         if (BALL_X >= 0.98) {
           // RIGHT WALL
