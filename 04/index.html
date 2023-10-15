@@ -113,10 +113,10 @@
       //
      // var OFFSET;
         GameSound = new Audio("game.mp3");
-        BounceSound = new Audio ("bounce.mp3");
-        ScoreSound = new Audio("Score.mp3");
-        WinSound = new Audio ("win.mp3");
-        LoseSound = new Audio ("lose.mp3");
+       // BounceSound = new Audio ("bounce.mp3");
+        ScoreSound = new Audio("ScoreSound.mp3");
+        WinSound = new Audio ("WinSound.mp3");
+        LoseSound = new Audio ("LoseSound.mp3");
 
       c = document.getElementById( 'c' ); // setup canvas
       gl = c.getContext( 'webgl' ); // setup GL context
@@ -397,7 +397,7 @@
 
         if (who == 'keen') {
           document.getElementById('won').style.display = 'block';
-          winSound.play();
+         WinSound.play();
 
         } else if (who == 'comp') {
           document.getElementById('lost').style.display = 'block';
