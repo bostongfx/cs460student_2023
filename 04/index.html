@@ -415,6 +415,14 @@
           if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_RIGHT) {
             // console.log('top bounce')
 
+            //ADVANCED REFLECTION
+            //CHECK IF BALL HITS EDGE OF PADDLE TO CHANGE DIRECTION
+            if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_LEFT + 0.05){
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            }
+            if (BALL_X >= TOP_PADDLE_RIGHT - 0.05 && BALL_X <= TOP_PADDLE_RIGHT){
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            }
             // YES, REFLECT
             BALLDIRECTION = -BALLDIRECTION;
             //UPDATE STEP ON BOUNCE TO INCREASE SPEED
@@ -436,6 +444,14 @@
           if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
             // console.log('bottom bounce')
 
+            //ADVANCED REFLECTION
+            //CHECK IF BALL HITS EDGE OF PADDLE TO CHANGE DIRECTION
+            if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_LEFT + 0.05){
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            }
+            if (BALL_X >= BOTTOM_PADDLE_RIGHT - 0.05 && BALL_X <= BOTTOM_PADDLE_RIGHT){
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            }
             // YES, REFLECT
             BALLDIRECTION = -BALLDIRECTION;
             //UPDATE STEP ON BOUNCE TO INCREASE SPEED
@@ -461,13 +477,11 @@
         }
         // TODO Part 3
         if(e.code == "ArrowLeft"){
-          console.log(OBJECTS[1][3][0]);
           if(OBJECTS[1][3][0] > - 0.8){
             OBJECTS[1][3][0] = OBJECTS[1][3][0] - STEP;
           }
         }
         if(e.code == "ArrowRight"){
-          console.log(OBJECTS[1][3][0]);
           if(OBJECTS[1][3][0] < 0.8){
             OBJECTS[1][3][0] = OBJECTS[1][3][0] + STEP;
           }
