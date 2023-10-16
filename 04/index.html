@@ -187,9 +187,7 @@
       // CREATE GEOMETRY
       //
 
-      //
-      // TODO Part 1
-      //
+      
       vertices = new Float32Array( [
                                   -0.1, 0.05, 0.0, // V0 // 0
                                   -0.1, -0.05, 0.0, // V1, V4 // 1
@@ -248,7 +246,8 @@
       gl.clearColor( 0., 0., 0., 0.)
       gl.clear( gl.COLOR_BUFFER_BIT );
 
-      // TODO Part 4 and 5
+      updateBall();
+      updateComputer();
 
       for(var o=0; o<OBJECTS.length; o++) {
 
@@ -509,8 +508,8 @@
       <span id='comp' class='score'>0</span>
 
       <div id='overlay'>
-        <img id='won' class='result' src='won.png'>
-        <img id='lost' class='result' src='lost.png'>
+        <img id='won' class='result' src='https://cs460.org/assignments/keen/won.png'>
+        <img id='lost' class='result' src='https://cs460.org/assignments/keen/lost.png'>
       </div>
 
       <canvas id='c'></canvas>
