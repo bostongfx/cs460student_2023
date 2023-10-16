@@ -61,9 +61,52 @@
                     if (child.material) {
                         child.material.wireframe = !child.material.wireframe;
                     }
+                    console.log(calculateSceneGeometry(scene));
                 });
             }
         } 
+        function calculateSceneGeometry(scene) {
+          let totalVertices = 0;
+          let totalFaces = 0;
+          let edgeSet = new Set();
+      
+          scene.children.forEach(child => {
+              if (child.geometry) {
+                  // Count vertices
+                  totalVertices += child.geometry.vertices.length;
+      
+                  // Count faces
+                  totalFaces += child.geometry.faces.length;
+      
+                  // Count edges
+                  child.geometry.faces.forEach(face => {
+                      let edges = [
+                          [face.a, face.b],
+                          [face.b, face.c],
+                          [face.c, face.a]
+                      ];
+      
+                      edges.forEach(edge => {
+                          // Sort the vertices so the edge [1, 2] is the same as [2, 1]
+                          edge.sort();
+      
+                          // Convert to string to store in a set (to get unique edges)
+                          edgeSet.add(edge.toString());
+                      });
+                  });
+              }
+          });
+      
+          let totalEdges = edgeSet.size;
+      
+          return {
+              vertices: totalVertices,
+              faces: totalFaces,
+              edges: totalEdges
+          };
+
+      }
+      
           
     
 
