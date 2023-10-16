@@ -1,3 +1,15 @@
+<!-- *** HOW TO PLAY *** 
+
+This is normal pong until you press anything besides arrow left and right
+
+once other character is pressed, you enter spicy mode
+
+spicy mode changes the paddle size with each hit (and sometimes makes them invisible)
+
+spicy mode also randomizes ball direction and morphs thru the paddle about half the time!
+
+with spicy mode, pong is now more a game of chance and is fun for at least 5 seconds guaranteed! -->
+
 <html>
 <head>
     
@@ -71,7 +83,6 @@
             display: none;
         }
     </style>
-    
     <script id="vertexshader" type="glsl">
         attribute vec3 position;
         
@@ -102,9 +113,13 @@
     
     <script>
         
-        
         window.onload = function() {
-            
+            // init spicymode
+            spicymode = false;
+
+            // init moving
+            moving = false;
+
             //************************************************************//
             //
             // INITIALIZE WEBGL
@@ -160,7 +175,7 @@
             gl.useProgram( shaderprogram );
             
             SCALE = 1;
-            STEP = .1;
+            STEP = .15;
             MAX_SCORE = 5;
             STOPPED = false;
             
@@ -261,6 +276,17 @@
             // TODO Part 4 and 5
             updateBall()
             updateComputer()
+            if (moving) {
+                // if edge of right wall and moving right
+                if (BOTTOM_PADDLE_X >= .98 && movedistance > 0) {
+                    moving = false;
+                // if edge of left wall and moving left
+                } else if (BOTTOM_PADDLE_X <= -.98 && movedistance < 0) {
+                    moving = false;
+                } else {
+                    OBJECTS[1][3][0] += movedistance;
+                }
+            }
 
             for(var o=0; o<OBJECTS.length; o++) {
                 
@@ -333,9 +359,10 @@
             OBJECTS[2][3][0] = Math.random() / 10.; // SET TO CENTER
             OBJECTS[2][3][1] = Math.random() / 10.;
             
-            BALLDIRECTION = (Math.PI / 8) + Math.random();
+            launchAngle = Math.PI/4 // Shallow launch angle makes it so that comp doenst fail on the first round
+            BALLDIRECTION = (Math.random() * launchAngle) + Math.PI/2 - launchAngle/2;
             BALLDIRECTION *= direction;
-            
+            // Make the ball start easy for comp
         };
         
         
@@ -346,6 +373,7 @@
             var old_score = document.getElementById(who).innerText;
             document.getElementById(who).innerText = parseInt(old_score) + 1;
             
+            // Game Over
             if (parseInt(old_score) == MAX_SCORE-1) {
                 
                 STOPPED = true;
@@ -354,7 +382,12 @@
                 
                 if (who == 'keen') {
                     document.getElementById('won').style.display = 'block';
+                    let win_sound = new Audio('https://themushroomkingdom.net/sounds/wav/smb/smb_stage_clear.wav'); // BONUS: Part 1
+                    win_sound.play();
                 } else if (who == 'comp') {
+                    let die_sound = new Audio('https://themushroomkingdom.net/sounds/wav/smb/smb_mariodie.wav'); // BONUS: Part 1
+                    die_sound.play();
+                    
                     document.getElementById('lost').style.display = 'block';
                 }
                 
@@ -370,6 +403,7 @@
                 
             }
             
+            STEP += .02; // BONUS: Part 2
         }
         
         
@@ -407,17 +441,13 @@
             BOTTOM_PADDLE_Y = OBJECTS[1][3][1];
             BOTTOM_PADDLE_WIDTH = 0.2;
             
-            
-            if (BALL_X >= .98) {
+                // left         // right
+            if (BALL_X >= .98 || BALL_X <= -.98) {
                 
-                // RIGHT WALL
+                // WALL
+                
                 BALLDIRECTION = (Math.PI - BALLDIRECTION);
-                
-            } else if (BALL_X <= -.98) {
-                
-                // LEFT WALL
-                BALLDIRECTION = (Math.PI - BALLDIRECTION);
-                
+
             } else if (BALL_Y >= .85) {
                 
                 // TOP
@@ -433,6 +463,27 @@
                     // YES, REFLECT
                     BALLDIRECTION = -BALLDIRECTION;
                     
+                    //BONUS: Part 4
+                    // Check if ball is at edge of paddle
+                    TOP_PADDLE_LEFT_RIGHT = TOP_PADDLE_X - (TOP_PADDLE_WIDTH/4);
+                    TOP_PADDLE_RIGHT_LEFT = TOP_PADDLE_X + (TOP_PADDLE_WIDTH/4);
+                    if (BALL_X <= TOP_PADDLE_LEFT_RIGHT) {
+                        // console.log('edge');
+                        BALLDIRECTION -= Math.random() % Math.PI/4;
+                    }
+                    if (BALL_X >= TOP_PADDLE_RIGHT_LEFT) {
+                        // console.log('edge');
+                        BALLDIRECTION += Math.random() % Math.PI/4;
+                    }
+
+                    if(spicymode) {
+                        BALLDIRECTION *= Math.random();
+                        SCALE = Math.random() % 2;
+                        TOP_PADDLE_WIDTH = BOTTOM_PADDLE_WIDTH = 1/SCALE;
+                    }
+
+                    let paddle_sound = new Audio('https://themushroomkingdom.net/sounds/wav/smb/smb_kick.wav'); // BONUS: Part 1
+                    paddle_sound.play();
                 } else {
                     
                     // SCORE!
@@ -450,6 +501,7 @@
                 BOTTOM_PADDLE_LEFT = BOTTOM_PADDLE_X - (BOTTOM_PADDLE_WIDTH/2);
                 BOTTOM_PADDLE_RIGHT = BOTTOM_PADDLE_X + (BOTTOM_PADDLE_WIDTH/2);
                 
+                
                 // LET'S CHECK IF A PADDLE IS THERE
                 if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
                     
@@ -458,6 +510,26 @@
                     // YES, REFLECT
                     BALLDIRECTION = -BALLDIRECTION;
                     
+                    // BONUS: Part 4
+                    // Check if ball is at edge of paddle
+                    BOTTOM_PADDLE_LEFT_RIGHT = BOTTOM_PADDLE_X - (BOTTOM_PADDLE_WIDTH/4);
+                    BOTTOM_PADDLE_RIGHT_LEFT = BOTTOM_PADDLE_X + (BOTTOM_PADDLE_WIDTH/4);
+                    if (BALL_X <= BOTTOM_PADDLE_LEFT_RIGHT) {
+                        // console.log('edge');
+                        BALLDIRECTION += Math.random() % Math.PI/8 + Math.PI/8;
+                    }
+                    if (BALL_X >= BOTTOM_PADDLE_RIGHT_LEFT) {
+                        // console.log('edge');
+                        BALLDIRECTION -= Math.random() % Math.PI/8 + Math.PI/8;
+                    }
+                    
+                    if(spicymode) {
+                        BALLDIRECTION *= Math.random();
+                        SCALE = Math.random() % 2; // BONUS: Part 3
+                    }
+
+                    let paddle_sound = new Audio('https://themushroomkingdom.net/sounds/wav/smb/smb_kick.wav'); // BONUS: Part 1
+                    paddle_sound.play();
                 } else {
                     
                     // SCORE!
@@ -469,16 +541,26 @@
                 
             }
             
-            
             // UPDATE BALL POSITION
             OBJECTS[2][3][0] += Math.cos(BALLDIRECTION) * STEP * 0.1;
             OBJECTS[2][3][1] += Math.sin(BALLDIRECTION) * STEP * 0.1;
             
         }
         
+        // the following functions are to make it so that keen moves smoothly and without delay
+        // moving is a boolean that is checked during animate
+        function moveKeen(left) {
+            moving = true;
+            movedistance = STEP * 0.1;
+            if (left)
+                movedistance *= -1;
+        }
+
+        function stopKeen() {
+            moving = false;
+        }
         
         window.onkeydown = function(e) {
-            
             if (STOPPED) {
                 // restart the game
                 window.location.reload();
@@ -487,13 +569,29 @@
             // TODO Part 3
             if (e.key == 'ArrowLeft') {
                 // Update Keens Paddle
-                if(OBJECTS[1][3][0] > -0.85)
-                    OBJECTS[1][3][0] -= STEP * 0.5;
+                moveKeen(left=true);
+            }
+            else if (e.key == 'ArrowRight') {
+                // Update Keens Paddle
+                moveKeen(left=false);
+            }
+            else {
+                let win_sound = new Audio('https://themushroomkingdom.net/sounds/wav/smb/smb_vine.wav'); // BONUS: Part 1
+                win_sound.play();
+                console.log('spicy mode enabled');
+                spicymode = true; // makes every hit act as an edge hit, but also hit 2x for each hit which makes it sound weird
+            }
+        }
+        window.onkeyup = function(e) {
+            
+            // TODO Part 3
+            if (e.key == 'ArrowLeft') {
+                // Update Keens Paddle
+                stopKeen();
             }
             if (e.key == 'ArrowRight') {
                 // Update Keens Paddle
-                if(OBJECTS[1][3][0] < 0.85)
-                    OBJECTS[1][3][0] += STEP * 0.5;
+                stopKeen();
             }
         }
         
