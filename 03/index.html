@@ -132,7 +132,7 @@
         //var geometry = new THREE.BoxGeometry( 20, 20, 20 );
         //var material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: true });
         var geometry = new THREE.TorusKnotGeometry( 7,2,20,20,2,7 ); 
-        var material = new THREE.MeshBasicMaterial( { color: 0x800080 } ); 
+        var material = new THREE.MeshStandardMaterial( { color: 0x800080 } ); 
         var torusKnot = new THREE.Mesh( geometry, material );
         scene.add( torusKnot );
         //
