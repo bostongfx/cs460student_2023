@@ -254,6 +254,32 @@
           console.log("Estimated vertices:", vertices);
           console.log("Estimated edges:", edges);
           console.log("Estimated faces:", faces);
+              //Certainly! This code is designed to estimate the number of vertices, edges, and faces for all the toruses in the scene using a concise and simplified approach. Let's break down how it works:
+
+              // 1. **`function estimateGeometryCounts(scene)`**: This is a function that takes the scene as its parameter and calculates the counts for vertices, edges, and faces.
+
+              // 2. **`let vertices = 0; let edges = 0; let faces = 0;`**: These variables are initialized to 0 and will be used to keep track of the total counts for vertices, edges, and faces in the scene.
+
+              // 3. **`scene.traverse(object => { ... });`**: This is a method provided by Three.js that allows you to traverse through all objects in the scene.
+
+              // 4. **`if (object instanceof THREE.Mesh) { ... }`**: Inside the traversal loop, it checks if the current object is an instance of `THREE.Mesh`. This check ensures that we are only considering objects with geometry, which in this case, are the toruses.
+
+              // 5. **`const geometry = object.geometry;`**: If the object is a mesh, it retrieves its geometry. The `geometry` object contains information about the mesh's structure, including vertices, edges, and faces.
+
+              // 6. **`if (geometry) { ... }`**: This condition ensures that the `geometry` object exists (some objects might not have geometry).
+
+              // 7. **`vertices += geometry.attributes.position.count;`**: It adds the count of vertices from the current torus's geometry to the `vertices` variable. The `geometry.attributes.position.count` represents the number of vertices in the geometry.
+
+              // 8. **`edges += (geometry.index) ? geometry.index.count / 2 : 0;`**: It checks if the geometry has an index buffer (which is used to define edges). If it does, it adds half of the index count to the `edges` variable, as each edge is represented by two indices. If there is no index buffer, it adds 0 to `edges`.
+
+              // 9. **`faces += (geometry.index) ? geometry.index.count / 3 : 0;`**: Similar to edges, it checks if the geometry has an index buffer and, if so, adds one-third of the index count to the `faces` variable. Each face is represented by three indices.
+
+              // 10. **`return { vertices, edges, faces };`**: Finally, the function returns an object containing the counts for vertices, edges, and faces.
+
+              // 11. **Usage Example**: After defining the function, there is an example of how to use it. It calls `estimateGeometryCounts(scene)` to estimate the counts for the current state of the scene and logs those estimates to the console.
+
+              // This concise code efficiently calculates the counts for vertices, edges, and faces for all toruses in the scene and provides a clear overview of the process.
+
         }
 
         // call animation/rendering loop

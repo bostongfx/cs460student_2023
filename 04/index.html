@@ -1,102 +1,728 @@
 <html>
-  <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <title>Default WebGL!</title>
-    <style>
-      html, body { 
-        background-color:#000;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden !important;  
+
+<head>
+
+
+  <style>
+    html,
+    body {
+      background-color: #000;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden !important;
+    }
+
+    #computerwrist {
+
+      background: url('https://cs460.org/assignments/keen/bg.png');
+      width: 1234px;
+      height: 814px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #c {
+      width: 620px;
+      height: 328px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .score {
+      color: rgb(0, 255, 0);
+      font-size: 30px;
+      font-family: monospace;
+      font-weight: bold;
+    }
+
+    #keen {
+      position: relative;
+      top: 200px;
+      left: 445px;
+    }
+
+    #comp {
+      position: relative;
+      top: 200px;
+      left: 855px;
+    }
+
+    .result {
+      width: 332px;
+      height: 124px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    #overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: none;
+    }
+
+    .particle {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      border-radius: 50%;
+      animation: explosion 0.5s linear;
+    }
+
+
+    @keyframes explosion {
+      0% {
+        transform: scale(1);
+        opacity: 1;
       }
 
-      #c {
-        width: 100%;
-        height: 100%;
+      100% {
+        transform: scale(5);
+        opacity: 0;
       }
-    </style>
-  </head>
-  <script type="text/javascript" src="https://cs460.org/js/glmatrix.js"></script>
-  
+    }
+
+    #landing-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #landing-popup img {
+      max-width: 80%;
+      max-height: 80%;
+    }
+
+    #start-game {
+      background: #009688;
+      color: #fff;
+      font-size: 20px;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .pixel-text {
+      font-family: 'PixelFont', sans-serif;
+      font-size: 20px;
+      color: rgb(251, 251, 251);
+      font-weight: bold;
+    }
+  </style>
+
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+
+  <audio id="ballReflectSound">
+    <source src="ballreflect.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="scoreSound">
+    <source src="score.mp3" type="audio/mpeg">
+  </audio>
+
+
   <script id="vertexshader" type="glsl">
     attribute vec3 position;
 
-    void main(void) {
-    
-      gl_Position = vec4( position, 1.);
-    
-    }
-  </script>
-  
+      uniform mat4 transform;
+
+      void main(void) {
+
+        vec4 final_position = transform * vec4( position, 1.);
+
+        gl_Position = final_position;
+
+        // TODO Part 2
+        gl_PointSize = 8.0;
+      
+      }
+    </script>
+
   <script id="fragmentshader" type="glsl">
     precision mediump float;
 
-    void main(void) {
+      uniform vec4 color;
 
-      gl_FragColor = vec4(1., 1., 1., 1.);
+      void main(void) {
 
-    }
-  </script>
+        gl_FragColor = color; //vec4(1., 1., 1., 1.);
+
+      }
+    </script>
 
   <script>
 
+    //Nimil Lathiya
+      //id : 02074157
+    
     // VARIABLE DECLARATIONS
+    var STOPPED = false;
+    var OBJECTS = [];
 
-    window.onload = function() {
-      
+    //bonus part 2
+    var speedIncreaseRate = 0.00005;
 
+    let paddleScale = 1;
+
+    var flag = true;
+
+    window.onload = function () {
+
+      if (flag) {
+        // Get references to the landing pop-up and start game button
+        var landingPopup = document.getElementById("landing-popup");
+
+        // Display the landing pop-up
+        landingPopup.style.display = "flex";
+
+        // Add a click event handler to the "Start Game" button
+        window.addEventListener("click", function () {
+          // Hide the landing pop-up
+          landingPopup.style.display = "none";
+
+          flag = false;
+
+          startGame();
+        });
+      } 
+    };
+
+    function startGame() {
       //************************************************************//
       //
       // INITIALIZE WEBGL
       //
-
-
+      c = document.getElementById('c'); // setup canvas
+      gl = c.getContext('webgl'); // setup GL context
+      gl.viewport(0, 0, c.width, c.height);
 
 
       //************************************************************//
       //
       // SHADERS
       //
-    
+      v_shader = gl.createShader(gl.VERTEX_SHADER);
+      f_shader = gl.createShader(gl.FRAGMENT_SHADER);
+
+      // compile vertex shader
+      gl.shaderSource(v_shader, document.getElementById('vertexshader').innerText);
+      gl.compileShader(v_shader);
+      if (!gl.getShaderParameter(v_shader, gl.COMPILE_STATUS)) {
+
+        console.log(gl.getShaderInfoLog(v_shader));
+
+      } else {
+
+        console.log('Vertex Shader compiled!');
+
+      }
+
+      // compile fragment shader
+      gl.shaderSource(f_shader, document.getElementById('fragmentshader').innerText);
+      gl.compileShader(f_shader);
+      if (!gl.getShaderParameter(f_shader, gl.COMPILE_STATUS)) {
+
+        console.log(gl.getShaderInfoLog(f_shader));
+
+      } else {
+
+        console.log('Fragment Shader compiled!');
+
+      }
 
 
+      // attach and link the shaders
+      shaderprogram = gl.createProgram();
+      gl.attachShader(shaderprogram, v_shader);
+      gl.attachShader(shaderprogram, f_shader);
+
+      gl.linkProgram(shaderprogram);
+
+      gl.useProgram(shaderprogram);
+
+      SCALE = 1;
+      STEP = .1;
+      MAX_SCORE = 5;
+      STOPPED = false;
+
+
+
+      OBJECTS = [];
+      OBJECTS.push(createPaddle([0., 1., 0., 1.], [0., 0.9, 0.])); // TOP PADDLE
+      OBJECTS.push(createPaddle([0., 1., 0., 1.], [0., -0.9, 0.])); // BOTTOM PADDLE
+      OBJECTS.push(createBall([0., 1., 0., 1.], [0., 0., 0.]));
+
+      resetBall(1);
+
+      animate();
+
+      // Add event listeners for growing and shrinking paddles
+      window.addEventListener('keydown', function (e) {
+
+        if (e.code == 'KeyG') {
+          if (paddleScale < 1) {
+            paddleScale += 0.1; // Increase the scale
+          }
+        } else if (e.code == 'KeyS') {
+          if (paddleScale > 0.5) {
+            paddleScale -= 0.1; // Decrease the scale
+          }
+        }
+      });
+
+    }
+
+    // TODO Part 1
+    function createPaddle(color, offset) {
 
       //************************************************************//
       //
       // CREATE GEOMETRY
       //
-      vertices = new Float32Array( [
-                                     -0.5,  0.5, 0.0, // V0
-                                     -0.5, -0.5, 0.0, // V1
-                                      0.5,  0.5, 0.0, // V2
 
-                                      0.5,  0.5, 0.0, // V3
-                                     -0.5, -0.5, 0.0, // V4
-                                      0.5, -0.5, 0.0  // V5
-                                    ] );
-
-
-
-      //************************************************************//
       //
-      // CONNECT SHADER WITH GEOMETRY
+      // TODO Part 1
       //
-      
+      // vertices = new Float32Array( [
+      //                                -0.5,  0.5, 0.0, // V0      // 0
+      //                                -0.5, -0.5, 0.0, // V1, V4  // 1
+      //                                 0.5,  0.5, 0.0, // V2, V3  // 2
+      //                                 0.5, -0.5, 0.0  // V5      // 3
+      //                               ] );
+
+      vertices = new Float32Array([
+        -0.1, 0.05, 0.0, // V0 // 0
+        -0.1, -0.05, 0.0, // V1, V4 // 1
+        0.1, 0.05, 0.0, // V2, V3 // 2
+        0.1, -0.05, 0.0 // V5 // 3
+      ]);
+
+      indices = new Uint8Array([0, 1, 2, // Triangle 1 
+        2, 1, 3
+      ]); // Triangle 2
 
 
+      v_buffer = gl.createBuffer(); // create
+      gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer); // bind
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // put data in
+      gl.bindBuffer(gl.ARRAY_BUFFER, null); // unbind
 
-      //************************************************************//
+
+      i_buffer = gl.createBuffer(); // create
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, i_buffer); // bind
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW); // put data in
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null); // unbind
+
+      // TODO Part 2
+      // return [v_buffer, i_buffer, color, offset, 6];
+      return [v_buffer, i_buffer, color, offset, gl.TRIANGLES];
+
+    }
+
+
+    function createBall(color, offset) {
+
       //
-      // DRAW!
+      // TODO Part 2
       //
 
+      // Create geometry for the ball (a single point)
+      const vertices = new Float32Array([0.0, 0.0, 0.0]);
+      const indices = new Uint8Array([0]); // Index to the single point
+
+      const v_buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+      const i_buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, i_buffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+      // Include the rendering primitive (in this case, gl.POINTS)
+      return [v_buffer, i_buffer, color, offset, gl.POINTS];
+
+    }
+
+
+
+    function animate() {
+
+      if (STOPPED) {
+        return;
+      }
+
+      requestAnimationFrame(animate);
+
+      //bonus part 2
+      STEP += speedIncreaseRate;
+
+      // CLEAR NOW BEFORE ANY DRAWING
+      gl.clearColor(0., 0., 0., 0.)
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+      // TODO Part 4 and 5
+      // Call the updateBall function to update the ball's position
+      updateBall();
+
+      // Call the updateComputer function to make the computer-controlled paddle move
+      updateComputer();
+
+      for (var o = 0; o < OBJECTS.length; o++) {
+
+        var current = OBJECTS[o];
+
+        var v_buffer = current[0];
+        var i_buffer = current[1];
+        var COLOR = current[2];
+        var OFFSET = current[3];
+        // var VERTEXCOUNT = current[4];
+
+        // TODO Part 2
+        const PRIMITIVE = current[4]; // Get the rendering primitive
+
+        //************************************************************//
+        //
+        // CONNECT SHADER WITH GEOMETRY
+        //
+        gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, i_buffer);
+
+        // find the attribute in the shader source
+        var a_position = gl.getAttribLocation(shaderprogram, 'position');
+        gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(a_position);
+
+        var u_color = gl.getUniformLocation(shaderprogram, 'color');
+        gl.uniform4fv(u_color, new Float32Array(COLOR));
+
+        // var u_offset = gl.getUniformLocation( shaderprogram, 'offset' );
+
+        var u_transform = gl.getUniformLocation(shaderprogram, 'transform');
+
+        // current_transform = new Float32Array([
+        //   SCALE, 0, 0, 0,
+        //   0, SCALE, 0, 0,
+        //   0, 0, SCALE, 0,
+        //   OFFSET[0], OFFSET[1], 0, 1
+        //   ]);
+
+        current_transform = new Float32Array([
+          SCALE * paddleScale, 0, 0, 0,
+          0, SCALE * paddleScale, 0, 0,
+          0, 0, SCALE, 0,
+          OFFSET[0], OFFSET[1], 0, 1
+        ]);
+
+        gl.uniformMatrix4fv(u_transform, false, current_transform);
+
+
+
+        //************************************************************//
+        //
+        // DRAW!
+        //
+        // gl.drawArrays( gl.LINES, 0, 6 );
+
+        // TODO Part 2
+        // gl.drawElements( gl.TRIANGLES, VERTEXCOUNT, gl.UNSIGNED_BYTE, 0);
+        // gl.drawElements(PRIMITIVE, 6, gl.UNSIGNED_BYTE, 0);
+
+        // Modify the drawElements call based on the rendering primitive
+        if (PRIMITIVE === gl.TRIANGLES) {
+          gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+        } else if (PRIMITIVE === gl.POINTS) {
+          gl.drawElements(gl.POINTS, 1, gl.UNSIGNED_BYTE, 0);
+        }
+
+
+      }
+
+    }
+
+    function resetBall(direction) {
+
+      OBJECTS[2][3][0] = Math.random() / 10.; // SET TO CENTER
+      OBJECTS[2][3][1] = Math.random() / 10.;
+
+      BALLDIRECTION = (Math.PI / 8) + Math.random();
+      BALLDIRECTION *= direction;
 
     };
 
+
+    function score(who) {
+
+      // console.log(who, 'scored!')
+
+      var old_score = document.getElementById(who).innerText;
+      document.getElementById(who).innerText = parseInt(old_score) + 1;
+
+      if (parseInt(old_score) == MAX_SCORE - 1) {
+
+        STOPPED = true;
+
+        document.getElementById('overlay').style.display = 'block';
+
+        if (who == 'keen') {
+          document.getElementById('won').style.display = 'block';
+        } else if (who == 'comp') {
+          document.getElementById('lost').style.display = 'block';
+        }
+
+      }
+
+      //bonus part 1
+      document.getElementById('scoreSound').play();
+
+      if (who == 'keen') {
+
+        resetBall(1);
+
+      } else if (who == 'comp') {
+
+        resetBall(-1);
+
+      }
+
+    }
+
+
+    function updateComputer() {
+
+      BALL_X = OBJECTS[2][3][0];
+      BALL_Y = OBJECTS[2][3][1];
+
+      TOP_PADDLE_X = OBJECTS[0][3][0];
+      TOP_PADDLE_Y = OBJECTS[0][3][1];
+
+      if (BALL_X < TOP_PADDLE_X) {
+
+        OBJECTS[0][3][0] -= STEP / 20;
+
+      } else if (BALL_X > TOP_PADDLE_X) {
+
+        OBJECTS[0][3][0] += STEP / 20;
+
+      }
+
+    }
+
+
+    function showExplosion(x, y) {
+      const explosionContainer = document.getElementById("explosion");
+
+      // Customize the number of particles
+      const numParticles = 20;
+
+      for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement("div");
+        particle.className = "particle";
+
+        // Randomize the position and animation delay for each particle
+        const randomX = x + (Math.random() - 0.5) * 0.1;
+        const randomY = y + (Math.random() - 0.5) * 0.1;
+        particle.style.left = `${(randomX + 1) * 50}%`;
+        particle.style.top = `${(1 - randomY) * 50}%`;
+        particle.style.animationDelay = `${Math.random()}s`;
+
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+
+        particle.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+        explosionContainer.appendChild(particle);
+      }
+
+      setTimeout(() => {
+        explosionContainer.innerHTML = "";
+      }, 500);
+    }
+
+
+
+    function updateBall() {
+
+      BALL_X = OBJECTS[2][3][0];
+      BALL_Y = OBJECTS[2][3][1];
+
+      TOP_PADDLE_X = OBJECTS[0][3][0];
+      TOP_PADDLE_Y = OBJECTS[0][3][1];
+      TOP_PADDLE_WIDTH = 0.2;
+
+      BOTTOM_PADDLE_X = OBJECTS[1][3][0];
+      BOTTOM_PADDLE_Y = OBJECTS[1][3][1];
+      BOTTOM_PADDLE_WIDTH = 0.2;
+
+      if (BALL_X >= .98 || BALL_X <= -.98 || BALL_Y >= .85 || BALL_Y <= -.85) {
+        showExplosion(BALL_X, BALL_Y);
+      }
+
+
+      if (BALL_X >= .98) {
+
+        // RIGHT WALL
+        BALLDIRECTION = (Math.PI - BALLDIRECTION);
+
+      } else if (BALL_X <= -.98) {
+
+        // LEFT WALL
+        BALLDIRECTION = (Math.PI - BALLDIRECTION);
+
+      } else if (BALL_Y >= .85) {
+
+        // TOP
+
+        TOP_PADDLE_LEFT = TOP_PADDLE_X - (TOP_PADDLE_WIDTH / 2);
+        TOP_PADDLE_RIGHT = TOP_PADDLE_X + (TOP_PADDLE_WIDTH / 2);
+
+        //bonus part 1
+        document.getElementById('ballReflectSound').play();
+
+        // LET'S CHECK IF A PADDLE IS THERE
+        if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_RIGHT) {
+
+          // console.log('top bounce')
+
+          // YES, REFLECT
+          BALLDIRECTION = -BALLDIRECTION;
+
+        } else {
+
+          // SCORE!
+          score('keen');
+
+          return;
+
+        }
+
+
+      } else if (BALL_Y <= -.85) {
+
+        // BOTTOM
+
+        BOTTOM_PADDLE_LEFT = BOTTOM_PADDLE_X - (BOTTOM_PADDLE_WIDTH / 2);
+        BOTTOM_PADDLE_RIGHT = BOTTOM_PADDLE_X + (BOTTOM_PADDLE_WIDTH / 2);
+
+        //bonus part 1
+        document.getElementById('ballReflectSound').play();
+
+        // LET'S CHECK IF A PADDLE IS THERE
+        if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
+
+          // console.log('bottom bounce')
+
+          // YES, REFLECT
+          BALLDIRECTION = -BALLDIRECTION;
+
+
+        } else {
+
+          // SCORE!
+          score('comp');
+
+          return;
+
+        }
+
+
+
+      }
+
+
+      // UPDATE BALL POSITION
+      OBJECTS[2][3][0] += Math.cos(BALLDIRECTION) * STEP * 0.1;
+      OBJECTS[2][3][1] += Math.sin(BALLDIRECTION) * STEP * 0.1;
+
+    }
+
+
+    window.onkeydown = function (e) {
+
+      if (STOPPED) {
+        // restart the game
+        window.location.reload();
+      } else {
+        // Handle paddle movement
+        const KEEN_PADDLE = OBJECTS[1]; // Keen's paddle
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            // Move the paddle left while staying within the viewport
+            KEEN_PADDLE[3][0] -= STEP;
+            if (KEEN_PADDLE[3][0] < -0.8) {
+              KEEN_PADDLE[3][0] = -0.8; // Ensure the paddle doesn't leave the viewport
+            }
+            break;
+          case 'ArrowRight':
+            // Move the paddle right while staying within the viewport
+            KEEN_PADDLE[3][0] += STEP;
+            if (KEEN_PADDLE[3][0] > 0.8) {
+              KEEN_PADDLE[3][0] = 0.8; // Ensure the paddle doesn't leave the viewport
+            }
+            break;
+        }
+      }
+
+      // TODO Part 3
+
+    }
   </script>
-  <body>
-    <canvas id="c"></canvas>
-  </body>
+
+
+
+</head>
+
+<body>
+
+  <div id='computerwrist'>
+
+    <span id='keen' class='score'>0</span>
+
+    <span id='comp' class='score'>0</span>
+
+    <div id='overlay'>
+      <img id='won' class='result' src='https://cs460.org/assignments/keen/won.png'>
+      <img id='lost' class='result' src='https://cs460.org/assignments/keen/lost.png'>
+    </div>
+
+    <div id="explosion"></div>
+
+
+    <canvas id='c'></canvas>
+
+    <div id="landing-popup">
+      <img src="popimg.jpg" alt="Landing Image">
+      <p> <span class="pixel-text">press on screen to play</span></p>
+    </div>
+
+  </div>
+
+</body>
+
 </html>
