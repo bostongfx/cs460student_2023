@@ -105,9 +105,14 @@
 
   <script>
 
-
+var munks;
+var yay;
+var beep;
+var beeps;
+var start;
+var boops;
     window.onload = function() {
-
+      
       //************************************************************//
       //
       // INITIALIZE WEBGL
@@ -116,9 +121,17 @@
       gl = c.getContext( 'webgl' ); // setup GL context
       gl.viewport(0, 0, c.width, c.height );
 
+      munks = new Audio('munks.mp3');
+      yay = new Audio('yay.mp3');
+      beep = new Audio('bep.mp3');
+      beeps = new Audio('beeps.mp3');
+      start = new Audio('start.mp3');
+      boops = new Audio('boops.mp3');
 
 
 
+
+      
       //************************************************************//
       //
       // SHADERS
@@ -196,10 +209,10 @@
       // TODO Part 1
       //
       vertices = new Float32Array( [
-                                     -0.2,  0.025, 0.0, // V0      // 0
-                                     -0.2, -0.025, 0.0, // V1, V4  // 1
-                                      0.2,  0.025, 0.0, // V2, V3  // 2
-                                      0.2, -0.025, 0.0  // V5      // 3
+                                     -0.1,  0.0125, 0.0, // V0      // 0
+                                     -0.1, -0.0125, 0.0, // V1, V4  // 1
+                                      0.1,  0.0125, 0.0, // V2, V3  // 2
+                                      0.1, -0.0125, 0.0  // V5      // 3
                                     ] );
 
       indices = new Uint8Array( [ 0, 1, 2,     // Triangle 1 
@@ -343,10 +356,10 @@
 
     };
 
-
+   
     function score(who) {
-      var munks = new Audio('munks.mp3');
-      var yay = new Audio('yay.mp3');
+    //  var munks = new Audio('munks.mp3');
+     // var yay = new Audio('yay.mp3');
       // console.log(who, 'scored!')
 
       var old_score = document.getElementById(who).innerText;
@@ -403,10 +416,7 @@
 
 
     function updateBall() {
-      var beep = new Audio('bep.mp3');
-      var hit1 = new Audio ('hit1.mov');
-      var hit2 = new Audio ('hit2.mov');
-      var start = new Audio('start.mp3');
+   
       BALL_X = OBJECTS[2][3][0];
       BALL_Y = OBJECTS[2][3][1];
 
@@ -438,7 +448,7 @@
 
         // LET'S CHECK IF A PADDLE IS THERE
         if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_RIGHT) {
-          hit1.play();
+          beeps.play();
            console.log('top bounce')
 
           // YES, REFLECT
@@ -464,7 +474,7 @@
 
         // LET'S CHECK IF A PADDLE IS THERE
         if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
-          hit2.play();
+          boops.play();
            console.log('bottom bounce')
 
           // YES, REFLECT
@@ -492,8 +502,8 @@
        
     window.onkeydown = function(e) {
     var BOTTOM_PADDLE_WIDTH = 0.2;  
-    var leftLimit = -1  + BOTTOM_PADDLE_WIDTH;
-    var rightLimit = 1  - BOTTOM_PADDLE_WIDTH;
+    var leftLimit = -1  + BOTTOM_PADDLE_WIDTH/2;
+    var rightLimit = 1  - BOTTOM_PADDLE_WIDTH/2;
     var bottomPaddleX = OBJECTS[1][3][0];
       if (STOPPED) {
         // restart the game
