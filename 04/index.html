@@ -1,10 +1,9 @@
 <html>
   <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <title>Default WebGL!</title>
+    
     <style>
-      html, body { 
+
+      html, body {    
         background-color:#000;
         margin: 0;
         padding: 0;
@@ -12,45 +11,115 @@
         overflow: hidden !important;  
       }
 
+      #computerwrist {
+
+        background: url('https://cs460.org/assignments/keen/bg.png');
+        width:1234px;
+        height:814px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
       #c {
+        width:620px;
+        height:328px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+    /*  .pause {
+        position: relative;
+        top: 55%;
+        left: 55%;
+        display: 'block';
+      }*/
+
+      .score {
+        color: rgb(0,255,0);
+        font-size: 30px;
+        font-family: monospace;
+        font-weight: bold;
+      }
+
+      #keen {
+        position: relative;
+        top: 200px;
+        left: 445px;
+      }
+
+      #comp {
+        position: relative;
+        top: 200px;
+        left: 855px;
+      }
+
+      .result {
+        width:332px;
+        height:124px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+      }
+
+      #overlay {
+        background-color: rgba(0,0,0,0.7);
+        position: absolute;
+        top: 0px;
+        left: 0px;
         width: 100%;
         height: 100%;
+        z-index: 1000;
+        display: none;
       }
     </style>
-  </head>
-  <script type="text/javascript" src="https://cs460.org/js/glmatrix.js"></script>
-  
-  <script id="vertexshader" type="glsl">
-    attribute vec3 position;
 
-    void main(void) {
+    <script id="vertexshader" type="glsl">
+      attribute vec3 position;
+
+      uniform mat4 transform;
+
+      void main(void) {
+
+        vec4 final_position = transform * vec4( position, 1.);
+
+        gl_Position = final_position;
+
+        // TODO Part 2 - done - dp 10_13_23
+        gl_PointSize = 8.0;
+      
+      }
+    </script>
     
-      gl_Position = vec4( position, 1.);
-    
-    }
-  </script>
-  
-  <script id="fragmentshader" type="glsl">
-    precision mediump float;
+    <script id="fragmentshader" type="glsl">
+      precision mediump float;
 
-    void main(void) {
+      uniform vec4 color;
 
-      gl_FragColor = vec4(1., 1., 1., 1.);
+      void main(void) {
 
-    }
-  </script>
+        gl_FragColor = color; //vec4(1., 1., 1., 1.);
+
+      }
+    </script>
 
   <script>
 
-    // VARIABLE DECLARATIONS
-
+   
     window.onload = function() {
-      
 
       //************************************************************//
       //
       // INITIALIZE WEBGL
       //
+      c = document.getElementById( 'c' ); // setup canvas
+      gl = c.getContext( 'webgl' ); // setup GL context
+      gl.viewport(0, 0, c.width, c.height );
 
 
 
@@ -59,7 +128,68 @@
       //
       // SHADERS
       //
-    
+      v_shader = gl.createShader( gl.VERTEX_SHADER );
+      f_shader = gl.createShader( gl.FRAGMENT_SHADER );
+
+      // compile vertex shader
+      gl.shaderSource( v_shader, document.getElementById( 'vertexshader' ).innerText );
+      gl.compileShader( v_shader );
+      if (!gl.getShaderParameter( v_shader, gl.COMPILE_STATUS)) {
+
+        console.log(gl.getShaderInfoLog( v_shader ));
+      
+      } else {
+
+        console.log('Vertex Shader compiled!');
+
+      }
+
+      // compile fragment shader
+      gl.shaderSource( f_shader, document.getElementById( 'fragmentshader' ).innerText );
+      gl.compileShader( f_shader );
+      if (!gl.getShaderParameter( f_shader, gl.COMPILE_STATUS)) {
+
+        console.log(gl.getShaderInfoLog( f_shader ));
+      
+      } else {
+
+        console.log('Fragment Shader compiled!');
+
+      }
+
+        
+      // attach and link the shaders
+      shaderprogram = gl.createProgram();
+      gl.attachShader( shaderprogram, v_shader );
+      gl.attachShader( shaderprogram, f_shader );
+       
+      gl.linkProgram( shaderprogram );
+       
+      gl.useProgram( shaderprogram );
+
+      SCALE = 1;
+      STEP = .1;
+      MAX_SCORE = 5;
+      STOPPED = false;
+       // PAUSED = true;  // stay paused until a difficulty is chosen
+      BALLSPEED = 1;  // speed of the ball that gets increased every paddle hit
+      xSpeedMultiplyer = 1; // x direction speed used in corner of paddle detection
+      OBJECTS = [];
+      OBJECTS.push( createPaddle( [0.,1.,0.,1.], [0., 0.9, 0.]) ); // TOP PADDLE
+      OBJECTS.push( createPaddle( [0.,1.,0.,1.], [0., -0.9, 0.]) ); // BOTTOM PADDLE
+      OBJECTS.push( createBall( [0., 1., 0., 1.], [0., 0., 0.]) );
+
+
+      resetBall(1);
+      // startScreen();
+      console.log('onlooading');
+      animate();
+      console.log('done animating');
+
+    };
+
+    // TODO Part 1
+    function createPaddle(color, offset) {
 
 
 
@@ -67,36 +197,451 @@
       //
       // CREATE GEOMETRY
       //
-      vertices = new Float32Array( [
-                                     -0.5,  0.5, 0.0, // V0
-                                     -0.5, -0.5, 0.0, // V1
-                                      0.5,  0.5, 0.0, // V2
 
-                                      0.5,  0.5, 0.0, // V3
-                                     -0.5, -0.5, 0.0, // V4
-                                      0.5, -0.5, 0.0  // V5
+      //
+      // TODO Part 1 - done -dp 10_13_23
+      //
+      vertices = new Float32Array( [
+                                     -0.1,  0.05, 0.0, // V0      // 0
+                                     -0.1, -0.05, 0.0, // V1, V4  // 1
+                                      0.1,  0.05, 0.0, // V2, V3  // 2
+                                      0.1, -0.05, 0.0  // V5      // 3
                                     ] );
 
+      indices = new Uint8Array( [ 0, 1, 2,     // Triangle 1 
+                                  2, 1, 3 ] ); // Triangle 2
 
 
-      //************************************************************//
+      v_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
+      gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
+
+
+      i_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
+      gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
+
+      // TODO Part 2
+      var render_Prim = 'TRIANGLES';
+      return [v_buffer, i_buffer, color, offset, 6, render_Prim];
+
+    }
+
+
+    function createBall(color, offset) {
+
       //
-      // CONNECT SHADER WITH GEOMETRY
+      // TODO Part 2 - done
       //
-      
+      verticies = new Float32Array( [
+                                  0.0, 0.0, 0.0
+                                  ]);
+     // index = new Uint8Array( [ 0, 0, 0] );
+
+      v_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
+      gl.bufferData( gl.ARRAY_BUFFER, verticies, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
+      var render_Prim = 'POINTS';
+      return [v_buffer, i_buffer, color, offset, 1, render_Prim];
+    }
+
+  
+
+    function animate() {
+       //console.log(PAUSED);
+      if (STOPPED) {
+        return;
+      }
+
+
+      requestAnimationFrame( animate );
+      // // wait for difficulty selection
+
+      // if ( PAUSED == false ) {
+      //   console.log( 'unpaused' );
+      // CLEAR NOW BEFORE ANY DRAWING
+      gl.clearColor( 0., 0., 0., 0.)
+      gl.clear( gl.COLOR_BUFFER_BIT );
+
+      // TODO Part 4 and 5
+      updateBall();
+      updateComputer();
+      for(var o=0; o<OBJECTS.length; o++) {
+
+        var current = OBJECTS[o];
+
+        var v_buffer = current[0];
+        var i_buffer = current[1];
+        var COLOR = current[2];
+        var OFFSET = current[3];
+        var VERTEXCOUNT = current[4];
+
+        // TODO Part 2 - done - dp 10_13_23
+        var ren_Prim = current[5];
 
 
 
-      //************************************************************//
-      //
-      // DRAW!
-      //
+        //************************************************************//
+        //
+        // CONNECT SHADER WITH GEOMETRY
+        //
+        gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer );
 
+        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer );
+
+        // find the attribute in the shader source
+        var a_position = gl.getAttribLocation( shaderprogram, 'position' );
+
+        gl.vertexAttribPointer( a_position, 3, gl.FLOAT, false, 0, 0 );
+
+        gl.enableVertexAttribArray ( a_position );
+
+        var u_color = gl.getUniformLocation( shaderprogram, 'color' );
+
+        gl.uniform4fv( u_color, new Float32Array(COLOR));
+
+        // var u_offset = gl.getUniformLocation( shaderprogram, 'offset' );
+
+        var u_transform = gl.getUniformLocation( shaderprogram, 'transform' );
+
+        current_transform = new Float32Array([
+          SCALE, 0, 0, 0,
+          0, SCALE, 0, 0,
+          0, 0, SCALE, 0,
+          OFFSET[0], OFFSET[1], 0, 1
+          ]);
+
+        gl.uniformMatrix4fv( u_transform, false, current_transform );
+
+
+
+        //************************************************************//
+        //
+        // DRAW!
+        //
+        // gl.drawArrays( gl.LINES, 0, 6 );
+
+        // TODO Part 2 - done - dp 10_13_23
+        if (ren_Prim == 'TRIANGLES') 
+          gl.drawElements( gl.TRIANGLES, VERTEXCOUNT, gl.UNSIGNED_BYTE, 0);
+        if (ren_Prim == 'POINTS')
+          gl.drawElements( gl.POINTS, 1, gl.UNSIGNED_BYTE, 0);
+      }
+     // } close the paused if statement 
+
+    }
+
+
+
+    /*
+      EXPLANATION:
+        resetBall takes a direction (given as -1 or 1) and sets the ball to be in the center.
+        The offset of the balls x and y positions is set to be randomized somewhere in the
+        center. The direction of the ball is also ranomized but will always start out to the right.
+        The y direction is then set to go towards whoever lost the last point by multiplying balldirection
+        by the given argument (direction).
+    */
+    function resetBall(direction) {
+
+      OBJECTS[2][3][0] = Math.random() / 10.; // SET TO CENTER
+      OBJECTS[2][3][1] = Math.random() / 10.;
+
+      BALLDIRECTION = (Math.PI / 8) + Math.random();
+      BALLDIRECTION *= direction;
 
     };
+    /*
+      EXPLANATION:
+        Score first gets the score of the game and increments the score of 'who' by one.
+        If score reaches max_score, the game stops and displays that keen or the computer won
+        respectivly. the ball is reset and goes in the direction of whoever lost.
+    */
+    function score(who) {
+
+      // console.log(who, 'scored!')
+
+      var old_score = document.getElementById(who).innerText;
+      document.getElementById(who).innerText = parseInt(old_score) + 1;
+
+      if (parseInt(old_score) == MAX_SCORE-1) {
+
+        STOPPED = true;
+
+        document.getElementById('overlay').style.display = 'block';
+
+        if (who == 'keen') {
+          document.getElementById('won').style.display = 'block';
+        } else if (who == 'comp') {
+          document.getElementById('lost').style.display = 'block';
+        }
+
+      }
+
+      if (who == 'keen') {
+
+        resetBall(1);
+      
+      } else if (who == 'comp') {
+      
+        resetBall(-1);
+      
+      }
+      
+      
+    }
+
+    /*
+      EXPLANATION:
+        updateComputer() first gets the position of the ball and the top paddle. The
+        position of the ball's horizontal position is checked relative to the balls.
+        The top paddle is then moved by step/20 in the direction of the ball if the ball
+        is left or right of the top paddle.
+    */
+    function updateComputer() {
+
+      BALL_X = OBJECTS[2][3][0];
+      BALL_Y = OBJECTS[2][3][1];
+
+      TOP_PADDLE_X = OBJECTS[0][3][0];
+      TOP_PADDLE_Y = OBJECTS[0][3][1];
+
+      if (BALL_X < TOP_PADDLE_X) {
+
+        OBJECTS[0][3][0] -= STEP/10;
+
+      } else if (BALL_X > TOP_PADDLE_X) {
+
+        OBJECTS[0][3][0] += STEP/10;
+
+      }
+
+    }
+
+    /*
+      EXPLANATION:
+        updateBall() first gets the location of the ball, top, and bottom paddles.
+        It then checks to see if the ball has hit a sidewall and reverses the ball's
+        horizontal direction if this is the case. Then it checks if the ball has crossed
+        the top wall plane. if so, it checks if the ball is within the width of the top
+        paddle. If the ball is within the width of the top paddel, the ball's vertical
+        direction is revered (ball strikes paddle). If the ball is not within the top
+        paddle's width, a score is recorded (keen scores). The same steps for the top
+        score are repeated with the bottom wall/ paddle (computer scores (or doesn't)).
+        Finally, the ball's position is updated to move in the proper direction by the
+        amount given in STEP.
+    */
+    function updateBall() {
+      // make balldirection be between 0 and 2 pi
+      BALLDIRECTION = ( BALLDIRECTION % ( 2 * Math.PI ) );
+      // Make balldirection positive to make calculations easier later on in this function
+      if (BALLDIRECTION < 0)
+        BALLDIRECTION += (2 * Math.PI );
+      console.log(BALLDIRECTION);
+      BALL_X = OBJECTS[2][3][0];
+      BALL_Y = OBJECTS[2][3][1];
+
+      TOP_PADDLE_X = OBJECTS[0][3][0];
+      TOP_PADDLE_Y = OBJECTS[0][3][1];
+      TOP_PADDLE_WIDTH = 0.4;
+
+      BOTTOM_PADDLE_X = OBJECTS[1][3][0];
+      BOTTOM_PADDLE_Y = OBJECTS[1][3][1];
+      BOTTOM_PADDLE_WIDTH = 0.4;
+
+      if (BALL_X >= .98) {
+
+        // RIGHT WALL
+        BALLDIRECTION = (Math.PI - BALLDIRECTION);
+        // play a sound
+        document.getElementById("wallHit").play();
+
+      } else if (BALL_X <= -.98) {
+
+        // LEFT WALL
+        BALLDIRECTION = (Math.PI - BALLDIRECTION);
+        // play a sound
+        document.getElementById("wallHit").play();
+
+      } else if (BALL_Y >= .85) {
+
+        // TOP
+
+        TOP_PADDLE_LEFT = TOP_PADDLE_X - (TOP_PADDLE_WIDTH/2);
+        TOP_PADDLE_RIGHT = TOP_PADDLE_X + (TOP_PADDLE_WIDTH/2);
+
+        // LET'S CHECK IF A PADDLE IS THERE
+        if (BALL_X >= TOP_PADDLE_LEFT && BALL_X <= TOP_PADDLE_RIGHT) {        
+          
+          xSpeedMultiplyer = 1;
+          // Check if the ball hit the right corner of the paddle
+          if (BALL_X >= ( TOP_PADDLE_RIGHT - (TOP_PADDLE_WIDTH * .25 ))) {
+              // Check if the ball came from the right, reverse direction if so
+              if ( BALLDIRECTION > ( Math.PI / 2 ) ) 
+                 BALLDIRECTION = Math.PI - BALLDIRECTION;
+              // x speed boost 
+              SpeedMultiplyer = 2;
+          }
+          // Now check if the ball hit the left corner of the paddle
+          if (BALL_X <= ( TOP_PADDLE_LEFT + (TOP_PADDLE_WIDTH * .25 ))) {
+            if ( BALLDIRECTION < ( Math.PI / 2 ) )
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            // x speed boost
+            SpeedMultiplyer = 2;
+          }
+          // console.log('top bounce')
+          // YES, REFLECT
+          // play a sound
+          document.getElementById("compHit").play();
+          BALLDIRECTION = -BALLDIRECTION;
+          BALLSPEED += .05;
+        } else {
+
+          // SCORE!
+          // play a sound
+          document.getElementById("keenScore").play();
+          score('keen');
+          BALLSPEED = 1;
+          xSpeedMultiplyer = 1;
+          return;
+
+        }
+
+
+      } else if (BALL_Y <= -.85) {
+
+        // BOTTOM
+
+        BOTTOM_PADDLE_LEFT = BOTTOM_PADDLE_X - (BOTTOM_PADDLE_WIDTH/2);
+        BOTTOM_PADDLE_RIGHT = BOTTOM_PADDLE_X + (BOTTOM_PADDLE_WIDTH/2);
+
+        // LET'S CHECK IF A PADDLE IS THERE
+        if (BALL_X >= BOTTOM_PADDLE_LEFT && BALL_X <= BOTTOM_PADDLE_RIGHT) {
+          // default x speed reset to 1
+          xSpeedMultiplyer = 1;
+          // Check for right corner hit
+          if (BALL_X >= ( BOTTOM_PADDLE_RIGHT - (BOTTOM_PADDLE_WIDTH * .25 ))) {
+              // Check ball direction
+              if ( BALLDIRECTION < ( ( 1.5 * Math.PI ) ) )
+                BALLDIRECTION = Math.PI - BALLDIRECTION;
+              // x speed boost if it hits the right corner
+              xSpeedMultiplyer = 2;
+          }
+          // Check for left corner hit
+          if ( BALL_X <= ( BOTTOM_PADDLE_LEFT + (BOTTOM_PADDLE_WIDTH * .25 ))) {
+            // Check ball direction
+            if ( BALLDIRECTION > ( ( 1.5 * Math.PI ) ) )
+              BALLDIRECTION = Math.PI - BALLDIRECTION;
+            // x speed boost
+            xSpeedMultiplyer = 2;
+          }
+          // console.log('bottom bounce')
+          // YES, REFLECT
+          // play a sound 
+          document.getElementById("keenHit").play();
+          BALLDIRECTION = -BALLDIRECTION;
+          BALLSPEED += .05;
+
+        } else {
+
+          // SCORE!
+          // play sound
+          // play a sound 
+          document.getElementById("compScore").play();
+          score('comp');
+          BALLSPEED = 1;
+          return;
+
+        }
+
+      }
+
+
+      // UPDATE BALL POSITION
+      OBJECTS[2][3][0] += Math.cos(BALLDIRECTION) * STEP * 0.1 * BALLSPEED * xSpeedMultiplyer;
+      OBJECTS[2][3][1] += Math.sin(BALLDIRECTION) * STEP * 0.1 * BALLSPEED;
+
+    }
+
+    function startScreen() {
+      
+    }
+    window.onkeydown = function(e) {
+
+      if (STOPPED) {
+          window.location.reload();
+        }
+          
+      
+      // if ( PAUSED ) {
+      //   if (e.code == 'Digit1') {
+      //     DIFFICULTY = 1; 
+      //     PAUSED = false;
+      //   } else if (e.code == 'Digit2') {
+      //     DIFFICULTY = 2; 
+      //     PAUSED = false;
+      //   } else if (e.code == 'Digit3') {
+      //     DIFFICULTY = 3; 
+      //     PAUSED = false;
+      //   } else if (e.code == 'Digit4') {
+      //     DIFFICULTY = 4; 
+      //     PAUSED = false;
+      //   }
+      //    return;
+      // } 
+
+      // TODO Part 3
+      if ( e.code == 'ArrowLeft' ) {
+        if ( OBJECTS[1][3][0] > -.85 )
+          OBJECTS[1][3][0] -= STEP;
+      }
+      if ( e.code == 'ArrowRight' ) {
+        if ( OBJECTS[1][3][0] < .85) 
+          OBJECTS[1][3][0] += STEP;
+      }
+    }
 
   </script>
+
+  </head>
+
   <body>
-    <canvas id="c"></canvas>
+
+    <audio id='compHit' autoPlay='false' preLoad='auto' >
+      <source src="Computer Hit.wav" type="audio/wav">
+    </audio>
+    <audio id='keenHit' autoPlay='false' preLoad='auto' >
+      <source src="Keen Hit.wav" type="audio/wav">
+    </audio>
+    <audio id='wallHit' autoPlay='false' preLoad='auto' >
+      <source src="Wall Hit.wav" type="audio/wav">
+    </audio>
+    <audio id='compScore' autoPlay='false' preLoad='auto' >
+      <source src="Computer Score.wav" type="audio/wav">
+    </audio>
+    <audio id='keenScore' autoPlay='false' preLoad='auto' >
+      <source src="Keen Score.wav" type="audio/wav">
+    </audio>
+
+
+    <div id='computerwrist'>
+
+      <span id='keen' class='score'>0</span>
+      
+      <span id='comp' class='score'>0</span>
+
+      <div id='overlay'>
+        <img id='won' class='result' src='https://cs460.org/assignments/keen/won.png'>
+        <img id='lost' class='result' src='https://cs460.org/assignments/keen/lost.png'>
+        <! -- <img id ='difficulty' class='pause' src='C:\Users\danny\cs460student\04\Difficulty.png'> -->
+      </div>
+
+      <canvas id='c'></canvas>
+
+    </div>
+
   </body>
-</html>
+
+</html> 
