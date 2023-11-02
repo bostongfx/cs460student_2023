@@ -97,7 +97,7 @@
 
               // Check to see if both shift key and mouse is down before scale torusKnot
           
-                  renderer.domElement.addEventListener('mousemove', function (e) {
+              renderer.domElement.addEventListener('mousemove', function (e) {
                 if(e.shiftKey && mouseDown) {
                   
                     LASTOBJECT.scale.set(LASTOBJECT.scale.x + e.movementY,
@@ -143,7 +143,7 @@
         //
         geometry = new THREE.PlaneGeometry( 10000, 10000 );
         material = new THREE.MeshBasicMaterial( {
-          visible: false
+        visible: false
         });
  
         var invisible_plane = new THREE.Mesh( geometry, material );
