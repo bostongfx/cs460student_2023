@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';   
+      import {PLYLoader} from 'three/addons/loaders/PLYLoader.js'   
+
+      var renderer, controls, scene, camera;
+
+      window.onload = function() {
+        scene = new THREE.Scene();
+
+        // Setup the camera
+        var fov = 50;
+        var aspectRatio = window.innerWidth / window.innerHeight;
+        var near = 1;
+        var far = 5000;
+        camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        camera.position.set(0, 0, 300);
+
+        // Create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setup lights
+        var ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); 
+        directionalLight.position.set(10, 200, 10);
+        scene.add(directionalLight);
+
+        // load .ply file
+        let loader = new PLYLoader();
+        loader.load('armadillo.ply', function(geometry){
+
+          geometry.computeVertexNormals();
+
+          var material = new THREE.MeshStandardMaterial({
+            color: 'red'
+          });
+
+          var mesh = new THREE.Mesh(geometry, material);
+          
+          scene.add(mesh);
+
+        })
+
+
+
+
+        // Create an invisible plane
+        var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
+        var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
+        var invisiblePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        scene.add(invisiblePlane);
+      
+        // Interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+
+        var lastObject; 
+        var flag = 0; 
+        var flag2 = 0; 
+        var mesh;
+        
+        renderer.domElement.onmousedown = function( e ){
+            flag = 1;
+            var count = 0;
+
+            if (e.shiftKey && flag == 1) {
+                controls.enabled = false;
+                flag2 = 1;
+
+                var pixelCoords = new THREE.Vector2( e.clientX, e.clientY );
+                var vpCoords = new THREE.Vector2( 
+                            ( pixelCoords.x / window.innerWidth ) * 2 - 1,  //X
+                            -( pixelCoords.y / window.innerHeight ) * 2 + 1) // Y
+                var vpCoordsNear = new THREE.Vector3( vpCoords.x, vpCoords.y, 0);
+
+                // Create a raycaster
+                var raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(vpCoordsNear, camera);
+                var intersects = raycaster.intersectObject(invisiblePlane);
+                lastObject = newTorusKnot;
+            } else {
+              flag2 = 0;
+            }
+        };
+        
+        renderer.domElement.onmouseup = function ( e ) {
+            controls.enabled = true;
+            flag = 0;
+        };
+        
+        // Call animation/rendering loop
+        animate();
+        
+      };
+
+      function animate() {
+        requestAnimationFrame( animate );
+        controls.update();
+        renderer.render( scene, camera );
+      };
+    </script>
+  </head>
+  <body></body>
+</html>
