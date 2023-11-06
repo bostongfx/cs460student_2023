@@ -1,11 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
     
-</body>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <script type="text/javascript" src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';    
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';  
+      import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+
+      var renderer, effect, controls, scene, camera;
+      var stats;
+
+      // OUR SCENE HELPER/CONTROLLER OBJECT
+      window["SCENE"] = {
+        "anaglyph" : false,
+        "poly" : null,
+        "rotate_poly" : false,
+        "do_rotate_poly" : function() {
+            window["SCENE"]["rotate_poly"] = !window["SCENE"]["rotate_poly"];
+        },
+        "blender_old_material" : null,
+        "change_material" : function() {
+            if (!window["SCENE"]["blender_old_material"]) {
+                window["SCENE"]["blender_old_material"] = window["SCENE"]["blender"].material.clone();
+                window["SCENE"]["blender"].material = new THREE.MeshNormalMaterial();
+            } else {
+                window["SCENE"]["blender"].material = window["SCENE"]["blender_old_material"].clone();
+                window["SCENE"]["blender_old_material"] = null;
+            }
+        }
+      };
+
+      window.onload = function() {
+
+        window.THREE = THREE;
+
+        // Three.js code goes here
+        scene = new THREE.Scene();
+
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 50, 100);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // setup the anaglyph effect.
+        effect = new AnaglyphEffect( renderer );
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+        // stats.js widget
+        stats = new Stats();
+        document.body.appendChild(stats.domElement);
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        // GUI : https://github.com/dataarts/dat.gui/blob/master/API.md
+        var gui = new dat.GUI();
+        
+        // Scene UI
+        var sceneUI = gui.addFolder("Scene");
+        sceneUI.add(window.SCENE, "anaglyph");
+        sceneUI.add(light.position, "x", -100, 100).name("Light X");
+        sceneUI.add(light.position, "y", -100, 100).name("Light Y");
+        sceneUI.add(light.position, "z", -100, 100).name("Light Z");
+        sceneUI.add(light, "intensity", 1, 10).name("Light Intensity");
+        var palette = {
+            color: "#010101",
+        };
+        sceneUI.addColor(palette, 'color');
+        
+
+        // ..............................
+        sceneUI.open();
+
+        // LOAD poly.glb (unedited version of model)
+        var loader = new GLTFLoader();
+        loader.load("model/poly.glb", function( gltf ) {
+            var poly = gltf.scenes[0].children[0];
+            
+            poly.scale.x = 100;
+            poly.scale.y = 100;
+            poly.scale.z = 100;
+            scene.add( gltf.scene );
+
+            // Set up wireframe for PolyCam Mesh UI
+            var polyui = gui.addFolder("PolyCam Mesh");
+            window.SCENE.poly = poly;
+            polyui.add(window.SCENE.poly.material, "wireframe");
+            polyui.add(window.SCENE, "do_rotate_poly").name("rotate!");
+            polyui.open();
+        });
+        
+        // LOAD moose.glb (edited version of model)
+        var loader2 = new GLTFLoader();
+        loader2.load("model/moose.glb", function( gltf ) {
+            var poly = gltf.scenes[0].children[0];
+            
+            // Scale and shift the model to compare with unedited version.
+            poly.scale.x = 100;
+            poly.scale.y = 100;
+            poly.scale.z = 100;
+            poly.translateX(40);
+            poly.translateY(10);
+            poly.translateZ(50);
+            
+            // Rotate the model to match the unedited version.
+            var T = 0;
+            poly.quaternion.w = Math.cos(T / 2);
+            poly.quaternion.x = Math.sin(T / 2) * 0;
+            poly.quaternion.y = Math.sin(T / 2) * 1;
+            poly.quaternion.z = Math.sin(T / 2) * 0;
+            
+            scene.add( gltf.scene );
+
+            // Blender Mesh UI
+            var blenderui = gui.addFolder("Blender Mesh");
+            var helper = new VertexNormalsHelper(poly, 0.1, "blue");
+            
+            helper.visible = false;    
+            blenderui.add(helper, "visible").name("Show normals!");
+            blenderui.add(window.SCENE, "do_rotate_poly").name("rotate!");
+            blenderui.open();
+        });
+
+        // interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+        
+        // call animation/rendering loop
+        animate();        
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+        stats.update();
+
+        // and here..
+        controls.update();
+        
+        // anaglyph checkbox 
+        if (window.SCENE.anaglyph) {
+            effect.render(scene, camera);
+        } else {
+            renderer.render(scene, camera);
+        }
+        
+        if (window.SCENE.poly) {
+            if (window.SCENE.rotate_poly) {
+                // Setup 180 degree quaternion
+                var T = Math.PI / 2;
+                var w = Math.cos(T / 2);
+                var x = Math.sin(T / 2) * 0;
+                var y = Math.sin(T / 2) * 1;
+                var z = Math.sin(T / 2) * 0;
+                var q = new THREE.Quaternion(x, y, z, w);
+
+                window.SCENE.poly.quaternion.slerp(q, 0.01);
+            } else {
+                // Reset quaternion to identity!
+                var q = new THREE.Quaternion();
+                window.SCENE.poly.quaternion.slerp(q, 0.01);
+            }
+        } else {
+            renderer.render(scene, camera);
+        }
+      };
+
+    </script>
+  </head>
+  <body></body>
 </html>
