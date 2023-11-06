@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js GLTF Loader</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.js"></script>
+  <script  src="https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    // Set up scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    // Load GLTF model
+    const loader = new THREE.GLTFLoader();
+
+
+    loader.load('fungus.glb', (gltf) => {
+      const model = gltf.scene;
+      model.scale.set(0.1,0.1,0.1);
+      scene.add(model);
+    });
+
+    loader.load('poly.glb', (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(0.1,0.1,0.1);
+        model.position.set(0.2, 0.2, 0.2);
+        scene.add(model);
+
+    });
+
+    // Set camera position
+    camera.position.set(0,0,5);
+
+    // Create an animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Add your animations or updates here
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
