@@ -41,6 +41,11 @@
         "do_rotate_poly" : function() {
             window["SCENE"]["rotate_poly"] = !window["SCENE"]["rotate_poly"];
         },
+        "blender" : null,
+        "rotate_blender" : false,
+        "do_rotate_blender" : function () {
+          window["SCENE"]["rotate_blender"] = !window["SCENE"]["rotate_blender"];
+        },
         "blender_old_material" : null,
         "change_material" : function() {
             if (!window["SCENE"]["blender_old_material"]) {
@@ -103,9 +108,6 @@
             color: "#010101",
         };
         sceneUI.addColor(palette, 'color');
-        
-
-        // ..............................
         sceneUI.open();
 
         // LOAD poly.glb (unedited version of model)
@@ -129,32 +131,33 @@
         // LOAD moose.glb (edited version of model)
         var loader2 = new GLTFLoader();
         loader2.load("model/moose.glb", function( gltf ) {
-            var poly = gltf.scenes[0].children[0];
+            var blender = gltf.scenes[0].children[0];
             
             // Scale and shift the model to compare with unedited version.
-            poly.scale.x = 100;
-            poly.scale.y = 100;
-            poly.scale.z = 100;
-            poly.translateX(40);
-            poly.translateY(10);
-            poly.translateZ(50);
+            blender.scale.x = 100;
+            blender.scale.y = 100;
+            blender.scale.z = 100;
+            blender.translateX(40);
+            blender.translateY(10);
+            blender.translateZ(50);
             
             // Rotate the model to match the unedited version.
             var T = 0;
-            poly.quaternion.w = Math.cos(T / 2);
-            poly.quaternion.x = Math.sin(T / 2) * 0;
-            poly.quaternion.y = Math.sin(T / 2) * 1;
-            poly.quaternion.z = Math.sin(T / 2) * 0;
+            blender.quaternion.w = Math.cos(T / 2);
+            blender.quaternion.x = Math.sin(T / 2) * 0;
+            blender.quaternion.y = Math.sin(T / 2) * 1;
+            blender.quaternion.z = Math.sin(T / 2) * 0;
             
             scene.add( gltf.scene );
 
             // Blender Mesh UI
             var blenderui = gui.addFolder("Blender Mesh");
-            var helper = new VertexNormalsHelper(poly, 0.1, "blue");
-            
+            window.SCENE.blender = blender;
+            var helper = new VertexNormalsHelper(blender, 0.1, "blue");
+
             helper.visible = false;    
             blenderui.add(helper, "visible").name("Show normals!");
-            blenderui.add(window.SCENE, "do_rotate_poly").name("rotate!");
+            blenderui.add(window.SCENE, "do_rotate_blender").name("rotate!");
             blenderui.open();
         });
 
@@ -180,22 +183,45 @@
             renderer.render(scene, camera);
         }
         
+        // ROTATE FOR POLY
         if (window.SCENE.poly) {
-            if (window.SCENE.rotate_poly) {
-                // Setup 180 degree quaternion
-                var T = Math.PI / 2;
-                var w = Math.cos(T / 2);
-                var x = Math.sin(T / 2) * 0;
-                var y = Math.sin(T / 2) * 1;
-                var z = Math.sin(T / 2) * 0;
-                var q = new THREE.Quaternion(x, y, z, w);
+          if (window.SCENE.rotate_poly) {
+            // Setup 180 degree quaternion
+            var T = Math.PI / 2;
+            var w = Math.cos(T / 2);
+            var x = Math.sin(T / 2) * 0;
+            var y = Math.sin(T / 2) * 1;
+            var z = Math.sin(T / 2) * 0;
+            var q = new THREE.Quaternion(x, y, z, w);
 
-                window.SCENE.poly.quaternion.slerp(q, 0.01);
-            } else {
-                // Reset quaternion to identity!
-                var q = new THREE.Quaternion();
-                window.SCENE.poly.quaternion.slerp(q, 0.01);
-            }
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
+
+          } else {
+            // Reset quaternion to identity!
+            var q = new THREE.Quaternion();
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
+          }
+        } 
+        
+        // ROTATE FOR BLENDER
+        if (window.SCENE.blender) {
+          if (window.SCENE.rotate_blender) {
+            // Setup 180 degree quaternion
+            var T = Math.PI / 2;
+            var w = Math.cos(T / 2);
+            var x = Math.sin(T / 2) * 0;
+            var y = Math.sin(T / 2) * 1;
+            var z = Math.sin(T / 2) * 0;
+            var q = new THREE.Quaternion(x, y, z, w);
+
+            window.SCENE.blender.quaternion.slerp(q, 0.01);
+          } else {
+            // Reset quaternion to identity!
+            var q = new THREE.Quaternion();
+            window.SCENE.blender.quaternion.slerp(q, 0.01);
+          }
+
+        // Else, render normally.
         } else {
             renderer.render(scene, camera);
         }
