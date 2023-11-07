@@ -25,8 +25,9 @@
 
       import * as THREE from 'three';
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';  
-      import { AnaglyphEffect } from 'three/addons/jsm/effects/AnaglyphEffect.js';
+      import { AnaglyphEffect } from 'three/examples/jsm/effects/AnaglyphEffect.js';
       import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
   
       var renderer, controls, scene, camera, lastObject;
 
@@ -45,8 +46,7 @@
         scenei.add(window.SCENE, 'analglyph');
         
         window['SCENE'] ={ 
-          'analglyph': false;
-          
+          'analglyph': false
           
         };
 
@@ -56,18 +56,19 @@
 
         // Loader
         loader = new GLTFLoader();
-        /*loader.load('placeholder.glb', function (gtlf) {
+        /*
+        loader.load('placeholder.glb', function (gtlf) {
             scene.add(gtlf.scene);
-        });*/
+        });
 
         // second loader for the blender
         flask = new GTLFLoader();
-        /*
+        
         flask.load('flask.glb', function (gtlf) {
           scene.add(gtlf.scene);
           
         });
-        /*
+        
 
         var poly = gtlf.scenes[0].children[0];
         poly.scale.x = 10;
@@ -76,7 +77,7 @@
         
         //Translation hopefully this works may have to play around
         poly.translateX(5);
-        
+        */ 
         //Renderer initialization
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -87,8 +88,18 @@
 
         // Three.js code goes here
         scene = new THREE.Scene();
+
+        animate();
   
 
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+        renderer.render(scene, camera);
+
+        
       };
     </script>
   </head>
