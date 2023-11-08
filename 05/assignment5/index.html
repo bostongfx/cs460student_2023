@@ -35,19 +35,20 @@
 
       // OUR SCENE HELPER/CONTROLLER OBJECT
       window["SCENE"] = {
-        "anaglyph" : false,
-        "poly" : null,
-        "rotate_poly" : false,
-        "do_rotate_poly" : function() {
+        "anaglyph": false,
+        "poly": null,
+        "rotate_poly": false,
+        "do_rotate_poly": function() {
             window["SCENE"]["rotate_poly"] = !window["SCENE"]["rotate_poly"];
         },
-        "blender" : null,
-        "rotate_blender" : false,
-        "do_rotate_blender" : function () {
+        "blender": null,
+        "rotate_blender": false,
+        "do_rotate_blender": function () {
           window["SCENE"]["rotate_blender"] = !window["SCENE"]["rotate_blender"];
         },
-        "blender_old_material" : null,
-        "change_material" : function() {
+        "blender_helper": null,
+        "blender_old_material": null,
+        "change_material": function() {
             if (!window["SCENE"]["blender_old_material"]) {
                 window["SCENE"]["blender_old_material"] = window["SCENE"]["blender"].material.clone();
                 window["SCENE"]["blender"].material = new THREE.MeshNormalMaterial();
@@ -104,10 +105,7 @@
         sceneUI.add(light.position, "y", -100, 100).name("Light Y");
         sceneUI.add(light.position, "z", -100, 100).name("Light Z");
         sceneUI.add(light, "intensity", 1, 10).name("Light Intensity");
-        var palette = {
-            color: "#010101",
-        };
-        sceneUI.addColor(palette, 'color');
+        sceneUI.addColor(light, "color").name("Ambient Light");
         sceneUI.open();
 
         // LOAD poly.glb (unedited version of model)
@@ -118,9 +116,9 @@
             poly.scale.x = 100;
             poly.scale.y = 100;
             poly.scale.z = 100;
-            scene.add( gltf.scene );
+            scene.add(gltf.scene);
 
-            // Set up wireframe for PolyCam Mesh UI
+            // PolyCam Mesh UI
             var polyui = gui.addFolder("PolyCam Mesh");
             window.SCENE.poly = poly;
             polyui.add(window.SCENE.poly.material, "wireframe");
@@ -132,7 +130,7 @@
         var loader2 = new GLTFLoader();
         loader2.load("model/moose.glb", function( gltf ) {
             var blender = gltf.scenes[0].children[0];
-            
+
             // Scale and shift the model to compare with unedited version.
             blender.scale.x = 100;
             blender.scale.y = 100;
@@ -147,16 +145,22 @@
             blender.quaternion.x = Math.sin(T / 2) * 0;
             blender.quaternion.y = Math.sin(T / 2) * 1;
             blender.quaternion.z = Math.sin(T / 2) * 0;
-            
-            scene.add( gltf.scene );
+            scene.add(gltf.scene);
 
             // Blender Mesh UI
             var blenderui = gui.addFolder("Blender Mesh");
             window.SCENE.blender = blender;
-            var helper = new VertexNormalsHelper(blender, 0.1, "blue");
 
+            // Set up VertexNormalsHelper and set the helper to 
+            // blender_helper from the  SCENE object.
+            var helper = new VertexNormalsHelper(blender, 0.4, "blue");
+            window.SCENE.blender_helper = helper;
+            scene.add(helper);
+
+            // Add the buttons for show normals, change material, and rotate.
             helper.visible = false;    
             blenderui.add(helper, "visible").name("Show normals!");
+            blenderui.add(window.SCENE, "change_material").name("Change Material");
             blenderui.add(window.SCENE, "do_rotate_blender").name("rotate!");
             blenderui.open();
         });
@@ -187,19 +191,20 @@
         if (window.SCENE.poly) {
           if (window.SCENE.rotate_poly) {
             // Setup 180 degree quaternion
-            var T = Math.PI / 2;
+            var T = Math.PI;
             var w = Math.cos(T / 2);
             var x = Math.sin(T / 2) * 0;
             var y = Math.sin(T / 2) * 1;
             var z = Math.sin(T / 2) * 0;
             var q = new THREE.Quaternion(x, y, z, w);
-
-            window.SCENE.poly.quaternion.slerp(q, 0.01);
+            
+            // Set up how fast the model rotates
+            window.SCENE.poly.quaternion.slerp(q, 0.005);
 
           } else {
             // Reset quaternion to identity!
             var q = new THREE.Quaternion();
-            window.SCENE.poly.quaternion.slerp(q, 0.01);
+            window.SCENE.poly.quaternion.slerp(q, 0.005);
           }
         } 
         
@@ -207,18 +212,22 @@
         if (window.SCENE.blender) {
           if (window.SCENE.rotate_blender) {
             // Setup 180 degree quaternion
-            var T = Math.PI / 2;
+            var T = Math.PI;
             var w = Math.cos(T / 2);
             var x = Math.sin(T / 2) * 0;
             var y = Math.sin(T / 2) * 1;
             var z = Math.sin(T / 2) * 0;
             var q = new THREE.Quaternion(x, y, z, w);
 
-            window.SCENE.blender.quaternion.slerp(q, 0.01);
+            // Set up how fast the model rotates and 
+            // update vertex normals while model rotates.
+            window.SCENE.blender.quaternion.slerp(q, 0.005);
+            window.SCENE.blender_helper.update();
           } else {
             // Reset quaternion to identity!
             var q = new THREE.Quaternion();
-            window.SCENE.blender.quaternion.slerp(q, 0.01);
+            window.SCENE.blender.quaternion.slerp(q, 0.005);
+            window.SCENE.blender_helper.update();
           }
 
         // Else, render normally.
