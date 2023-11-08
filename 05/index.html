@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
   <head>
     <style>
       html, body { 
-        background-color:#000;
+        background-color: #000;
         margin: 0;
         padding: 0;
         height: 100%;
@@ -24,8 +25,8 @@
     <script type="module">
 
       import * as THREE from 'three';
-      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';   
-      import {PLYLoader} from 'three/addons/loaders/PLYLoader.js'   
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'; 
 
       var renderer, controls, scene, camera;
 
@@ -35,10 +36,10 @@
         // Setup the camera
         var fov = 50;
         var aspectRatio = window.innerWidth / window.innerHeight;
-        var near = 1;
-        var far = 5000;
+        var near = 0.1; // Adjusted near
+        var far = 10000; // Adjusted far
         camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
-        camera.position.set(0, 0, 300);
+        camera.position.set(0, 10, 0); // Adjusted camera position
 
         // Create renderer and setup the canvas
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -52,24 +53,16 @@
         directionalLight.position.set(10, 200, 10);
         scene.add(directionalLight);
 
-        // load .ply file
-        let loader = new PLYLoader();
-        loader.load('armadillo.ply', function(geometry){
+        // Load GLTF model
+        var loader = new GLTFLoader();
+        loader.load('poly.glb', function(gltf) {
+          var model = gltf.scene;
 
-          geometry.computeVertexNormals();
+          // Adjust the scale of the loaded model
+          model.scale.set(10, 10, 10);
 
-          var material = new THREE.MeshStandardMaterial({
-            color: 'red'
-          });
-
-          var mesh = new THREE.Mesh(geometry, material);
-          
-          scene.add(mesh);
-
-        })
-
-
-
+          scene.add(model);
+        });
 
         // Create an invisible plane
         var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
@@ -89,7 +82,7 @@
             flag = 1;
             var count = 0;
 
-            if (e.shiftKey && flag == 1) {
+            if (e.shiftKey && flag === 1) {
                 controls.enabled = false;
                 flag2 = 1;
 
@@ -116,14 +109,13 @@
         
         // Call animation/rendering loop
         animate();
-        
       };
 
       function animate() {
-        requestAnimationFrame( animate );
+        requestAnimationFrame(animate);
         controls.update();
-        renderer.render( scene, camera );
-      };
+        renderer.render(scene, camera);
+      }
     </script>
   </head>
   <body></body>
