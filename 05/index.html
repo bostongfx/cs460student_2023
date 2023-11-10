@@ -9,7 +9,11 @@
         overflow: hidden !important;  
       }
     </style>
+
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
     
+    <script type="text/javascript" src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
     <script type="importmap">
@@ -28,7 +32,12 @@
       import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
 
       var renderer, controls, scene, camera;
+      var stats;
       
+      // Our Scene helper/controller object
+      window['SCENE'] = {
+        'anaglyph': false
+      };
 
       window.onload = function() {
 
@@ -50,6 +59,10 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement); // Adds canvas element
 
+        // stats.js instance
+        stats = new Stats();
+        document.body.appendChild(stats.domElement);
+
         // setup lights
         var ambientLight = new THREE.AmbientLight();
         scene.add(ambientLight);
@@ -61,18 +74,30 @@
         // LOAD .PLY FILE
         var loader = new PLYLoader();
         loader.load('armadillo.ply', function(geometry) {
+
+            geometry.computeVertexNormals();
+
             var material = new THREE.MeshStandardMaterial({
                 color: 'red'
             });
 
             var mesh = new THREE.Mesh(geometry, material);
             scene.add(mesh);
-            
+
         });
           
         // interaction
         controls = new OrbitControls(camera, renderer.domElement);
 
+        var gui = new dat.GUI();
+        var sceneui = gui.addFolder('Scene');
+        gui.add(window.SCENE, 'anaglyph');
+        gui.add(light.position, 'x', -100, 100).name('Light x');
+        gui.add(light.position, 'y', -100, 100).name('Light y');
+        gui.add(light.position, 'z', -100, 100).name('Light z');
+        gui.add(light, 'intensity', 1, 100).name('Light Intensity');
+        gui.addColor(ambientLight, 'color');
+        
         // call animation/rendering loop
         animate();
     
@@ -81,10 +106,17 @@
         function animate() {
 
           requestAnimationFrame( animate );
+          
+          stats.update();
 
           // and here..
           controls.update();
-          renderer.render(scene, camera);
+
+          if (window.SCENE.anaglyph) {
+            effect.render(scene, camera); //replaced renderer.x w/effect.x
+          } else {
+            renderer.render(scene, camera);
+          }
           
         };
           
