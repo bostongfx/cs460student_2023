@@ -53,17 +53,21 @@
         directionalLight.position.set(10, 200, 10);
         scene.add(directionalLight);
 
-        // Load GLTF model
-        var loader = new GLTFLoader();
-        loader.load('poly.glb', function(gltf) {
-          var model = gltf.scene;
+    //     var loader = new GLTFLoader();
+    // loader.load('poly.glb', function(gltf) {
+    //   var poly = gltf.scene; 
+    //     poly.scale.set(10, 10, 10);
+    //     poly.quaternion.set(0, 0, 0, 1);
+    //     scene.add(poly);
+    //   });
 
-          // Adjust the scale of the loaded model
-          model.scale.set(10, 10, 10);
-
-          scene.add(model);
-        });
-
+    var editedLoader = new GLTFLoader();
+    editedLoader.load('edited_mesh.glb', function(gltf) {
+    var editedPoly = gltf.scene;
+    editedPoly.scale.set(10, 10, 10);
+    editedPoly.quaternion.set(0, 0, 0, 1);
+    scene.add(editedPoly);
+});  
         // Create an invisible plane
         var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
         var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
