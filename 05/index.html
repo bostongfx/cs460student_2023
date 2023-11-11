@@ -21,7 +21,7 @@
       }
     }
     </script>
-
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
     <script type="module">
 
       import * as THREE from 'three';
@@ -34,12 +34,12 @@
         scene = new THREE.Scene();
 
         // Setup the camera
-        var fov = 50;
+        var fov = 4;
         var aspectRatio = window.innerWidth / window.innerHeight;
         var near = 0.1; // Adjusted near
         var far = 10000; // Adjusted far
         camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
-        camera.position.set(0, 10, 0); // Adjusted camera position
+        camera.position.set(10, 10, 0); // Adjusted camera position
 
         // Create renderer and setup the canvas
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -49,25 +49,30 @@
         // Setup lights
         var ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
-        var directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); 
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 5.0); 
         directionalLight.position.set(10, 200, 10);
         scene.add(directionalLight);
 
-    //     var loader = new GLTFLoader();
-    // loader.load('poly.glb', function(gltf) {
-    //   var poly = gltf.scene; 
-    //     poly.scale.set(10, 10, 10);
-    //     poly.quaternion.set(0, 0, 0, 1);
-    //     scene.add(poly);
-    //   });
+        // polycam mesh
+        var loader = new GLTFLoader();
+        loader.load('poly.glb', function(gltf) {
+        var poly = gltf.scene; 
+        poly.scale.set(10, 10, 10);
+        poly.quaternion.set(0, 0, 0, 1);
+        poly.translateX(-0.1);
+        scene.add(poly);
+        
+        });
 
-    var editedLoader = new GLTFLoader();
-    editedLoader.load('edited_mesh.glb', function(gltf) {
-    var editedPoly = gltf.scene;
-    editedPoly.scale.set(10, 10, 10);
-    editedPoly.quaternion.set(0, 0, 0, 1);
-    scene.add(editedPoly);
-});  
+        // blender mesh
+        var editedLoader = new GLTFLoader();
+        editedLoader.load('edited_mesh.glb', function(gltf) {
+        var editedPoly = gltf.scene;
+        editedPoly.scale.set(10, 10, 10);
+        editedPoly.quaternion.set(0, 0, 0, 1);
+        editedPoly.translateX(0.3)
+        scene.add(editedPoly);
+        });  
         // Create an invisible plane
         var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
         var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
