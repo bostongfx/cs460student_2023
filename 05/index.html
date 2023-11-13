@@ -1,3 +1,9 @@
+
+
+
+
+
+
 <html>
   <head>
     <style>
@@ -7,8 +13,6 @@
         padding: 0;
         height: 100%;
         overflow: hidden !important;  
-        background-image: url('starnight.png'); 
-        background-size: cover;
       }
 
 canvas {
@@ -35,6 +39,11 @@ canvas {
 
       var renderer, controls, scene, camera;
 
+
+
+      // The gltf model took up to 30 secs to load. Please refresh the page
+      // if it fails to load.
+
       window.onload = function() {
         // Set up scene, camera, and renderer
         scene = new THREE.Scene();
@@ -50,16 +59,21 @@ canvas {
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         
-
-        renderer.setClearColor(0x000000, 0);
+        
 
         // Add lights
-        var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        var directionalLight = new THREE.DirectionalLight(0xffcc00, 1);
         directionalLight.position.set(1, 1, 0).normalize();
         scene.add(directionalLight);
+
+        var directionalLight1 = new THREE.DirectionalLight(0xbbcc00, 1);
+        directionalLight.position.set(0, 1, 1).normalize();
+        scene.add(directionalLight1);
         
+
         var ambientLight = new THREE.AmbientLight(0x404040); // soft white light
         scene.add(ambientLight);
+
 
         // Add OrbitControls
         controls = new OrbitControls(camera, renderer.domElement);
