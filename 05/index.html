@@ -40,7 +40,11 @@ canvas {
         scene = new THREE.Scene();
         
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 10, 0);
+        camera.position.set(5, 5, 5);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+
+
         
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -48,7 +52,7 @@ canvas {
         
 
         renderer.setClearColor(0x000000, 0);
-        
+
         // Add lights
         var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(1, 1, 0).normalize();
