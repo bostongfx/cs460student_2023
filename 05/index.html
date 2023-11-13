@@ -63,6 +63,7 @@ canvas {
         var backgroundPlaneMaterial = new THREE.MeshBasicMaterial({ map: backgroundImage, side: THREE.DoubleSide });
         var backgroundPlane = new THREE.Mesh(backgroundPlaneGeometry, backgroundPlaneMaterial);
         backgroundPlane.position.set(0, 0, -1);
+        backgroundPlane.scale.set(20, 20);
         scene.add(backgroundPlane);
         
         // Load the poly.glb file
