@@ -21,6 +21,7 @@
       }
     }
     </script>
+    <script src="https://get.goxtk.com/xtk_xdat.gui.js"></script>
     <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
     <script type="module">
 
@@ -28,11 +29,14 @@
       import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
       import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'; 
 
-      var renderer, controls, scene, camera;
+      var renderer, controls, scene, camera, stats,gui;
 
       window.onload = function() {
+        stats = new Stats();
+        document.body.appendChild(stats.domElement);
         scene = new THREE.Scene();
-
+        var gui = new dat.GUI();
+        var sceneui = gui.addFolder('Scene');
         // Setup the camera
         var fov = 4;
         var aspectRatio = window.innerWidth / window.innerHeight;
@@ -56,29 +60,54 @@
         // polycam mesh
         var loader = new GLTFLoader();
         loader.load('poly.glb', function(gltf) {
-        var poly = gltf.scene; 
-        poly.scale.set(10, 10, 10);
-        poly.quaternion.set(0, 0, 0, 1);
-        poly.translateX(-0.1);
-        scene.add(poly);
-        
+          var poly = gltf.scene; 
+          poly.scale.set(10, 10, 10);
+          poly.quaternion.set(0, 0, 0, 1);
+          poly.translateX(-0.1);
+          scene.add(poly);
+          
+          window.SCENE.poly = poly;
+          
+          // UI controls for PolyCam
+          var polyui = gui.addFolder('PolyCam Mesh');
+          polyui.add(poly.material, 'wireframe');
+          polyui.add(window.SCENE, 'do_rotate_poly').name('Rotate!');
+          polyui.open();
         });
 
         // blender mesh
         var editedLoader = new GLTFLoader();
         editedLoader.load('edited_mesh.glb', function(gltf) {
-        var editedPoly = gltf.scene;
-        editedPoly.scale.set(10, 10, 10);
-        editedPoly.quaternion.set(0, 0, 0, 1);
-        editedPoly.translateX(0.3)
-        scene.add(editedPoly);
-        });  
-        // Create an invisible plane
-        var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
-        var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
-        var invisiblePlane = new THREE.Mesh(planeGeometry, planeMaterial);
-        scene.add(invisiblePlane);
+          var editedPoly = gltf.scene;
+          editedPoly.scale.set(10, 10, 10);
+          editedPoly.quaternion.set(0, 0, 0, 1);
+          editedPoly.translateX(0.3)
+          scene.add(editedPoly);
       
+          window.SCENE.blender = editedPoly;
+
+          // Create an invisible plane
+          var planeGeometry = new THREE.PlaneGeometry(5000, 5000);
+          var planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
+          var invisiblePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+          scene.add(invisiblePlane);
+          
+          // UI controls for Blender Mesh
+          var blenderui = gui.addFolder('Blender Mesh');
+        
+          var helper = new THREE.VertexNormalsHelper(editedPoly, 0.1, 'blue');
+          helper.visible = false;
+          blenderui.add(helper, 'visible').name('Show normals!');
+          window.SCENE.blender_helper = helper;
+          
+          // Button to change material
+          blenderui.add(window.SCENE, 'change_material').name('Change Material');
+          // Rotate button for Blender Mesh
+          blenderui.add(window.SCENE, 'do_rotate_blender').name('Rotate!');
+          
+          blenderui.open();
+        });  
+
         // Interaction
         controls = new OrbitControls(camera, renderer.domElement);
 
@@ -86,7 +115,7 @@
         var flag = 0; 
         var flag2 = 0; 
         var mesh;
-        
+
         renderer.domElement.onmousedown = function( e ){
             flag = 1;
             var count = 0;
@@ -105,25 +134,45 @@
                 var raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(vpCoordsNear, camera);
                 var intersects = raycaster.intersectObject(invisiblePlane);
-                lastObject = newTorusKnot;
+                lastObject = intersects[0].object;
             } else {
               flag2 = 0;
             }
         };
-        
+
         renderer.domElement.onmouseup = function ( e ) {
             controls.enabled = true;
             flag = 0;
         };
-        
+
         // Call animation/rendering loop
         animate();
       };
+
+      function rotateObject(mesh, rotationSpeed) {
+        if (mesh) {
+          mesh.rotation.x += rotationSpeed;
+          mesh.rotation.y += rotationSpeed;
+        }
+      }
 
       function animate() {
         requestAnimationFrame(animate);
         controls.update();
         renderer.render(scene, camera);
+        
+
+        if (window.SCENE.poly && window.SCENE.rotate_poly) {
+          var q = new THREE.Quaternion();
+          window.SCENE.poly.quaternion.slerp(q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI), 0.01);
+        }
+        
+        // Update the normal helper for Blender Mesh
+        if (window.SCENE.blender && window.SCENE.blender_helper) {
+          window.SCENE.blender_helper.update();
+        }
+
+        stats.update();
       }
     </script>
   </head>
