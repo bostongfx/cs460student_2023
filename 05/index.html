@@ -46,6 +46,9 @@ canvas {
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         
+
+        renderer.setClearColor(0x000000, 0);
+        
         // Add lights
         var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(1, 1, 0).normalize();
