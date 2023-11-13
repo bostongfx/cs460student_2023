@@ -7,6 +7,8 @@
         padding: 0;
         height: 100%;
         overflow: hidden !important;  
+        background-image: url('starnight.png'); 
+        background-size: cover;
       }
 
 canvas {
@@ -56,16 +58,6 @@ canvas {
         controls = new OrbitControls(camera, renderer.domElement);
 
 
-        // Load the background image
-        var textureLoader = new THREE.TextureLoader();
-        var backgroundImage = textureLoader.load('starnight.jpeg'); 
-        var backgroundPlaneGeometry = new THREE.PlaneGeometry(2, 2, 0);
-        var backgroundPlaneMaterial = new THREE.MeshBasicMaterial({ map: backgroundImage, side: THREE.DoubleSide });
-        var backgroundPlane = new THREE.Mesh(backgroundPlaneGeometry, backgroundPlaneMaterial);
-        backgroundPlane.position.set(0, 0, -1);
-        backgroundPlane.scale.set(20, 20);
-        scene.add(backgroundPlane);
-        
         // Load the poly.glb file
         var loader = new GLTFLoader();
         loader.load('poly.glb', function(gltf) {
