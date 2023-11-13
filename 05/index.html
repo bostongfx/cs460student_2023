@@ -12,7 +12,7 @@
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
+        overflow: hidden !important;
       }
 
 canvas {
@@ -60,20 +60,14 @@ canvas {
         document.body.appendChild(renderer.domElement);
         
 
-
         // Add lights
-        var directionalLight = new THREE.DirectionalLight(0xfffcf2, 1);
-        directionalLight.position.set(1, .5, 0).normalize();
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(1, 1, 0).normalize();
         scene.add(directionalLight);
-
-        var directionalLight1 = new THREE.DirectionalLight(0xad7af0, 1);
-        directionalLight.position.set(.5, 1, 0).normalize();
-        scene.add(directionalLight1);
         
-
+        
         var ambientLight = new THREE.AmbientLight(0x404040); // soft white light
         scene.add(ambientLight);
-
 
         // Add OrbitControls
         controls = new OrbitControls(camera, renderer.domElement);
