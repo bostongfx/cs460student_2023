@@ -109,6 +109,7 @@
 
 
     window.onload = function() {
+      document.getElementById("backgroundMusic").play();
 
       //************************************************************//
       //
@@ -117,7 +118,6 @@
       c = document.getElementById( 'c' ); // setup canvas
       gl = c.getContext( 'webgl' ); // setup GL context
       gl.viewport(0, 0, c.width, c.height );
-      document.getElementById("backgroundMusic").play();
 
 
 
