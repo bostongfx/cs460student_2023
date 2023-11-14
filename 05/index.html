@@ -1,0 +1,229 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';    
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';   
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
+      import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+
+      var renderer, controls, scene, camera, gui, anaglyphEffect, q, stats;
+
+      window.onload = function() {
+
+        window.THREE = THREE;
+
+        // Three.js code goes here
+        scene = new THREE.Scene();
+
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(0, 0, 100);
+
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        // Load poly.glb using GLTFLoader
+        var polyLoader = new GLTFLoader();
+        polyLoader.load('poly.glb', function (gltf) {
+            var poly = gltf.scene.children[0];
+            poly.scale.set(10, 10, 10);
+            poly.quaternion.set(0, 0, 0, 1); // Set to identity quaternion
+            poly.translateX(5); // Adjust translation as needed
+            scene.add(gltf.scene);
+            window.SCENE.poly = poly;
+            // Setup wireframe checkbox
+            polyui.add(window.SCENE.poly.material, 'wireframe');
+            polyui.open();
+
+            // Setup 180-degree rotation button
+            polyui.add(window.SCENE, 'do_rotate_poly').name('rotate!');
+        });
+
+        // Load edited mesh from Blender (replace 'croc.glb' with your file name)
+        var editedLoader = new GLTFLoader();
+        editedLoader.load('croc.glb', function (gltf) {
+            var croc = gltf.scene.children[0];
+            croc.scale.set(10, 10, 10);
+            croc.quaternion.set(0, 0, 0, 1); // Set to identity quaternion
+            croc.translateX(-5); // Adjust translation as needed
+            scene.add(gltf.scene);
+            window.SCENE.croc = croc;
+            // Add normal visualization
+            var helper = new VertexNormalsHelper(croc, 0.1, 'blue');
+            scene.add(helper);
+            helper.visible = false;
+            window.SCENE.blender_helper = helper;
+
+            // Setup blender checkbox
+            blenderui.open();
+
+            blenderui.add(helper, 'visible').name('Show normals!');
+            blenderui.add(window.SCENE, 'change_material').name('Change Material');
+            blenderui.add(window.SCENE, 'do_rotate_croc').name('rotate!');
+        });
+
+
+
+        // interaction
+        controls = new OrbitControls( camera, renderer.domElement );
+
+        // Setup dat.GUI
+        gui = new dat.GUI();
+        var sceneui = gui.addFolder('Scene');
+        
+        // Add controls to the 'Scene' folder
+        sceneui.add(light.position, 'x', -100, 100).name('Light X');
+        sceneui.add(light.position, 'y', -100, 100).name('Light Y');
+        sceneui.add(light.position, 'z', -100, 100).name('Light Z');
+        sceneui.add(light, 'intensity', 0, 10).name('Light Intensity');
+        sceneui.addColor(light, 'color').name('Light Color');
+        var polyui = gui.addFolder('PolyCam Mesh');
+        var blenderui = gui.addFolder('Blender Mesh');
+
+        // Add Anaglyph rendering control
+        window['SCENE'] = {
+          'poly':null,
+          'anaglyph': false,
+          'rotate_poly': false,
+          'rotate_croc': false,
+          'do_rotate_poly': function() {
+            window.SCENE.rotate_poly = !window.SCENE.rotate_poly;
+          },
+          'rotate_poly': false,
+          'do_rotate_poly': function() {
+            window['SCENE']['rotate_poly'] = !window['SCENE']['rotate_poly'];
+          },
+          'do_rotate_croc': function() {
+            window.SCENE.rotate_croc = !window.SCENE.rotate_croc;
+          },
+          'rotate_croc': false,
+          'do_rotate_croc': function() {
+            window['SCENE']['rotate_croc'] = !window['SCENE']['rotate_croc'];
+          },
+          'blender_old_material': null,
+          'change_material': function() {
+            if (!window['SCENE']['blender_old_material']) {
+              window['SCENE']['blender_old_material'] = window['SCENE']['croc'].material.clone();  
+              window['SCENE']['croc'].material = new THREE.MeshNormalMaterial();
+            } else {
+              window['SCENE']['croc'].material = window['SCENE']['blender_old_material'].clone();
+              window['SCENE']['blender_old_material'] = null;
+            }
+          }
+        };
+        sceneui.add(window.SCENE, 'anaglyph').name('Anaglyph Rendering');
+
+        // Create AnaglyphEffect
+        anaglyphEffect = new AnaglyphEffect(renderer);
+        
+        // Setup Stats.js widget
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+
+        // call animation/rendering loop
+        animate();
+        
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        controls.update();
+
+        if (window.SCENE.poly) {
+          if (window.SCENE.rotate_poly) {
+            // Setup 180-degree quaternion
+            if (!q) {
+              q = new THREE.Quaternion();
+              q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+            }
+
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
+            window.SCENE.blender_helper.update();
+          } else {
+            // Reset quaternion to identity
+            window.SCENE.poly.quaternion.slerp(new THREE.Quaternion(), 0.01);
+            //window.SCENE.blender_helper.update();
+            
+            //window.SCENE.blender_helper.position.copy(window.SCENE.poly.position);
+            //window.SCENE.blender_helper.rotation.copy(window.SCENE.poly.rotation);
+            //window.SCENE.blender_helper.update();
+      
+          }
+        }
+        if (window.SCENE.croc) {
+          if (window.SCENE.rotate_croc) {
+            // Setup 180-degree quaternion
+            if (!q) {
+              q = new THREE.Quaternion();
+              q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+            }
+
+            window.SCENE.croc.quaternion.slerp(q, 0.01);
+            window.SCENE.blender_helper.update();
+          } else {
+            // Reset quaternion to identity
+            window.SCENE.croc.quaternion.slerp(new THREE.Quaternion(), 0.01);
+            window.SCENE.blender_helper.update();
+      
+          }
+        }
+
+        // and here..
+        controls.update();
+        if (window.SCENE.anaglyph) {
+          // Render with AnaglyphEffect
+          anaglyphEffect.render(scene, camera);
+        } else {
+          // Render with standard renderer
+          renderer.render( scene, camera );
+        }
+
+        stats.update();
+      };
+
+    </script>
+  </head>
+  <body></body>
+</html>
