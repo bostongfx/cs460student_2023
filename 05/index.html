@@ -39,10 +39,10 @@
         // setup the camera
         var fov = 75;
         var ratio = window.innerWidth / window.innerHeight;
-        var zNear = 1;
+        var zNear = 0.1;
         var zFar = 10000;
         camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
-        camera.position.set(0, 0, 100);
+        camera.position.set(0, 10, 0);
  
         // create renderer and setup the canvas
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -57,19 +57,39 @@
         light.position.set( 10, 100, 10 );
         scene.add( light );
  
-        //
-        // The invisible plane
-        //
-        geometry = new THREE.PlaneGeometry( 10000, 10000 );
-        material = new THREE.MeshBasicMaterial( {
-          visible: false
-        });
- 
-        var invisible_plane = new THREE.Mesh( geometry, material );
- 
-        scene.add( invisible_plane );
-        //
+        
   
+        var loader = new GLTFLoader();
+        loader.load('poly.glb', function ( gltf ) {
+          var poly = gltf.scenes[0].children[0];
+          poly.scale.x = 5;
+          poly.scale.y = 5;
+          poly.scale.z = 5;
+          scene.add( gltf.scene );
+          
+          });
+
+        var loader2 = new GLTFLoader();
+        loader.load('plush.glb', function ( gltf ) {
+
+          var plush = gltf.scenes[0].children[0];
+
+          plush.scale.x = 5;
+          plush.scale.y = 5;
+          plush.scale.z = 5;
+
+          plush.quaternion.w = 0;
+          plush.quaternion.x = 0;
+          plush.quaternion.y = 0;
+          plush.quaternion.z = 0;
+
+          plush.translateX(7);
+
+          scene.add( gltf.scene );
+
+
+        });
+
         // interaction
         controls = new OrbitControls( camera, renderer.domElement );
         
