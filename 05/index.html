@@ -1,0 +1,236 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+
+
+    <script src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      //Nimil Lathiya
+      //id : 02074157
+
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js'; 
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+
+      var renderer, controls, scene, camera;
+      var anaglyphEffect;
+      var stats = new Stats();
+
+    window['SCENE'] ={
+
+
+            'anaglyph': false,
+            'poly': null,
+
+            'blender_helper': null,
+            'blender' : null,
+
+
+            'rotate': function() {
+                console. log('rotate something');
+            },
+
+            'rotate_poly': false,
+            'do_rotate_poly': function() {
+                window['SCENE']['rotate_poly'] = !window['SCENE']['rotate_poly'];
+            },
+
+
+            'rotate_blender' : false,
+            'do_rotate_blender': function () {
+                window['SCENE']['rotate_blender'] = !window['SCENE']['rotate_blender'];
+                
+            },
+            
+            'blender_helper': null,
+
+            'blender_old_material': null,
+            
+                'change_material': function () {
+                    if (!window['SCENE']['blender_old_material']) {
+                    window['SCENE']['blender_old_material'] = window['SCENE']['blender'].material.clone();
+                    window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
+                    } else {
+                    window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
+                    window['SCENE']['blender_old_material'] = null;
+                    }
+                }
+            
+    };
+
+      window.onload = function() {
+
+        window.THREE = THREE;
+        
+       
+        displaystats();
+
+        // Three.js code goes here
+        scene = new THREE.Scene();
+ 
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(20, 30, 80);
+ 
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        
+        anaglyphEffect = new AnaglyphEffect(renderer);
+        
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+ 
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        // Load the PolyCam mesh (Poly.glb)
+        var loader = new GLTFLoader();
+        loader.load('poly.glb', function(gltf) {
+            window.SCENE.poly = gltf.scene.children[0];
+            var poly = gltf.scene.children[0];
+            poly.scale.set(50, 50, 50);
+            poly.quaternion.set(0, 0, 0, 1);
+            poly.translateX(-30); 
+            poly.translateY(-30); 
+            poly.rotation.y = Math.PI / 2; 
+
+            var polyUI = gui.addFolder('PolyCam Mesh');
+            polyUI.add(window.SCENE.poly.material, 'wireframe');
+            polyUI.open();
+            polyUI.add(window.SCENE, 'do_rotate_poly').name('rotate!');
+
+            scene.add(gltf.scene);
+        });
+
+        loader.load('nil.glb', function(gltf) {
+            window.SCENE.blender = gltf.scene.children[0];
+            var nil = gltf.scene.children[0];
+            nil.scale.set(50, 50, 50);
+            nil.quaternion.set(0, 0, 0, 1);
+            nil.translateX(30); 
+            nil.translateY(-30); 
+            nil.rotation.y = Math.PI / 3; 
+
+            var helper = new VertexNormalsHelper(nil, 0.1, 'blue');
+            helper.visible = false;
+            scene.add(helper);
+    
+            window.SCENE.blender_helper = helper;
+
+            var blenderUI = gui.addFolder('Blender Mesh');
+            blenderUI.add(window.SCENE, 'change_material').name('Change Material!');
+            blenderUI.add(window.SCENE, 'do_rotate_blender').name('rotate!');
+            blenderUI.add(helper, 'visible').name('Show normals!');
+
+            scene.add(gltf.scene);
+        });
+
+       
+        // interaction
+        controls = new OrbitControls( camera, renderer.domElement );
+
+        // call animation/rendering loop
+        animate();
+
+        var gui = new dat.GUI();
+
+        var sceneUI = gui.addFolder('Scene');
+            sceneUI.add(window.SCENE, 'anaglyph').name('Anaglyph');
+            sceneUI.add (light.position, 'x', -100, 100).name('Light x');
+            sceneUI.add (light.position, 'y', -100, 100).name('Light y');
+            sceneUI.add (light.position, 'z', -100, 100).name('Light z');
+            sceneUI.add (light , 'intensity' , 1 , 100).name('Light Intensity');
+            sceneUI.addColor(ambientLight , 'color').name('Ambientlight Color');         
+      };
+
+      function displaystats(){
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        stats.showPanel(0); 
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+
+        document.body.appendChild(stats.domElement);
+      }
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        if (window.SCENE.poly) {
+            const q = new THREE.Quaternion();
+
+            if (window.SCENE.rotate_poly) {
+            
+            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
+            } else {
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
+            }
+        }
+
+        if (window.SCENE.blender) {
+            const q = new THREE.Quaternion();
+
+            if (window.SCENE.rotate_blender) {
+            
+            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+            window.SCENE.blender.quaternion.slerp(q, 0.01);
+            } else {
+            window.SCENE.blender.quaternion.slerp(q, 0.01);
+            }
+        }
+
+        // controls.update();
+        // renderer.render( scene, camera );
+        stats.update();
+
+        if (window.SCENE.anaglyph) {
+                anaglyphEffect.render(scene, camera);
+            } else {
+                controls.update();
+                renderer.render(scene, camera);
+            }
+      };
+
+    </script>
+  </head>
+  <body>
+
+  </body>
+</html>
+
