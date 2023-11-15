@@ -55,7 +55,8 @@
           
         };
 
-        
+      gui = new dat.GUI();
+
       window.onload = function () {
         // gui = new dat.GUI();
 
@@ -158,7 +159,7 @@
 
 
         // 3.8
-        gui = new dat.GUI();
+        // gui = new dat.GUI();
         var sceneui = gui.addFolder("Scene");
 
         // 3.9
@@ -211,6 +212,7 @@
           if (window.SCENE.blender_helper !== null) {
               window.SCENE.blender_helper.update();  
           }
+          
         }
         stats.update();
       }
