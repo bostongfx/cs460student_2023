@@ -32,7 +32,7 @@
       import { VertexNormalsHelper } from "three/addons/helpers/VertexNormalsHelper.js";
       
 
-      var renderer, controls, scene, camera, stats;
+      var renderer, controls, scene, camera, stats, gui;
 
       window["SCENE"] = {
           blender_helper: null,
@@ -44,12 +44,12 @@
           },
           blender_old_material: null,
           change_material: function() {
-            if (!window["SCENE"]["blender_old_material"]) {
-              window["SCENE"]["blender_old_material"] = window["SCENE"]["blender"].material.clone();
-              window["SCENE"]["blender"].material = new THREE.MeshNormalMaterial();
+            if (!window['SCENE']['blender_old_material']) {
+              window['SCENE']['blender_old_material'] = window['CENE']['blender'].material.clone();
+              window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
             } else {
-              window["SCENE"]["blender"].material = window["SCENE"]["blender_old_material"].clone();
-              window["SCENE"]["blender_old_material"] = null;
+              window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
+              window['SCENE']['blender_old_material'] = null;
             }
           }
           
@@ -57,6 +57,7 @@
 
         
       window.onload = function () {
+        // gui = new dat.GUI();
 
         window.THREE = THREE;
         // Three.js code goes here
@@ -157,7 +158,7 @@
 
 
         // 3.8
-        var gui = new dat.GUI();
+        gui = new dat.GUI();
         var sceneui = gui.addFolder("Scene");
 
         // 3.9
@@ -193,8 +194,8 @@
 
         renderer.render(scene, camera);
         controls.update();
+        // window.SCENE.blender_helper.update();  
 
-        
         var q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI);
 
         if (window.SCENE.poly) {
