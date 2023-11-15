@@ -22,10 +22,10 @@
       }
     }
     </script>
-  <script type="module ">
+  <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';  
-    import { AnaglyphEffect } from 'three/examples/jsm/effects/AnaglyphEffect.js';
+    import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
 
 
@@ -58,7 +58,7 @@
 
       };
 
-    var renderer, controls, scene, camera, light, sceneui, anaglyphEffect,poly, blend, helper,stats;
+    var renderer, controls, scene, camera, light, sceneui, anaglyphEffect,poly, blend, helper,stats, blenderui, polyui;
     var originalQuaternion = new THREE.Quaternion(); 
     var rotationQuaternion = new THREE.Quaternion();
     rotationQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
@@ -182,11 +182,11 @@
         sceneui.open();
        
         // poly
-        var polyui = gui.addFolder('PolyCam Mesh');
+        polyui = gui.addFolder('PolyCam Mesh');
  
         polyui.open();
 
-        var blenderui = gui.addFolder('Blender Mesh');
+        blenderui = gui.addFolder('Blender Mesh');
         blenderui.open();
 
         animate();
