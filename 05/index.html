@@ -1,0 +1,269 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script async src="http://get.goXTK.com/xtk_xdat.gui.js" ></script>
+
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      import * as THREE from 'three';
+      import { OrbitControls} from 'three/addons/controls/OrbitControls.js';   
+      import {AnaglyphEffect}  from "three/addons/effects/AnaglyphEffect.js";
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+
+      var renderer, controls, scene, camera, anaglyph, stats;
+      
+      window.onload = function() {
+
+        // Three.js code goes here
+        scene = new THREE.Scene();
+        // console.log(scene);
+
+        // setup the camera
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 0.1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        camera.position.set(0, 10, 0);
+
+        // console.log(camera);
+        // create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer( {antialias: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        //load poly.glb file
+        var loader = new GLTFLoader();
+        loader.load( 'poly.glb', function ( gltf ) {
+            var poly = gltf.scenes[0].children[0];
+
+            poly.scale.x = 10;
+            poly.scale.y = 10;
+            poly.scale.z = 10;
+            poly.translateX(5);
+            
+            poly.quaternion.w = 1;
+            poly.quaternion.x = 0;
+            poly.quaternion.y = 0;
+            poly.quaternion.z = 0;
+            
+
+            window.SCENE.poly = poly
+            polyui.add(window.SCENE.poly.material, 'wireframe');
+            polyui.add(window.SCENE, 'do_rotate_poly').name('rotate!');
+            polyui.open() 
+            scene.add( gltf.scene );
+        } );    
+
+        // var loader = new GLTFLoader();
+        loader.load( 'sammy.glb', function ( gltf ) {
+            var sammy = gltf.scenes[0].children[0];
+
+            sammy.scale.x = 10;
+            sammy.scale.y = 10;
+            sammy.scale.z = 10;
+            sammy.translateX(-5);
+            
+            // ... scaling like in 4. above
+            sammy.quaternion.w = 1;
+            sammy.quaternion.x = 0;
+            sammy.quaternion.y = 0;
+            sammy.quaternion.z = 0;
+
+            window.SCENE.sammy=sammy;
+            // window.SCENE.blender=sammy;
+
+
+            var helper = new VertexNormalsHelper( sammy, 0.1, 'blue' );
+            helper.visible = false;
+            window.SCENE.blender_helper = helper;
+            window.SCENE.blender = sammy;
+
+            blenderui.add(helper, 'visible').name('Show normals!');
+            blenderui.add(window.SCENE, 'change_material').name('Change Material');
+            blenderui.add(window.SCENE, 'do_rotate_sammy').name('rotate!');
+            blenderui.open();
+
+            scene.add( gltf.scene );
+            scene.add(helper);
+        } );
+
+     //setup GUI
+      var gui = new dat.GUI();
+      var sceneui = gui.addFolder('Scene');
+      var polyui = gui.addFolder('PolyCam Mesh');
+      var blenderui=gui.addFolder('Blender_mesh');
+     
+      anaglyph= new AnaglyphEffect(renderer);
+
+      // SETTINGS and HELPER for DAT.GUI
+          window['SCENE'] = {
+          'anaglyph': false,
+          'poly':null,
+          'AmbientLight':ambientLight.color.getHex(),
+
+          'rotate_poly': false,
+          'do_rotate_poly': function() {
+            window['SCENE']['rotate_poly'] = !window['SCENE']['rotate_poly'];
+          },
+
+          'sammy': null,
+          'rotate_sammy': false,
+          'do_rotate_sammy': function() {
+            window['SCENE']['rotate_sammy'] = !window['SCENE']['rotate_sammy'];
+          },
+
+          'blender_helper' : null,
+          'blender': null,
+          'blender_old_material': null,
+          'change_material': function() {
+            if (!window['SCENE']['blender_old_material']) {
+              window['SCENE']['blender_old_material'] = window['SCENE']['blender'].material.clone();
+              window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
+            } else {
+              window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
+              window['SCENE']['blender_old_material'] = null;
+            }
+          },
+          }
+      
+        sceneui.add(window.SCENE, 'anaglyph');
+
+        sceneui.add(light.position, 'x', -100, 100).name('Light X');
+        sceneui.add(light.position, 'y', -100, 100).name('Light Y');
+        sceneui.add(light.position, 'z', -100, 100).name('Light Z');
+        sceneui.add(light, 'intensity', 0, 5).name('Light Intensity');
+        sceneui.addColor(window.SCENE, 'AmbientLight').onChange(hexValue=>
+        {
+          ambientLight.color.setHex(hexValue);
+        });    
+        sceneui.open() 
+
+        // stats.js widget
+        stats = new Stats();
+        document.body.appendChild( stats.domElement );
+
+        // interaction
+        controls = new OrbitControls( camera, renderer.domElement );
+
+        // call animation/rendering loop
+        animate();
+        
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        if (window.SCENE.poly) {
+          if (window.SCENE.rotate_poly) {
+            // TODO .. setup 180 degree quaternion
+
+            var T = Math.PI ; // 180 degrees
+  
+            // around the y axis
+            var x = Math.sin( T / 2 ) * 0; // = 0
+            var y = Math.sin( T / 2 ) * 1;
+            var z = Math.sin( T / 2 ) * 0; // = 0
+            var w = Math.cos( T / 2 );
+  
+            var q = new THREE.Quaternion( x, y, z, w);
+  
+            window.SCENE.poly.quaternion.slerp( q, 0.01 );
+
+          } else {
+            // TODO reset quaternion to identity!
+            var T = 0; // 0 degrees
+  
+            // around the y axis
+            var x = Math.sin( T / 2 ) * 0; // = 0
+            var y = Math.sin( T / 2 ) * 1;
+            var z = Math.sin( T / 2 ) * 0; // = 0
+            var w = Math.cos( T / 2 );
+  
+            var q = new THREE.Quaternion( x, y, z, w);
+  
+            window.SCENE.poly.quaternion.slerp( q, 0.01 );
+        } }
+
+        if (window.SCENE.sammy) {
+          if (window.SCENE.rotate_sammy) {
+            // TODO .. setup 180 degree quaternion
+
+            var T = Math.PI ; // 180 degrees
+  
+            // around the y axis
+            var x = Math.sin( T / 2 ) * 0; // = 0
+            var y = Math.sin( T / 2 ) * 1;
+            var z = Math.sin( T / 2 ) * 0; // = 0
+            var w = Math.cos( T / 2 );
+  
+            var q = new THREE.Quaternion( x, y, z, w);
+  
+            window.SCENE.sammy.quaternion.slerp( q, 0.01 );
+            window.SCENE.blender_helper.update();
+
+          } else {
+            // TODO reset quaternion to identity!
+            var T = 0; // 0 degrees
+  
+            // around the y axis
+            var x = Math.sin( T / 2 ) * 0; // = 0
+            var y = Math.sin( T / 2 ) * 1;
+            var z = Math.sin( T / 2 ) * 0; // = 0
+            var w = Math.cos( T / 2 );
+  
+            var q = new THREE.Quaternion( x, y, z, w);
+  
+            window.SCENE.sammy.quaternion.slerp( q, 0.01 );
+            window.SCENE.blender_helper.update();
+        } }
+
+
+        stats.update();
+        // and here..
+        controls.update();
+
+        if(window.SCENE.anaglyph){
+          anaglyph.render( scene, camera );
+        }
+        else{
+          renderer.render( scene, camera );
+        }
+
+      };
+
+    </script>
+  </head>
+  <body></body>
+</html>
