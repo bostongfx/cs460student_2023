@@ -12,7 +12,7 @@
     </style>
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-    // 3.8
+
     <script gui src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
     <script type="importmap">
       {
@@ -35,6 +35,7 @@
       var renderer, controls, scene, camera, stats;
 
       window["SCENE"] = {
+          blender_helper: null,
           anaglyph: false,
           poly: null,
           rotate_poly: false,
@@ -133,6 +134,7 @@
           var blender = gltf.scenes[0].children[0]; 
           var helper = new VertexNormalsHelper(blender, 0.1, 'blue');
           helper.visible = false;
+          window.SCENE.blender_helper = helper;
 
           var blenderui = gui.addFolder('Blender Mesh');
           blenderui.add(helper, 'visible').name('Show normals!');
@@ -142,11 +144,8 @@
 
           // Add the helper to the scene
           scene.add(helper); 
-          window.SCENE.blender_helper = helper;
-
-          console.log(loader2);
-
-          window.SCENE.change_material();
+          
+          window.SCENE.blender_old_material;
           
           // Log the material after changing
           // console.log(blender.material);
@@ -202,12 +201,13 @@
           if (window.SCENE.rotate_poly) {
             // TODO .. setup 180 degree quaternion
             window.SCENE.poly.quaternion.slerp(q, 0.01);
-            window.SCENE.blender_helper.update();
+            
           } else {
             // TODO reset quaternion to identity!
             window.SCENE.poly.quaternion.slerp(new THREE.Quaternion(), 0.01);
-            window.SCENE.blender_helper.update();
+            
           }
+          window.SCENE.blender_helper.update();
         }
         stats.update();
       }
