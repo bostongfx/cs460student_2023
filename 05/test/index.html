@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js GLTF Loader</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  
+  <script src="https://get.goxtk.com/xtk_xdat.gui.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js'
+
+    function initScene() {
+      let effect;
+      effect = new AnaglyphEffect( renderer);
+      effect.setSize(window.innerWidth, window.innerHeight)
+      const gui = new dat.GUI();
+      const sceneui = gui.addFolder('Scene');
+      
+      // Set up scene, camera, and renderer
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Add lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+
+      sceneui.add(ambientLight.position, 'x', -100, 100).name('Light X');
+      sceneui.add(ambientLight.position, 'y', -100, 100).name('Light Y');
+      sceneui.add(ambientLight.position, 'z', -100, 100).name('Light Z');
+
+      window['SCENE'] = {
+        'anaglyph': false
+      }
+    
+      sceneui.add(window.SCENE, 'anaglyph');
+
+      // Load GLTF model
+      const loader = new THREE.GLTFLoader();
+
+      loader.load('poly.glb', (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(10,10,10);
+        scene.add(model);
+      });
+
+      loader.load('fungus.glb', (gltf) => {
+          const model = gltf.scene;
+          model.scale.set(0.1,0.1,0.1);
+          model.position.set(1, 1, 0.2);
+          scene.add(model);
+      });
+
+      // Set camera position
+      camera.position.set(0,0,5);
+    }
+      // Create an animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+        effect.render( scene, camera);
+      }
+      initScene();
+      animate();
+    
+
+   // export { initScene };
+  </script>
+</body>
+</html>
