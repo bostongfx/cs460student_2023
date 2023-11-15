@@ -1,0 +1,230 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
+    <script type="text/javascript" src="https://get.goxtk.com/xtk_xdat.gui.js"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';    
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+      import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';  
+
+      var renderer, effect, controls, scene, camera,stats;
+      window["SCENE"] = {
+        "anaglyph": false,
+        "poly": null,
+        "rotate_poly": false,
+        "do_rotate_poly": function() {
+            window["SCENE"]["rotate_poly"] = !window["SCENE"]["rotate_poly"];
+        },
+        "blender": null,
+        "rotate_blender": false,
+        "do_rotate_blender": function () {
+          window["SCENE"]["rotate_blender"] = !window["SCENE"]["rotate_blender"];
+        },
+        "blender_helper": null,
+        "blender_old_material": null,
+        "change_material": function() {
+            if (!window["SCENE"]["blender_old_material"]) {
+                window["SCENE"]["blender_old_material"] = window["SCENE"]["blender"].material.clone();
+                window["SCENE"]["blender"].material = new THREE.MeshNormalMaterial();
+            } else {
+                window["SCENE"]["blender"].material = window["SCENE"]["blender_old_material"].clone();
+                window["SCENE"]["blender_old_material"] = null;
+            }
+        }
+      };
+      window.onload = function() {
+
+        window.THREE = THREE;
+
+        scene = new THREE.Scene();
+
+        // Setup the camera
+        var fov = 70;
+        var aspectRatio = window.innerWidth / window.innerHeight;
+        var near = 0.1; // Adjusted near
+        var far = 10000; // Adjusted far
+        camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        camera.position.set(400, 50, 0); // Adjusted camera position
+
+        // Create renderer and setup the canvas
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setup lights
+        var ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 5.0); 
+        directionalLight.position.set(10, 200, 10);
+        scene.add(directionalLight);
+
+        // setup the anaglyph effect.
+        effect = new AnaglyphEffect( renderer );
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+        // stats.js widget
+        stats = new Stats();
+        document.body.appendChild(stats.domElement);
+
+        // setup lights
+        var ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        var light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        var gui = new dat.GUI();
+        
+        // Scene UI
+        var sceneUI = gui.addFolder("Scene");
+        sceneUI.add(window.SCENE, "anaglyph");
+        sceneUI.add(light.position, "x", -100, 100).name("Light X");
+        sceneUI.add(light.position, "y", -100, 100).name("Light Y");
+        sceneUI.add(light.position, "z", -100, 100).name("Light Z");
+        sceneUI.add(light, "intensity", 1, 10).name("Light Intensity");
+        sceneUI.addColor(light, "color").name("Ambient Light");
+        sceneUI.open();
+
+        //Unedited Polycam Mesh
+        var loader = new GLTFLoader();
+        loader.load("naruto_unedited.glb", function( gltf ) {
+            var poly = gltf.scenes[0].children[0];
+            
+            poly.scale.x = 100;
+            poly.scale.y = 100;
+            poly.scale.z = 100;
+            scene.add(gltf.scene);
+
+            // PolyCam Mesh UI
+            var polyui = gui.addFolder("PolyCam Mesh");
+            window.SCENE.poly = poly;
+            polyui.add(window.SCENE.poly.material, "wireframe");
+            polyui.add(window.SCENE, "do_rotate_poly").name("rotate!");
+            polyui.open();
+        });
+        
+        //Edited Mesh
+        var loader2 = new GLTFLoader();
+        loader2.load("naruto_edited.glb", function( gltf ) {
+            var blender = gltf.scenes[0].children[0];
+
+            blender.scale.set(100, 100, 100);
+            blender.translateX(200);
+            blender.translateZ(40);
+
+            
+            //rotate blender mesh
+            var T = 0;
+            blender.quaternion.w = Math.cos(T / 2);
+            blender.quaternion.x = Math.sin(T / 2) * 0;
+            blender.quaternion.y = Math.sin(T / 2) * 1;
+            blender.quaternion.z = Math.sin(T / 2) * 0;
+            scene.add(gltf.scene);
+
+            // Blender Mesh UI
+            var blenderui = gui.addFolder("Blender Mesh");
+            window.SCENE.blender = blender;
+
+            // Set up VertexNormalsHelper
+            var helper = new VertexNormalsHelper(blender, 0.4, "blue");
+            window.SCENE.blender_helper = helper;
+            scene.add(helper);
+
+            // Blender UI
+            helper.visible = false;    
+            blenderui.add(helper, "visible").name("Show normals!");
+            blenderui.add(window.SCENE, "change_material").name("Change Material");
+            blenderui.add(window.SCENE, "do_rotate_blender").name("rotate!");
+            blenderui.open();
+        });
+
+        // interaction
+        controls = new OrbitControls(camera, renderer.domElement);
+        
+        // call animation/rendering loop
+        animate();        
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+        stats.update();
+
+        controls.update();
+      
+        if (window.SCENE.anaglyph) {
+            effect.render(scene, camera);
+        } else {
+            renderer.render(scene, camera);
+        }
+        
+        // Polycam mesh rotation
+        if (window.SCENE.poly) {
+          if (window.SCENE.rotate_poly) {
+            // Setup 180 degree quaternion
+            var T = Math.PI;
+            var w = Math.cos(T / 2);
+            var x = Math.sin(T / 2) * 0;
+            var y = Math.sin(T / 2) * 1;
+            var z = Math.sin(T / 2) * 0;
+            var q = new THREE.Quaternion(x, y, z, w);
+            window.SCENE.poly.quaternion.slerp(q, 0.005);
+
+          } else {
+            var q = new THREE.Quaternion();
+            window.SCENE.poly.quaternion.slerp(q, 0.005);
+          }
+        } 
+        
+
+        if (window.SCENE.blender) {
+          if (window.SCENE.rotate_blender) {
+            // Setup 180 degree quaternion
+            var T = Math.PI;
+            var w = Math.cos(T / 2);
+            var x = Math.sin(T / 2) * 0;
+            var y = Math.sin(T / 2) * 1;
+            var z = Math.sin(T / 2) * 0;
+            var q = new THREE.Quaternion(x, y, z, w);
+
+            window.SCENE.blender.quaternion.slerp(q, 0.05);
+            window.SCENE.blender_helper.update();
+          } else {
+            var q = new THREE.Quaternion();
+            window.SCENE.blender.quaternion.slerp(q, 0.05);
+            window.SCENE.blender_helper.update();
+          }
+
+        } else {
+            renderer.render(scene, camera);
+        }
+      };
+
+    </script>
+  </head>
+  <body></body>
+</html>
