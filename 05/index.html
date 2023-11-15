@@ -207,7 +207,9 @@
             window.SCENE.poly.quaternion.slerp(new THREE.Quaternion(), 0.01);
             
           }
-          window.SCENE.blender_helper.update();
+          if (window.SCENE.blender_helper !== null) {
+              window.SCENE.blender_helper.update();  
+          }
         }
         stats.update();
       }
