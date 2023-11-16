@@ -45,7 +45,7 @@ const camera = new THREE.PerspectiveCamera (
 */
 let renderer, scene, camera, stats, helper;
 let effect;
-let model;
+var model;
 let model1;
 //var helper;
 
@@ -66,7 +66,16 @@ window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
 window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
 window['SCENE']['blender_old_material'] = null;
     }
+},
+
+'blender' : null,
+'rotate_blender' : false,
+'do_rotate_blender': function () {
+  window['SCENE']['rotate_blender'] = !window['SCENE']['rotate_blender']
 }
+
+
+
 }
 
 
@@ -91,9 +100,15 @@ loader.load('poly.glb', (gltf) => {
     model.scale.set(10,10,10);
     scene.add(model);
 // Now that the model is loaded, you can set window.SCENE.poly
-  resolve(model);
-    window.SCENE.poly = model;
+window.SCENE.poly = model;
+console.log(window.SCENE.poly);
+    var helper2 = new VertexNormalsHelper(model, 0.1,'blue');
+    helper2.visible = false;
+    scene.add(helper2);
     polyui.add(window.SCENE.poly.material, 'wireframe');
+    polyui.add(helper, 'visible').name('Show normals!');
+    resolve(model);
+    
   }, undefined, (error) => {
     console.error('error occurred', error);
     reject(error);
@@ -109,6 +124,7 @@ loader.load('fungus.glb', (gltf) => {
     helper.visible = false;
     scene.add(helper);
     blenderui.add(helper, 'visible').name('Show normals!');
+    blenderui.add(window.SCENE, 'change_material').name('Change Material!');
     
 });
 
@@ -212,6 +228,26 @@ function animate() {
       window.SCENE.poly.quaternion.slerp(q, 0.01);
       helper.update();
       window.SCENE.blender_helper.update();
+
+
+    } else {
+      // TODO reset quaternion to identity!
+      let q = new THREE.Quaternion();
+      q.identity();
+      window.SCENE.poly.quaternion.slerp(q, 0.01);
+    }
+  }
+  if (window.SCENE.blender) {
+    if (window.SCENE.rotate_blender) {
+      // TODO .. setup 180 degree quaternion
+      
+      let axis = new THREE.Vector3(0,1,0);
+      let angle = Math.PI; // 180 deg
+      let q1 = new THREE.Quaternion();
+      q1.setFromAxisAngle(axis, angle);
+      window.SCENE.blender.quaternion.slerp(q1, 0.01);
+      //helper.update();
+      //window.SCENE.blender_helper.update();
 
 
     } else {
