@@ -26,11 +26,13 @@
   <script src = "https://get.goxtk.com/xtk_xdat.gui.js"></script>
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
   <script type = "module">
-import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { AnaglyphEffect } from "three/addons/effects/AnaglyphEffect.js";
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+
 //import * as dat from 'dat.gui';
 /*
 const scene = new THREE.Scene();
@@ -41,9 +43,12 @@ const camera = new THREE.PerspectiveCamera (
     1000
 );
 */
-let renderer, scene, camera, stats;
+let renderer, scene, camera, stats, helper;
 let effect;
-let model, model1;
+let model;
+let model1;
+//var helper;
+
 
 window['SCENE'] = {
     'anaglyph' : false,
@@ -64,15 +69,21 @@ window['SCENE']['blender_old_material'] = null;
 }
 }
 
-//const THREE = window.THREE;
-//const OrbitControls = window.THREE.OrbitControls;
-//const GLTFLoader = window.THREE.GLTFLoader;
-///const AnaglyphEffect = window.THREE.AnaglyphEffect;
+
+
+// setting up GUI
 const dat = window.dat;
+
+const gui = new dat.GUI();
+const sceneui = gui.addFolder('Scene');
+sceneui.add(window.SCENE, 'anaglyph');
+const blenderui = gui.addFolder('Blender');
+const polyui = gui.addFolder('PolyCam Mesh');
+
 
 function loadFungus() {
   return new Promise((resolve, reject) => {
-const loader = new GLTFLoader();
+  const loader = new GLTFLoader();
 
 loader.load('poly.glb', (gltf) => {
     model = gltf.scenes[0].children[0];
@@ -81,7 +92,8 @@ loader.load('poly.glb', (gltf) => {
     scene.add(model);
 // Now that the model is loaded, you can set window.SCENE.poly
   resolve(model);
-    //window.SCENE.poly = model;
+    window.SCENE.poly = model;
+    polyui.add(window.SCENE.poly.material, 'wireframe');
   }, undefined, (error) => {
     console.error('error occurred', error);
     reject(error);
@@ -92,9 +104,20 @@ loader.load('fungus.glb', (gltf) => {
     model1.scale.set(10,20,10);
     model1.position.set(2,0,0);
     scene.add(model1);
+
+    helper = new VertexNormalsHelper( model1, 0.1, 'blue');
+    helper.visible = false;
+    scene.add(helper);
+    blenderui.add(helper, 'visible').name('Show normals!');
     
 });
+
 });
+/*helper = new VertexNormalsHelper( model1, 1, 'blue');
+helper.visible = false;
+scene.add(helper);
+blenderui.add(helper, 'visible').name('Show normals!');
+*/
 }
 
 
@@ -133,10 +156,14 @@ try{
 const loadedModel = await loadFungus();
 window.SCENE.poly = loadedModel;
 console.log(window.SCENE.poly.material);
-// create GUI
 
-const gui = new dat.GUI();
-const sceneui = gui.addFolder('Scene');
+
+
+//scene.add(helper);
+//helper.visible = false;
+//helper.update();
+
+
 // add x y z controls for lighting
 
 sceneui.add(dirLight1.position, 'x', -100, 100).name('Light X');
@@ -146,34 +173,14 @@ sceneui.add(dirLight1.position, 'z', -100, 100).name('Light Z');
 
   
 
-/*window['SCENE'] = {
-    'anaglyph' : false,
-    'poly' : null,
-    'rotate_poly' : false,
-    'do_rotate_poly': function() {
-      window['SCENE']['rotate_poly'] = !window['SCENE']['rotate_poly']
-    },
-}
-*/
-sceneui.add(window.SCENE, 'anaglyph');
-var polyui = gui.addFolder('PolyCam Mesh');
-  // wire frame checkbox
-  //window.SCENE.poly = model;
-  // Check if window.SCENE.poly and its material property exist
-//if (window.SCENE.poly && window.SCENE.poly.material) {
-  polyui.add(window.SCENE.poly.material, 'wireframe');
-//} else {
- // console.error('Model material not found or undefined.');
 
- // polyui.add(window.SCENE.poly.material, 'wireframe');
-  polyui.add(window.SCENE, 'do_rotate_poly').name('rotate!');
-  polyui.open();
+
+  // wire frame checkbox
+
+
  
 // setting up blender ui
-var helper = new VertexNormalsHelper( model1, 0.1, 'blue');
-helper.visible = false;
-const blenderui = gui.addFolder('Blender');
-blenderui.add(helper, 'visible').name('Show normals!');
+
 
 //animate();
 } catch (error) {
@@ -189,8 +196,10 @@ function animate() {
   if (window.SCENE.anaglyph) {
     effect.render(scene, camera);
   }
-  
 
+  
+  //window.SCENE.poly = model;
+   
   // other stuff...
   if (window.SCENE.poly) {
     if (window.SCENE.rotate_poly) {
@@ -201,7 +210,8 @@ function animate() {
       let q = new THREE.Quaternion();
       q.setFromAxisAngle(axis, angle);
       window.SCENE.poly.quaternion.slerp(q, 0.01);
-      window.SCENE.blender_helper.update()
+      helper.update();
+      window.SCENE.blender_helper.update();
 
 
     } else {
