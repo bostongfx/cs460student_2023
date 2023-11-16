@@ -59,12 +59,15 @@ window['SCENE'] = {
     },
     'blender_old_material': null,
     'change_material': function() {
+      console.log('Change material button clicked');
+      if (window.SCENE.blender){
       if (!window['SCENE']['blender_old_material']) {
 window['SCENE']['blender_old_material'] = window['SCENE']['blender'].material.clone();
 window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
 } else {
 window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
 window['SCENE']['blender_old_material'] = null;
+}
     }
 },
 
@@ -125,6 +128,7 @@ loader.load('fungus.glb', (gltf) => {
     
     helper.visible = false;
     scene.add(helper);
+    window.SCENE.blender_helper = helper;
     blenderui.add(helper, 'visible').name('Show normals!');
     blenderui.add(window.SCENE, 'change_material').name('Change Material!');
     blenderui.add(window.SCENE, 'do_rotate_blender').name('rotate!');
@@ -175,10 +179,11 @@ const dirLight1 = new THREE.DirectionalLight( 0xffddcc, 3 );
         scene.add( dirLight1 );
 try{
 const loadedModel = await loadFungus();
+console.log('Loading complete');
 window.SCENE.blender = model1;
 
 window.SCENE.poly = model;
-console.log(window.SCENE.poly.material);
+//console.log(window.SCENE.poly.material);
 
 
 
@@ -233,7 +238,7 @@ function animate() {
       let q = new THREE.Quaternion();
       q.setFromAxisAngle(axis, angle);
       window.SCENE.poly.quaternion.slerp(q, 0.01);
-      helper.update();
+      //helper.update();
       //window.SCENE.blender.update();
 
 
@@ -257,7 +262,7 @@ function animate() {
       q1.setFromAxisAngle(axis, angle);
       window.SCENE.blender.quaternion.slerp(q1, 0.01);
       //helper.update();
-      window.SCENE.blender.update();
+      window.SCENE.blender_helper.update();
 
 
     } else {
@@ -265,17 +270,14 @@ function animate() {
       let q1 = new THREE.Quaternion();
       q1.identity();
       window.SCENE.blender.quaternion.slerp(q1, 0.01);
-      window.SCENE.blender.update();
+      window.SCENE.blender_helper.update();
 
     }
   }
   stats.update();
   // other stuff..
 }
-/* window.onload = function () {
-    animate();
-}
-*/
+
   </script>
     
       
