@@ -120,14 +120,15 @@ loader.load('fungus.glb', (gltf) => {
     model1.scale.set(10,20,10);
     model1.position.set(2,0,0);
     scene.add(model1);
-
+    resolve(model1);
     helper = new VertexNormalsHelper( model1, 0.1, 'blue');
+    
     helper.visible = false;
     scene.add(helper);
     blenderui.add(helper, 'visible').name('Show normals!');
     blenderui.add(window.SCENE, 'change_material').name('Change Material!');
     blenderui.add(window.SCENE, 'do_rotate_blender').name('rotate!');
-    resolve(model1);
+    
     
     
 });
@@ -175,8 +176,8 @@ const dirLight1 = new THREE.DirectionalLight( 0xffddcc, 3 );
 try{
 const loadedModel = await loadFungus();
 window.SCENE.blender = model1;
-helper2 = new VertexNormalsHelper(window.SCENE.blender, 0.1,'blue');
-window.SCENE.poly = loadedModel;
+
+window.SCENE.poly = model;
 console.log(window.SCENE.poly.material);
 
 
@@ -222,7 +223,7 @@ function animate() {
   
   //window.SCENE.poly = model;
    
-  // other stuff...
+  // raw model
   if (window.SCENE.poly) {
     if (window.SCENE.rotate_poly) {
       // TODO .. setup 180 degree quaternion
@@ -233,7 +234,7 @@ function animate() {
       q.setFromAxisAngle(axis, angle);
       window.SCENE.poly.quaternion.slerp(q, 0.01);
       helper.update();
-      window.SCENE.blender.update();
+      //window.SCENE.blender.update();
 
 
     } else {
@@ -243,6 +244,9 @@ function animate() {
       window.SCENE.poly.quaternion.slerp(q, 0.01);
     }
   }
+
+
+  // cleaned up model
   if (window.SCENE.blender) {
     if (window.SCENE.rotate_blender) {
       // TODO .. setup 180 degree quaternion
@@ -253,14 +257,16 @@ function animate() {
       q1.setFromAxisAngle(axis, angle);
       window.SCENE.blender.quaternion.slerp(q1, 0.01);
       //helper.update();
-      //window.SCENE.blender_helper.update();
+      window.SCENE.blender.update();
 
 
     } else {
       // TODO reset quaternion to identity!
       let q1 = new THREE.Quaternion();
       q1.identity();
-      window.SCENE.poly.quaternion.slerp(q1, 0.01);
+      window.SCENE.blender.quaternion.slerp(q1, 0.01);
+      window.SCENE.blender.update();
+
     }
   }
   stats.update();
