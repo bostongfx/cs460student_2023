@@ -47,6 +47,7 @@ canvas {
       window.onload = function() {
         scene = new THREE.Scene();
         
+        // create camera
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
         camera.position.set(5, 5, 5);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -59,7 +60,7 @@ canvas {
         document.body.appendChild(renderer.domElement);
         
 
-        // Add lights
+        // create lights
         var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(1, 1, 0).normalize();
         scene.add(directionalLight);
@@ -68,11 +69,10 @@ canvas {
         var ambientLight = new THREE.AmbientLight(0x404040); // soft white light
         scene.add(ambientLight);
 
-        // Add OrbitControls
         controls = new OrbitControls(camera, renderer.domElement);
 
 
-        // Load the poly.glb file
+        // Load the poly.gltf file
         var loader = new GLTFLoader();
         loader.load('poly.glb', function(gltf) {
           var poly = gltf.scene.children[0];
@@ -80,7 +80,7 @@ canvas {
           scene.add(gltf.scene);
         });
 
-        // call animation/rendering loop
+        
         animate();
       };
 
