@@ -84,7 +84,7 @@ window['SCENE']['blender_old_material'] = null;
 
 
 // setting up GUI
-const dat = window.dat;
+//const dat = window.dat;
 
 const gui = new dat.GUI();
 const sceneui = gui.addFolder('Scene');
@@ -183,13 +183,6 @@ console.log('Loading complete');
 window.SCENE.blender = model1;
 
 window.SCENE.poly = model;
-//console.log(window.SCENE.poly.material);
-
-
-
-//scene.add(helper);
-//helper.visible = false;
-//helper.update();
 
 
 // add x y z controls for lighting
@@ -198,19 +191,6 @@ sceneui.add(dirLight1.position, 'x', -100, 100).name('Light X');
 sceneui.add(dirLight1.position, 'y', -100, 100).name('Light Y');
 sceneui.add(dirLight1.position, 'z', -100, 100).name('Light Z');
 
-
-  
-
-
-
-  // wire frame checkbox
-
-
- 
-// setting up blender ui
-
-
-//animate();
 } catch (error) {
   console.error('failed to initialize', error);
 }
