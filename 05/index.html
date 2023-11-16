@@ -203,7 +203,7 @@
         controls.update();
         // window.SCENE.floor_removed.update();  
 
-        var q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI);
+        // var q = new THREE.Quaternion(0, 0, 0, 1);
 
         if (window.SCENE.anaglyph) {
             effect.render(scene, camera);
@@ -213,12 +213,24 @@
 
         if (window.SCENE.poly) {
           if (window.SCENE.rotate_poly) {
-            // TODO .. setup 180 degree quaternion
+            var T = Math.PI / 2; // 180 degrees
+
+            var x = Math.sin( T / 2 ) * 1; 
+            var y = Math.sin( T / 2 ) * 0;
+            var z = Math.cos( T / 2 ) ;
+            var w = Math.sin( T / 2 ) * 0;
+
+            var q = new THREE.Quaternion(x, y, z, w);
             window.SCENE.poly.quaternion.slerp(q, 0.01);
             
           } else {
-            // TODO reset quaternion to identity!
-            window.SCENE.poly.quaternion.slerp(new THREE.Quaternion(), 0.01);
+            
+            var x = 0;
+            var y = 0;
+            var z = 0;
+            var w = 1;
+            var q = new THREE.Quaternion(x, y, z, w);
+            window.SCENE.poly.quaternion.slerp(q, 0.01);
             
           }
           if (window.SCENE.blender_helper !== null) {
