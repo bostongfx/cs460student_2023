@@ -30,13 +30,15 @@
       // import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
       import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       import { VertexNormalsHelper } from "three/addons/helpers/VertexNormalsHelper.js";
-      
+      import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
 
-      var renderer, controls, scene, camera, stats, gui;
+      var renderer, controls, scene, camera, stats, gui, effect;
+      // var ANAGLYPHEFFECT = false;
 
       window["SCENE"] = {
           blender_helper: null,
           anaglyph: false,
+          
           poly: null,
           rotate_poly: false,
           do_rotate_poly: function () {
@@ -45,7 +47,7 @@
           blender_old_material: null,
           change_material: function() {
             if (!window['SCENE']['blender_old_material']) {
-              window['SCENE']['blender_old_material'] = window['CENE']['blender'].material.clone();
+              window['SCENE']['blender_old_material'] = window['SCENE']['blender'].material.clone();
               window['SCENE']['blender'].material = new THREE.MeshNormalMaterial();
             } else {
               window['SCENE']['blender'].material = window['SCENE']['blender_old_material'].clone();
@@ -88,15 +90,14 @@
 
         // 3.3
         var loader = new GLTFLoader();
+
         loader.load("poly.glb", function (gltf) {
           // 3.4
           var poly = gltf.scenes[0].children[0];
           poly.scale.x = 10;
           poly.scale.y = 10;
           poly.scale.z = 10;
-
           poly.translateX(5);
-
           window.SCENE.poly = poly;
 
           var polyui = gui.addFolder('PolyCam Mesh');
@@ -114,6 +115,7 @@
         loader.load("dog_floor_removed.glb", function (gltf) {
 
           var floor_removed = gltf.scenes[0].children[0];
+          
           floor_removed.scale.x = 10;
           floor_removed.scale.y = 10;
           floor_removed.scale.z = 10;
@@ -123,8 +125,12 @@
           floor_removed.quaternion.y = 0;
           floor_removed.quaternion.z = 0;   
           
+          // var helper = new VertexNormalsHelper(blender, 0.1, 'blue');
+          // helper.visible = false;
+          // window.SCENE.blender_helper = helper;
+          // window.SCENE.blender = floor_removed;
 
-          scene.add(gltf.scene);
+          scene.add(helper);
           animate();
 
         });
@@ -134,9 +140,12 @@
         loader2.load("dog_floor_removed.glb", function (gltf) {
           
           var blender = gltf.scenes[0].children[0]; 
+
           var helper = new VertexNormalsHelper(blender, 0.1, 'blue');
           helper.visible = false;
           window.SCENE.blender_helper = helper;
+          window.SCENE.blender = blender;
+
 
           var blenderui = gui.addFolder('Blender Mesh');
           blenderui.add(helper, 'visible').name('Show normals!');
@@ -144,20 +153,17 @@
           blenderui.add(window.SCENE, 'do_rotate_poly').name('rotate!');
           blenderui.open();
 
-          // Add the helper to the scene
           scene.add(helper); 
+          scene.add(blender);
           
           window.SCENE.blender_old_material;
-          
-          // Log the material after changing
-          // console.log(blender.material);
-          
-          // call animation/rendering loop
+        
           animate();
         });
 
-
-
+        effect = new AnaglyphEffect( renderer );
+        effect.setSize( window.innerWidth, window.innerHeight );
+        
         // 3.8
         // gui = new dat.GUI();
         var sceneui = gui.addFolder("Scene");
@@ -195,9 +201,15 @@
 
         renderer.render(scene, camera);
         controls.update();
-        // window.SCENE.blender_helper.update();  
+        // window.SCENE.floor_removed.update();  
 
         var q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI);
+
+        if (window.SCENE.anaglyph) {
+            effect.render(scene, camera);
+        } else {
+            renderer.render(scene, camera);
+        }
 
         if (window.SCENE.poly) {
           if (window.SCENE.rotate_poly) {
