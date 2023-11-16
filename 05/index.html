@@ -163,8 +163,8 @@ camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight,
 camera.position.set(0,0,5)
 // add in controls
 const controls = new OrbitControls (camera, renderer.domElement);
-controls.minDistance = 10;
-controls.maxDistance = 200;
+controls.minDistance = 5;
+controls.maxDistance = 20;
 // add in light
 const ambientLight = new THREE.AmbientLight (0x666666)
 scene.add(ambientLight);
@@ -232,7 +232,7 @@ function animate() {
       q.setFromAxisAngle(axis, angle);
       window.SCENE.poly.quaternion.slerp(q, 0.01);
       helper.update();
-      window.SCENE.blender_helper.update();
+      window.SCENE.blender.update();
 
 
     } else {
@@ -257,9 +257,9 @@ function animate() {
 
     } else {
       // TODO reset quaternion to identity!
-      let q = new THREE.Quaternion();
-      q.identity();
-      window.SCENE.poly.quaternion.slerp(q, 0.01);
+      let q1 = new THREE.Quaternion();
+      q1.identity();
+      window.SCENE.poly.quaternion.slerp(q1, 0.01);
     }
   }
   stats.update();
