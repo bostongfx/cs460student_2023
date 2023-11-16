@@ -127,7 +127,7 @@ loader.load('fungus.glb', (gltf) => {
     blenderui.add(helper, 'visible').name('Show normals!');
     blenderui.add(window.SCENE, 'change_material').name('Change Material!');
     blenderui.add(window.SCENE, 'do_rotate_blender').name('rotate!');
-
+    resolve(model1);
     
     
 });
@@ -174,7 +174,8 @@ const dirLight1 = new THREE.DirectionalLight( 0xffddcc, 3 );
         scene.add( dirLight1 );
 try{
 const loadedModel = await loadFungus();
-helper2 = new VertexNormalsHelper(loadedModel, 0.1,'blue');
+window.SCENE.blender = model1;
+helper2 = new VertexNormalsHelper(window.SCENE.blender, 0.1,'blue');
 window.SCENE.poly = loadedModel;
 console.log(window.SCENE.poly.material);
 
